@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+
+import sys
+if ((sys.version_info[0] < 2) and (sys.version_info[1] < 7)):
+    print "remacs requires Python version 2.7 or higher."
+    sys.exit(-1)
+    
+### FIXME: Do this right once we have a setup.py and install etc.
+import os
+if os.path.islink(__file__):
+    path = os.path.dirname(os.readlink(__file__))
+else:
+    path = os.path.dirname(__file__)
+sys.path.append(os.path.abspath(os.path.join(path, "src")))
+
+
+import unsonic
+from unsonic.server import Server
+
+server = Server()
+server.run()
