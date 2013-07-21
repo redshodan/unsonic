@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst')).read()
-CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
+CHANGES = open(os.path.join(here, 'CHANGES.rst')).read()
 
 requires = [
     'pyramid',
@@ -18,7 +18,7 @@ requires = [
 
 setup(name='unsonic',
       version='0.0',
-      description='unsonic',
+      description='unsonic, the un-music server',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
         "Programming Language :: Python",
@@ -26,9 +26,9 @@ setup(name='unsonic',
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
         ],
-      author='',
-      author_email='',
-      url='',
+      author='Chris Newton',
+      author_email='redshodan@gmail.com',
+      url='https://bitbucket.org/redshodan/unsonic',
       keywords='web wsgi bfg pylons pyramid',
       packages=find_packages(),
       include_package_data=True,

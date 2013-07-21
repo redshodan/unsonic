@@ -1,19 +1,22 @@
 Unsonic, the ultimate un-music server.
 
 Installation
-------------
+============
 
-* Development build
+Development build
+-----------------
   * make devel
   * make db
 
-* Run it
+Run it
+------
   * make run
 
 Manual Installation
--------------------
+===================
 
-* Requirements
+Requirements
+------------
   * virtualenv $venv
   * $venv/bin/pip install pyramid
   * $venv/bin/pip install SQLAlchemy
@@ -21,12 +24,13 @@ Manual Installation
   * $venv/bin/pip install eyeD3
   * Install mishmash (FIXME)
 
-* Build
+Build
+-----
   * $venv/bin/python setup.py develop
   * $venv/bin/initialize_unsonic_db development.ini
   * $venv/bin/pserve development.ini
 
 License
--------
-
-Unsonic is licensed under the GPL v2 license. See the COPYING file for details.
+=======
+Unsonic is licensed under the GPL v2 license. See the COPYING file for details or
+http://www.gnu.org/licenses/gpl-2.0.html#SEC1
