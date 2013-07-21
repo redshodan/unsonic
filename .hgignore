@@ -1,1 +1,4 @@
-.*\.pyc
+^build/.*$
+.*\.pyc$
+^unsonic.egg-info/.*$
+^unsonic.sqlite$
