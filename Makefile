@@ -61,6 +61,9 @@ run:
 	$(VBIN)/pserve development.ini
 
 clean:
+	find unsonic -name '*.pyc' | xargs rm
+
+dist-clean:
 	rm -rf build unsonic.egg-info unsonic.sqlite
 	find -name '*.pyc' | xargs rm
 
