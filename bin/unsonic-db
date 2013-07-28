@@ -19,20 +19,62 @@
 
 from __future__ import print_function
 
-import sys
+import os, sys, argparse
+
 if ((sys.version_info[0] < 2) and (sys.version_info[1] < 7)):
-    print("remacs requires Python version 2.7 or higher.")
+    print("unsonic-db requires Python version 2.7 or higher.")
     sys.exit(-1)
     
 ### FIXME: Do this right once we have a setup.py and install etc.
-import os
 if os.path.islink(__file__):
     path = os.path.dirname(os.readlink(__file__))
 else:
     path = os.path.dirname(__file__)
-sys.path.append(os.path.abspath(os.path.join(path, "../unsonic")))
-sys.path.append(os.path.abspath(os.path.join(path, "../external/mishmash/src")))
-sys.path.append(os.path.abspath(os.path.join(path, "../external/eyed3/src")))
+sys.path[0:0] = [os.path.abspath(os.path.join(path, "../unsonic")),
+                 os.path.abspath(os.path.join(path, "../external/mishmash/src")),
+                 os.path.abspath(os.path.join(path, "../external/eyed3/src"))]
 
-from unsonic import db
-db.init()
+
+from pyramid.paster import get_appsettings, setup_logging
+
+import unsonic
+import unsonic.db
+
+
+def doInit(settings, mishmash_settings):
+    unsonic.db.initPyramid(settings)
+    unsonic.db.initMishMash(mishmash_settings)
+
+def doSync(settings, mishmash_settings):
+    unsonic.db.syncMishMash(mishmash_settings)
+    
+def buildParser():
+    parser = argparse.ArgumentParser(prog="unsonic-db")
+    subparsers = parser.add_subparsers()
+
+    # Init
+    init = subparsers.add_parser("init", help="Initiliaze the databases")
+    init.add_argument("config", nargs=1, help="Configuration file")
+    init.set_defaults(func=doInit)
+
+    # Sync
+    sync = subparsers.add_parser("sync", help="Synchronize the music database")
+    sync.add_argument("config", nargs=1, help="Configuration file")
+    sync.set_defaults(func=doSync)
+    
+    return parser
+
+def main():
+    parser = buildParser()
+    args = parser.parse_args()
+
+    setup_logging(args.config[0])
+    settings = get_appsettings(args.config[0])
+    mishmash_settings = get_appsettings(args.config[0], name="mishmash")
+
+    unsonic.init()
+    args.func(settings, mishmash_settings)
+
+
+if __name__ == "__main__":
+    main()

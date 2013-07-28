@@ -7,15 +7,21 @@ from . import rest
 PROTOCOL_VERSION = "1.10.0"
 
 
-from .models import (
-    DBSession,
-    Base,
-    )
+from mishmash.commands import makeCmdLineParser
 
+from .models import DBSession, Base
+
+
+def init():
+    initMishMash()
+
+def initMishMash():
+    makeCmdLineParser()
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
+    init()
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine

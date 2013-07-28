@@ -1,28 +1,34 @@
 from __future__ import print_function
 
-import sys
-from pkg_resources import load_entry_point
+import os, sys, transaction
 
 import mishmash
-from mishmash.commands import Command, makeCmdLineParser
+from mishmash.commands import Command
 from mishmash.database import DBInfo
 
+from pyramid.settings import aslist
 
-def init():
-    initPyramid()
-    initMishMash()
+from sqlalchemy import engine_from_config
+
+from ..models import DBSession, MyModel, Base
 
 
 # Setup the pyramid database
-def initPyramid():
-    global __requires__
-    __requires__ = 'unsonic==0.0'
-    load_entry_point('unsonic==0.0', 'console_scripts', 'initialize_unsonic_db')()
+def initPyramid(settings):
+    engine = engine_from_config(settings, 'sqlalchemy.')
+    DBSession.configure(bind=engine)
+    Base.metadata.create_all(engine)
+    with transaction.manager:
+        model = MyModel(name='one', value=1)
+        DBSession.add(model)
 
-
-def initMishMash():
-    makeCmdLineParser()
-    # dbinfo = DBInfo("sqlite", "/tmp/unsonic.db")
-    dbinfo = DBInfo(uri="sqlite:////tmp/unonsic.db")
+def initMishMash(settings):
+    dbinfo = DBInfo(uri=settings["sqlalchemy.url"])
     Command.cmds["init"].run(dbinfo)
-    Command.cmds["sync"].run(dbinfo, ["/home/baron/src/unsonic/test/music"])
+
+def syncMishMash(settings):
+    dbinfo = DBInfo(uri=settings["sqlalchemy.url"])
+    paths = []
+    for path in aslist(settings["music.paths"]):
+        paths.append(os.path.expanduser(path))
+    Command.cmds["sync"].run(dbinfo, paths)
