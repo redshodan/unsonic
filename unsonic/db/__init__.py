@@ -13,6 +13,14 @@ from sqlalchemy import engine_from_config
 from ..models import DBSession, MyModel, Base
 
 
+def asdict(value):
+    ret = {}
+    for line in [x.strip() for x in value.splitlines()]:
+        if len(line):
+            key, val = line.split(":")
+            ret[key] = val
+    return ret
+
 # Setup the pyramid database
 def initPyramid(settings):
     engine = engine_from_config(settings, 'sqlalchemy.')
@@ -22,16 +30,17 @@ def initPyramid(settings):
         model = MyModel(name='one', value=1)
         DBSession.add(model)
 
-def initMishMash(settings):
+def initMash(settings):
     dbinfo = DBInfo(uri=settings["sqlalchemy.url"])
     Command.cmds["init"].run(dbinfo)
 
-def syncMishMash(settings):
+def syncMash(settings):
     dbinfo = DBInfo(uri=settings["sqlalchemy.url"])
-    paths = []
-    for path in aslist(settings["music.paths"]):
-        paths.append(os.path.expanduser(path))
+    paths = [v for v in getMashPaths(settings).itervalues()]
     Command.cmds["sync"].run(dbinfo, paths)
 
-def loadMishMash(settings):
+def getMashPaths(settings):
+    return asdict(settings["music.paths"])
+    
+def loadMash(settings):
     return Database(DBInfo(uri=settings["sqlalchemy.url"]))

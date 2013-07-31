@@ -11,20 +11,20 @@ from .models import DBSession, Base
 from . import db
 
 
-def initMishMash():
+def initMash():
     makeCmdLineParser()
 
-def loadMishMash(settings):
-    return db.loadMishMash(settings)
+def loadMash(settings):
+    return db.loadMash(settings)
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
 
     # Setup mishmash
-    initMishMash()
-    mishmash_settings = get_appsettings(global_config["__file__"], name="mishmash")
-    mash_db = loadMishMash(mishmash_settings)
+    initMash()
+    mash_settings = get_appsettings(global_config["__file__"], name="mishmash")
+    mash_db = loadMash(mash_settings)
 
     # Pyramid framework
     engine = engine_from_config(settings, 'sqlalchemy.')
@@ -38,6 +38,7 @@ def main(global_config, **settings):
     # Add the rest interfaces
     for cmd in rest.commands.itervalues():
         cmd.mash_db = mash_db
+        cmd.mash_settings = mash_settings
         config.add_route(cmd.name, cmd.getURL())
         config.add_view(cmd.handleReq, route_name=cmd.name)
 
