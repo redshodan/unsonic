@@ -4,7 +4,7 @@ import os, sys, transaction
 
 import mishmash
 from mishmash.commands import Command
-from mishmash.database import DBInfo
+from mishmash.database import DBInfo, Database
 
 from pyramid.settings import aslist
 
@@ -32,3 +32,6 @@ def syncMishMash(settings):
     for path in aslist(settings["music.paths"]):
         paths.append(os.path.expanduser(path))
     Command.cmds["sync"].run(dbinfo, paths)
+
+def loadMishMash(settings):
+    return Database(DBInfo(uri=settings["sqlalchemy.url"]))
