@@ -58,7 +58,7 @@ unsonic.sqlite: $(VBIN)/initialize_unsonic_db
 	$(VBIN)/initialize_unsonic_db development.ini
 
 run:
-	$(VBIN)/pserve development.ini
+	$(PYTHON) bin/unsonic development.ini --reload
 
 clean:
 	find unsonic -name '*.pyc' | xargs rm

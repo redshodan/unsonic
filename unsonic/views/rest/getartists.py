@@ -24,8 +24,14 @@ class GetArtists(Command):
             artist.set("id", str(row.id))
             artist.set("name", row.name)
             artist.set("coverArt", "ar-%d" % row.id)
-            artist.set("albumCount", "1")
+        for index in artists:
+            for artist in index:
+                count = 0
+                for album in session.query(Album).filter(
+                        Album.artist_id == int(artist.get("id"))).all():
+                    count = count + 1
+                artist.set("albumCount", str(count))
         return self.makeResp(req, child=artists)
-        
-        
+
+
 addCmd(GetArtists())
