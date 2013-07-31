@@ -6,7 +6,7 @@ class Ping(Command):
         super(Ping, self).__init__("ping")
 
     def handleReq(self, req):
-        return self.makeResp({"name":"unsonic"})
+        return self.makeResp(req, {"name":"unsonic"})
 
 
 addCmd(Ping())

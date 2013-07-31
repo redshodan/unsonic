@@ -1,8 +1,10 @@
-from pyramid.response import Response
 import xml.etree.ElementTree as ET
 
 import unsonic
 
+
+PROTOCOL_VERSION = "1.10.0"
+XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>'
 
 commands = {}
 
@@ -18,20 +20,20 @@ class Command(object):
     def makeBody(self, attrs, child, status):
         body = ET.Element("subsonic-response")
         attrs_ = {"status":"ok" if status else "failed",
-                  "version":unsonic.PROTOCOL_VERSION}
+                  "version":PROTOCOL_VERSION}
         attrs_.update(attrs)
         for key, value in attrs_.iteritems():
             body.set(key, value)
         if child is not None:
             body.append(child)
-        return '<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(body)
+        return XML_HEADER + ET.tostring(body)
 
-    def makeResp(self, attrs={}, child=None, status=True, body=None):
+    def makeResp(self, req, attrs={}, child=None, status=True, body=None):
         if body is None:
             body = self.makeBody(attrs, child, status)
         elif isinstance(body, ET.Element):
-            body = '<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(body)
-        resp = Response()
+            body = XML_HEADER + ET.tostring(body)
+        resp = req.response
         resp.body = body
         resp.content_type = "text/xml"
         resp.charset = "UTF-8"

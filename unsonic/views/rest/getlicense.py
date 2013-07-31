@@ -12,7 +12,7 @@ class GetLicense(Command):
         license.set("email", "foo@bar.com")
         license.set("key", "0" * 32)
         license.set("date", "2011-07-21T21:08:04")
-        return self.makeResp(child=license)
+        return self.makeResp(req, child=license)
         
         
 addCmd(GetLicense())

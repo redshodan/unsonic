@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Silly little wrapper for running mishmash standalone. Assumes a lot of env
-export PYTHONPATH="~/src/unsonic/external/eyed3/src/"
-export PYTHONPATH="${PYTHONPATH}:~/src/unsonic/external/mishmash/src"
-export PYTHON="~/src/unsonic/build/venv/bin/python"
+export PYTHONPATH="${HOME}/src/unsonic/external/eyed3/src/"
+export PYTHONPATH="${PYTHONPATH}:${HOME}/src/unsonic/external/mishmash/src"
+export PYTHON="${HOME}/src/unsonic/build/venv/bin/python"
 
 exec $PYTHON -m mishmash $*
