@@ -1,3 +1,4 @@
+from paste.translogger import TransLogger
 from pyramid.config import Configurator
 from pyramid.paster import get_appsettings
 from sqlalchemy import engine_from_config
@@ -42,4 +43,6 @@ def main(global_config, **settings):
         config.add_route(cmd.name, cmd.getURL())
         config.add_view(cmd.handleReq, route_name=cmd.name)
 
-    return config.make_wsgi_app()
+    app = config.make_wsgi_app()
+    # Log requests
+    return TransLogger(app, setup_console_handler=False)

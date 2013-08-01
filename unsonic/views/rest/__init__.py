@@ -55,6 +55,15 @@ class Command(object):
         resp.charset = "UTF-8"
         return resp
 
+    def getParams(self, req, defs):
+        ret = []
+        for param, default in defs:
+            if param in req.params:
+                ret.append(req.params[param])
+            else:
+                ret.append(default)
+        return ret
+    
     def getURL(self):
         return "/rest/%s%s" % (self.name, self.url_postfix)
 
@@ -63,4 +72,49 @@ def addCmd(cmd):
     commands[cmd.name] = cmd
 
 
-from . import ping, getlicense
+### Utilities for wrangling data into xml form
+def fillArtist(row):
+    artist = ET.Element("artist")
+    artist.set("id", str(row.id))
+    artist.set("name", row.name)
+    # FIXME
+    artist.set("coverArt", "ar-%d" % row.id)
+    return artist
+
+def fillAlbum(row, artist_name=None):
+    album = ET.Element("album")
+    album.set("id", str(row.id))
+    album.set("name", row.title)
+    # FIXME
+    album.set("coverArt", "al-%d" % row.id)
+    album.set("created",
+              str(row.release_date) if row.release_date else "")
+    if artist_name:
+        album.set("artist", artist_name)
+    album.set("artistId", str(row.artist_id))
+    return album
+
+def fillSong(row, artist_name=None, album_name=None, album_date=None):
+    song = ET.Element("song")
+    song.set("id", str(row.id))
+    song.set("parent", str(row.album_id))
+    song.set("title", row.title)
+    song.set("isDir", "false")
+    song.set("album", album_name if album_name else "")
+    song.set("artist", artist_name if artist_name else "")
+    song.set("track", str(row.track_num) if row.track_num else "")
+    song.set("year", album_date if album_date else "")
+    # FIXME
+    song.set("genre", "rock")
+    # FIXME
+    song.set("coverArt", ("al-%d" % row.album_id) if row.album_id else "")
+    song.set("size", str(row.size_bytes))
+    # FIXME
+    song.set("contentType", "audio/mpeg")
+    # FIXME
+    song.set("suffix", "mp3")
+    song.set("duration", str(row.time_secs))
+    # FIXME
+    song.set("bitRate", "128")
+    song.set("path", "%s/%s/%s" % (artist_name, album_name, row.title))
+    return song

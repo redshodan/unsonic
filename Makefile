@@ -11,7 +11,7 @@ endif
 PYTHON_LIB=$(VLIB)/python$(PYTHON_VER)
 PYTHON_SITE=$(PYTHON_LIB)/site-packages
 PIP=$(VBIN)/pip
-DEPS=$(PYTHON_SITE)/pyramid $(PYTHON_SITE)/sqlalchemy $(PYTHON_SITE)/psycopg2 $(PYTHON_SITE)/eyed3
+DEPS=$(PYTHON_SITE)/pyramid $(PYTHON_SITE)/paste $(PYTHON_SITE)/sqlalchemy $(PYTHON_SITE)/psycopg2 $(PYTHON_SITE)/eyed3
 
 
 all: deps
@@ -22,12 +22,17 @@ build:
 build/venv: build
 	virtualenv build/venv
 
-deps: pyramid sqlalchemy psycopg2 eyed3
+deps: pyramid paste sqlalchemy psycopg2 eyed3
 
 pyramid: $(PYTHON_SITE)/pyramid
 $(PYTHON_SITE)/pyramid: build/venv
 	$(PIP) install pyramid
 	touch $(PYTHON_SITE)/pyramid
+
+paste: $(PYTHON_SITE)/paste
+$(PYTHON_SITE)/paste: build/venv
+	$(PIP) install paste
+	touch $(PYTHON_SITE)/paste
 
 sqlalchemy: $(PYTHON_SITE)/sqlalchemy
 $(PYTHON_SITE)/sqlalchemy: build/venv
@@ -67,4 +72,4 @@ dist-clean:
 	rm -rf build unsonic.egg-info unsonic.sqlite
 	find -name '*.pyc' | xargs rm
 
-.PHONY: deps pyramid sqlalchemy psycopg2 eyed3
+.PHONY: deps pyramid paste sqlalchemy psycopg2 eyed3
