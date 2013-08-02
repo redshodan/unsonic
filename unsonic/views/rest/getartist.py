@@ -15,12 +15,11 @@ class GetArtist(Command):
         session = self.mash_db.Session()
         for row in session.query(Artist).filter(Artist.id == artist_id).all():
             artist = fillArtist(row)
-            artist_name = row.name
         album_count = 0
         for row in session.query(Album).filter(
                 Album.artist_id == artist_id).all():
             album_count = album_count + 1
-            album = fillAlbum(row, artist_name)
+            album = fillAlbum(row)
             artist.append(album)
         for album in artist:
             song_count = 0

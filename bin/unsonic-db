@@ -43,10 +43,10 @@ import unsonic.db
 
 def doInit(settings, mishmash_settings):
     unsonic.db.initPyramid(settings)
-    unsonic.db.initMishMash(mishmash_settings)
+    unsonic.db.initMash(mishmash_settings)
 
 def doSync(settings, mishmash_settings):
-    unsonic.db.syncMishMash(mishmash_settings)
+    unsonic.db.syncMash(mishmash_settings)
     
 def buildParser():
     parser = argparse.ArgumentParser(prog="unsonic-db")
@@ -72,7 +72,7 @@ def main():
     settings = get_appsettings(args.config[0])
     mishmash_settings = get_appsettings(args.config[0], name="mishmash")
 
-    unsonic.initMishMash()
+    unsonic.initMash()
     args.func(settings, mishmash_settings)
 
 
