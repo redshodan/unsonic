@@ -1,3 +1,4 @@
+import os
 import xml.etree.ElementTree as ET
 
 from ...version import VERSION
@@ -81,7 +82,7 @@ def fillArtist(row):
     artist.set("coverArt", "ar-%d" % row.id)
     return artist
 
-def fillAlbum(row, artist_name=None):
+def fillAlbum(row):
     album = ET.Element("album")
     album.set("id", str(row.id))
     album.set("name", row.title)
@@ -89,32 +90,43 @@ def fillAlbum(row, artist_name=None):
     album.set("coverArt", "al-%d" % row.id)
     album.set("created",
               str(row.release_date) if row.release_date else "")
-    if artist_name:
-        album.set("artist", artist_name)
+    if row.artist and row.artist.name:
+        album.set("artist", row.artist.name)
     album.set("artistId", str(row.artist_id))
     return album
 
-def fillSong(row, artist_name=None, album_name=None, album_date=None):
+def fillSong(row):
     song = ET.Element("song")
     song.set("id", str(row.id))
     song.set("parent", str(row.album_id))
     song.set("title", row.title)
     song.set("isDir", "false")
-    song.set("album", album_name if album_name else "")
-    song.set("artist", artist_name if artist_name else "")
-    song.set("track", str(row.track_num) if row.track_num else "")
-    song.set("year", album_date if album_date else "")
+    album_name = ""
+    if row.album and row.album.title:
+        album_name = row.album.title
+    song.set("album", album_name)
+    artist_name = ""
+    if row.artist and row.artist.name:
+        artist_name = row.artist.name
+    song.set("artist", artist_name)
+    if row.track_num:
+        song.set("track", str(row.track_num))
+    if row.album and row.album.release_date:
+        song.set("year", row.album.release_date.strftime("%Y"))
     # FIXME
     song.set("genre", "rock")
     # FIXME
-    song.set("coverArt", ("al-%d" % row.album_id) if row.album_id else "")
+    if row.album_id:
+        song.set("coverArt", ("al-%d" % row.album_id))
     song.set("size", str(row.size_bytes))
     # FIXME
     song.set("contentType", "audio/mpeg")
-    # FIXME
-    song.set("suffix", "mp3")
+    suffix = os.path.basename(row.path).split(".")
+    suffix = suffix[-1] if len(suffix) else None
+    if suffix:
+        song.set("suffix", suffix)
     song.set("duration", str(row.time_secs))
     # FIXME
     song.set("bitRate", "128")
-    song.set("path", "%s/%s/%s" % (artist_name, album_name, row.title))
+    song.set("path", os.path.join(artist_name, album_name, row.title))
     return song

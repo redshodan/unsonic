@@ -18,7 +18,7 @@ def asdict(value):
     for line in [x.strip() for x in value.splitlines()]:
         if len(line):
             key, val = line.split(":")
-            ret[key] = val
+            ret[key.strip()] = val.strip()
     return ret
 
 # Setup the pyramid database
@@ -36,7 +36,7 @@ def initMash(settings):
 
 def syncMash(settings):
     dbinfo = DBInfo(uri=settings["sqlalchemy.url"])
-    paths = [v for v in getMashPaths(settings).itervalues()]
+    paths = [os.path.expanduser(v) for v in getMashPaths(settings).itervalues()]
     Command.cmds["sync"].run(dbinfo, paths)
 
 def getMashPaths(settings):
