@@ -36,7 +36,7 @@ def initMash(settings):
 
 def syncMash(settings):
     dbinfo = DBInfo(uri=settings["sqlalchemy.url"])
-    paths = [os.path.expanduser(v) for v in getMashPaths(settings).itervalues()]
+    paths = [os.path.expandvars(os.path.expanduser(v)) for v in getMashPaths(settings).itervalues()]
     Command.cmds["sync"].run(dbinfo, paths)
 
 def getMashPaths(settings):
