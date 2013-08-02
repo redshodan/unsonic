@@ -76,7 +76,7 @@ def addCmd(cmd):
 ### Utilities for wrangling data into xml form
 def fillArtist(row):
     artist = ET.Element("artist")
-    artist.set("id", str(row.id))
+    artist.set("id", "ar-%d" % row.id)
     artist.set("name", row.name)
     # FIXME
     artist.set("coverArt", "ar-%d" % row.id)
@@ -84,7 +84,7 @@ def fillArtist(row):
 
 def fillAlbum(row):
     album = ET.Element("album")
-    album.set("id", str(row.id))
+    album.set("id", "al-%d" % row.id)
     album.set("name", row.title)
     # FIXME
     album.set("coverArt", "al-%d" % row.id)
@@ -97,7 +97,7 @@ def fillAlbum(row):
 
 def fillSong(row):
     song = ET.Element("song")
-    song.set("id", str(row.id))
+    song.set("id", "tr-%d" % row.id)
     song.set("parent", str(row.album_id))
     song.set("title", row.title)
     song.set("isDir", "false")
