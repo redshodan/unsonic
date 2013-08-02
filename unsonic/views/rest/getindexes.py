@@ -24,8 +24,9 @@ class GetIndexes(Command):
         for index in indexes:
             for artist in index:
                 count = 0
+                artist_id = int(artist.get("id")[3:])
                 for album in session.query(Album).filter(
-                        Album.artist_id == int(artist.get("id")[3:])).all():
+                        Album.artist_id == artist_id).all():
                     count = count + 1
                 artist.set("albumCount", str(count))
         return self.makeResp(req, child=indexes)
