@@ -10,28 +10,28 @@ from ... import db
 class GetAlbumList(Command):
     def __init__(self):
         super(GetAlbumList, self).__init__("getAlbumList")
-        
+        self.param_defs = {
+            "size": {"default": 10, "type": int},
+            "offset": {"default": 0, "type": int},
+            "type": {"required": True,
+                     "values": ["random", "newest", "highest", "frequent",
+                                "recent", "starred", "alphabeticalByName",
+                                "alphabeticalByArtist"]},
+            }
+
     def handleReq(self, req):
-        # Param handling
-        size, offset, album_type = \
-          self.getParams(req, (("size", 10), ("offset", 0)), (("type", None),))
-        size = int(size)
-        offset = int(offset)
-        if album_type not in ["random", "newest", "highest", "frequent",
-                              "recent", "starred", "alphabeticalByName",
-                              "alphabeticalByArtist"]:
-            raise MissingParam("Invalid type")
-        
-        # Processing
         alist = ET.Element("albumList")
         session = self.mash_db.Session()
-        if album_type == "random":
-            result = session.query(Album).order_by(dbfunc.random()).limit(size)
-        elif album_type == "newest":
-            result = session.query(Album).order_by(Album.date_added).limit(size)
-        elif album_type == "alphabeticalByName":
-            result = session.query(Album).order_by(Album.title).limit(size)
-        # elif album_type == "alphabeticalByArtist":
+        if self.params["type"] == "random":
+            result = session.query(Album).order_by(dbfunc.random()). \
+                         limit(self.params["size"])
+        elif self.params["type"] == "newest":
+            result = session.query(Album).order_by(Album.date_added). \
+                         limit(self.params["size"])
+        elif self.params["type"] == "alphabeticalByName":
+            result = session.query(Album).order_by(Album.title). \
+                         limit(self.params["size"])
+        # elif self.params["type"] == "alphabeticalByArtist":
         # FIXME: How to do this with sqlalchemy?
         #result=session.query(Album).order_by(Album.artist.name).limit(size)
         else:
@@ -41,7 +41,7 @@ class GetAlbumList(Command):
         count = 0
         for row in result:
             count += 1
-            if count <= offset:
+            if count <= self.params["offset"]:
                 continue
             album = fillAlbum(row)
             alist.append(album)

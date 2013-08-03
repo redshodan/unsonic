@@ -9,7 +9,6 @@ class GetMusicFolders(Command):
         super(GetMusicFolders, self).__init__("getMusicFolders")
         
     def handleReq(self, req):
-        # Processing
         folders = ET.Element("musicFolders")
         for name, path in db.getMashPaths(self.mash_settings).iteritems():
             folder = ET.Element("musicFolder")

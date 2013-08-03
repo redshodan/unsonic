@@ -6,7 +6,6 @@ class Ping(Command):
         super(Ping, self).__init__("ping")
 
     def handleReq(self, req):
-        # Processing
         return self.makeResp(req, {"name":"unsonic"})
 
 
