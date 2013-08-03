@@ -36,9 +36,32 @@ sys.path[0:0] = [os.path.abspath(os.path.join(path, "../unsonic")),
     
 
 __requires__ = 'pyramid==1.4.3'
-import sys
+import sys, time
 from pkg_resources import load_entry_point
 
-sys.exit(
-    load_entry_point('pyramid==1.4.3', 'console_scripts', 'pserve')()
-    )
+
+if "--reload" in sys.argv:
+    reload = True
+else:
+    reload = False
+
+wait = 3
+while True:
+    try:
+        sys.exit(
+            load_entry_point('pyramid==1.4.3', 'console_scripts', 'pserve')()
+            )
+        break
+    except IndentationError, e:
+        if reload:
+            print("Failed to (re)start unsonic:", e)
+            print("Restarting in %d seconds..." % wait)
+        else:
+            raise
+    except SyntaxError, e:
+        if reload:
+            print("Failed to (re)start unsonic:", e)
+            print("Restarting in %d seconds..." % wait)
+        else:
+            raise
+    time.sleep(wait)

@@ -9,6 +9,7 @@ class GetArtists(Command):
         super(GetArtists, self).__init__("getArtists")
         
     def handleReq(self, req):
+        # Processing
         session = self.mash_db.Session()
         artists = ET.Element("artists")
         index_group = None

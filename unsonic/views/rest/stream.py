@@ -10,7 +10,8 @@ class Stream(Command):
         super(Stream, self).__init__("stream")
         
     def handleReq(self, req):
-        track_id, mbr, form, offset, size, ecl = \
+        # Param handling
+        mbr, form, offset, size, ecl, track_id = \
           self.getParams(req, (("maxBitRate", None), ("format", None),
                                         ("timeOffset", None), ("size", None),
                                         ("estimateContentLength", None)),
@@ -18,6 +19,8 @@ class Stream(Command):
         if not track_id.startswith("tr-"):
             raise Exception("Not a track")
         track_id = int(track_id[3:])
+
+        # Processing
         session = self.mash_db.Session()
         row = session.query(Track).filter(Track.id == track_id).all()[0]
         return FileResponse(row.path)

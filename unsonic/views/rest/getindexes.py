@@ -9,8 +9,11 @@ class GetIndexes(Command):
         super(GetIndexes, self).__init__("getIndexes")
         
     def handleReq(self, req):
+        # Param handling
         folder_id, = self.getParams(req, (("id", None),))
         # TODO: handle folder_id
+        
+        # Processing
         session = self.mash_db.Session()
         indexes = ET.Element("indexes")
         index_group = None
