@@ -13,6 +13,7 @@ commands = {}
 class MissingParam(Exception):
     pass
 
+
 class Command(object):
     E_GENERIC = ("0", "An unknown error occured")
     E_MISSING_PARAM = ("10", "Missing a required parameter")
@@ -28,9 +29,12 @@ class Command(object):
     def __init__(self, name, url_postfix=".view"):
         self.name = name
         self.url_postfix = url_postfix
+        self.param_defs = {}
+        self.params = {}
 
     def processReq(self, req):
         try:
+            self.parseParams(req)
             return self.handleReq(req)
         except MissingParam, e:
             return self.makeResp(req, status=(Command.E_MISSING_PARAM, str(e)))
@@ -69,25 +73,54 @@ class Command(object):
         resp.charset = "UTF-8"
         return resp
 
-    def getParams(self, req, optional=(), required=()):
-        ret = []
-        defs = optional + required
-        for row in defs:
-            param, default = row
-            if param in req.params:
-                ret.append(req.params[param])
+    def parseParams(self, req):
+        for name, values in self.param_defs.iteritems():
+            if name in req.params:
+                val = req.params[name]
+                if "type" in values:
+                    val = values["type"](val)
+                self.params[name] = val
+                if "values" in values and val not in values["values"]:
+                    raise MissingParam("Invalid type for param: %s" % name)
             else:
-                ret.append(default)
-                if row in required:
-                    raise MissingParam(param)
-        return ret
-    
+                if "default" in values:
+                    self.params[name] = values["default"]
+                else:
+                    self.params[name] = None
+                if "required" in values and values["required"]:
+                    raise MissingParam(name)
+
     def getURL(self):
         return "/rest/%s%s" % (self.name, self.url_postfix)
 
 
 def addCmd(cmd):
     commands[cmd.name] = cmd
+
+
+### Param type check functions
+def bool_t(value):
+    if value in ["True", "true"]:
+        return True
+    elif value in ["False", "false"]:
+        return False
+    else:
+        raise MissingParam("Invalid type")
+        
+def artist_t(value):
+    if not value.startswith("ar-"):
+        raise MissingParam("Invalid id")
+    return int(value[3:])
+
+def album_t(value):
+    if not value.startswith("al-"):
+        raise MissingParam("Invalid id")
+    return int(value[3:])
+
+def track_t(value):
+    if not value.startswith("tr-"):
+        raise MissingParam("Invalid id")
+    return int(value[3:])
 
 
 ### Utilities for wrangling data into xml form

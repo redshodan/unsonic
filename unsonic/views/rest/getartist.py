@@ -1,4 +1,4 @@
-from . import Command, addCmd, fillAlbum, fillArtist
+from . import Command, addCmd, artist_t, fillAlbum, fillArtist
 import xml.etree.ElementTree as ET
 
 from mishmash.orm import Track, Artist, Album, Meta, Label
@@ -7,19 +7,16 @@ from mishmash.orm import Track, Artist, Album, Meta, Label
 class GetArtist(Command):
     def __init__(self):
         super(GetArtist, self).__init__("getArtist")
-        
+        self.param_defs = {"id": {"required": True, "type": artist_t}}
+
     def handleReq(self, req):
-        # Param handling
-        artist_id = self.getParams(req, (("id", None),))
-        artist_id = int(req.params["id"])
-        
-        # Processing
         session = self.mash_db.Session()
-        for row in session.query(Artist).filter(Artist.id == artist_id).all():
+        for row in session.query(Artist).\
+                       filter(Artist.id == self.params["id"]).all():
             artist = fillArtist(row)
         album_count = 0
         for row in session.query(Album).filter(
-                Album.artist_id == artist_id).all():
+                Album.artist_id == self.params["id"]).all():
             album_count = album_count + 1
             album = fillAlbum(row)
             artist.append(album)

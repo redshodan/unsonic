@@ -7,7 +7,6 @@ class GetLicense(Command):
         super(GetLicense, self).__init__("getLicense")
         
     def handleReq(self, req):
-        # Processing
         license = ET.Element("license")
         license.set("valid", "true")
         license.set("email", "foo@bar.com")
