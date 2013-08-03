@@ -41,7 +41,7 @@ def main(global_config, **settings):
         cmd.mash_db = mash_db
         cmd.mash_settings = mash_settings
         config.add_route(cmd.name, cmd.getURL())
-        config.add_view(cmd.handleReq, route_name=cmd.name)
+        config.add_view(cmd.processReq, route_name=cmd.name)
 
     app = config.make_wsgi_app()
     # Log requests

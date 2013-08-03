@@ -1,4 +1,4 @@
-import os
+import os, types
 import xml.etree.ElementTree as ET
 
 from ...version import VERSION
@@ -9,6 +9,9 @@ XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>'
 
 commands = {}
 
+
+class MissingParam(Exception):
+    pass
 
 class Command(object):
     E_GENERIC = ("0", "An unknown error occured")
@@ -26,6 +29,12 @@ class Command(object):
         self.name = name
         self.url_postfix = url_postfix
 
+    def processReq(self, req):
+        try:
+            return self.handleReq(req)
+        except MissingParam, e:
+            return self.makeResp(req, status=(Command.E_MISSING_PARAM, str(e)))
+
     def handleReq(self, req):
         raise Exception("Command must implement handleReq()")
         
@@ -38,8 +47,12 @@ class Command(object):
             body.set(key, value)
         if status is not True and status is not False:
             error = ET.Element("error")
-            error.set("code", status[0])
-            error.set("message", status[1])
+            if isinstance(status[0], types.TupleType):
+                error.set("code", status[0][0])
+                error.set("message", "%s: %s" % (status[0][1], status[1]))
+            else:
+                error.set("code", status[0])
+                error.set("message", status[1])
             body.append(error)
         if child is not None:
             body.append(child)
@@ -56,13 +69,17 @@ class Command(object):
         resp.charset = "UTF-8"
         return resp
 
-    def getParams(self, req, defs):
+    def getParams(self, req, optional=(), required=()):
         ret = []
-        for param, default in defs:
+        defs = required + optional
+        for row in defs:
+            param, default = row
             if param in req.params:
                 ret.append(req.params[param])
             else:
                 ret.append(default)
+                if row in required:
+                    raise MissingParam(param)
         return ret
     
     def getURL(self):
@@ -74,16 +91,16 @@ def addCmd(cmd):
 
 
 ### Utilities for wrangling data into xml form
-def fillArtist(row):
-    artist = ET.Element("artist")
+def fillArtist(row, name="artist"):
+    artist = ET.Element(name)
     artist.set("id", "ar-%d" % row.id)
     artist.set("name", row.name)
     # FIXME
     artist.set("coverArt", "ar-%d" % row.id)
     return artist
 
-def fillAlbum(row):
-    album = ET.Element("album")
+def fillAlbum(row, name="album"):
+    album = ET.Element(name)
     album.set("id", "al-%d" % row.id)
     album.set("name", row.title)
     # FIXME
@@ -95,8 +112,8 @@ def fillAlbum(row):
     album.set("artistId", str(row.artist_id))
     return album
 
-def fillSong(row):
-    song = ET.Element("song")
+def fillSong(row, name="song"):
+    song = ET.Element(name)
     song.set("id", "tr-%d" % row.id)
     song.set("parent", str(row.album_id))
     song.set("title", row.title)
