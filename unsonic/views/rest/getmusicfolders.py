@@ -10,12 +10,10 @@ class GetMusicFolders(Command):
         
     def handleReq(self, req):
         folders = ET.Element("musicFolders")
-        count = 0
         for name, path in db.getMashPaths(self.mash_settings).iteritems():
-            count = count + 1
             folder = ET.Element("musicFolder")
             folders.append(folder)
-            folder.set("id", str(count))
+            folder.set("id", "fl-%s" % name)
             folder.set("name", name)
         return self.makeResp(req, child=folders)
         

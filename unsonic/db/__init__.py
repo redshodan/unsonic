@@ -36,11 +36,14 @@ def initMash(settings):
 
 def syncMash(settings):
     dbinfo = DBInfo(uri=settings["sqlalchemy.url"])
-    paths = [os.path.expandvars(os.path.expanduser(v)) for v in getMashPaths(settings).itervalues()]
+    paths = [v for v in getMashPaths(settings).itervalues()]
     Command.cmds["sync"].run(dbinfo, paths)
 
 def getMashPaths(settings):
-    return asdict(settings["music.paths"])
+    paths = asdict(settings["music.paths"])
+    for key in paths.keys():
+        paths[key] = os.path.expandvars(os.path.expanduser(paths[key]))
+    return paths
     
 def loadMash(settings):
     return Database(DBInfo(uri=settings["sqlalchemy.url"]))
