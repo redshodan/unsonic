@@ -71,7 +71,7 @@ class Command(object):
 
     def getParams(self, req, optional=(), required=()):
         ret = []
-        defs = required + optional
+        defs = optional + required
         for row in defs:
             param, default = row
             if param in req.params:

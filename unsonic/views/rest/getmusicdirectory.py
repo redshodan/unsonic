@@ -1,4 +1,4 @@
-from . import Command, addCmd, fillAlbum, fillArtist, fillSong
+from . import Command, MissingParam, addCmd, fillAlbum, fillArtist, fillSong
 import xml.etree.ElementTree as ET
 
 from mishmash.orm import Track, Artist, Album, Meta, Label
@@ -11,7 +11,10 @@ class GetMusicDirectory(Command):
         super(GetMusicDirectory, self).__init__("getMusicDirectory")
         
     def handleReq(self, req):
+        # Param handling
         folder_id, = self.getParams(req, required=(("id", None),))
+        
+        # Processing
         session = self.mash_db.Session()
         directory = ET.Element("directory")
         if folder_id.startswith("fl-"):
@@ -49,7 +52,7 @@ class GetMusicDirectory(Command):
             directory.set("parent", dir_parent)
             directory.set("id", folder_id)
         else:
-            return self.makeResp(req, status=Command.E_MISSING_PARAM)
+            raise MissingParam("Invalid value for 'id'")
         return self.makeResp(req, child=directory)
 
 

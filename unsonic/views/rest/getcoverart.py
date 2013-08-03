@@ -12,7 +12,10 @@ class GetCoverArt(Command):
 
     # FIXME: Do this right once there is art info in mishmash
     def handleReq(self, req):
+        # Param handling
         cover_id = self.getParams(req, required=(("id", None),))
+        
+        # Processing
         return FileResponse(os.path.join(db.getMashPaths(self.mash_settings).values()[0],
                                          "albumart.png"))
 
