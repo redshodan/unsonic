@@ -19,7 +19,7 @@
 
 from __future__ import print_function
 
-import os, sys, argparse
+import os, sys
 
 if ((sys.version_info[0] < 2) and (sys.version_info[1] < 7)):
     print("unsonic-db requires Python version 2.7 or higher.")
@@ -34,47 +34,6 @@ sys.path[0:0] = [os.path.abspath(os.path.join(path, "../unsonic")),
                  os.path.abspath(os.path.join(path, "../external/mishmash/src")),
                  os.path.abspath(os.path.join(path, "../external/eyed3/src"))]
 
-
-from pyramid.paster import get_appsettings, setup_logging
-
-import unsonic
-import unsonic.db
-
-
-def doInit(settings, mishmash_settings):
-    unsonic.db.initPyramid(settings)
-    unsonic.db.initMash(mishmash_settings)
-
-def doSync(settings, mishmash_settings):
-    unsonic.db.syncMash(mishmash_settings)
-    
-def buildParser():
-    parser = argparse.ArgumentParser(prog="unsonic-db")
-    subparsers = parser.add_subparsers()
-
-    # Init
-    init = subparsers.add_parser("init", help="Initiliaze the databases")
-    init.add_argument("config", nargs=1, help="Configuration file")
-    init.set_defaults(func=doInit)
-
-    # Sync
-    sync = subparsers.add_parser("sync", help="Synchronize the music database")
-    sync.add_argument("config", nargs=1, help="Configuration file")
-    sync.set_defaults(func=doSync)
-    
-    return parser
-
-def main():
-    parser = buildParser()
-    args = parser.parse_args()
-
-    setup_logging(args.config[0])
-    settings = get_appsettings(args.config[0])
-    mishmash_settings = get_appsettings(args.config[0], name="mishmash")
-
-    unsonic.initMash()
-    args.func(settings, mishmash_settings)
-
-
 if __name__ == "__main__":
-    main()
+    import unsonic
+    unsonic.dbMain()
