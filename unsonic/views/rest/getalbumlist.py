@@ -8,18 +8,17 @@ from ... import db
 
 
 class GetAlbumList(Command):
-    def __init__(self):
-        super(GetAlbumList, self).__init__("getAlbumList")
-        self.param_defs = {
-            "size": {"default": 10, "type": int},
-            "offset": {"default": 0, "type": int},
-            "type": {"required": True,
-                     "values": ["random", "newest", "highest", "frequent",
-                                "recent", "starred", "alphabeticalByName",
-                                "alphabeticalByArtist"]},
-            }
-
-    def handleReq(self, req):
+    name = "getAlbumList.view"
+    param_defs = {
+        "size": {"default": 10, "type": int},
+        "offset": {"default": 0, "type": int},
+        "type": {"required": True,
+                 "values": ["random", "newest", "highest", "frequent",
+                            "recent", "starred", "alphabeticalByName",
+                            "alphabeticalByArtist"]},
+        }
+    
+    def handleReq(self):
         alist = ET.Element("albumList")
         session = self.mash_db.Session()
         if self.params["type"] == "random":
@@ -51,7 +50,7 @@ class GetAlbumList(Command):
                 album.set("parent", "UNKNOWN")
             album.set("title", album.get("name"))
             album.set("isDir", "true")
-        return self.makeResp(req, child=alist)
+        return self.makeResp(child=alist)
 
 
-addCmd(GetAlbumList())
+addCmd(GetAlbumList)

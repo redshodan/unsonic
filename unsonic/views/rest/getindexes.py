@@ -5,11 +5,10 @@ from mishmash.orm import Track, Artist, Album, Meta, Label
 
 
 class GetIndexes(Command):
-    def __init__(self):
-        super(GetIndexes, self).__init__("getIndexes")
-        self.param_defs = {"id": {}}
+    name = "getIndexes.view"
+    param_defs = {"id": {}}
         
-    def handleReq(self, req):
+    def handleReq(self):
         # TODO: handle param id
         session = self.mash_db.Session()
         indexes = ET.Element("indexes")
@@ -31,7 +30,7 @@ class GetIndexes(Command):
                         Album.artist_id == artist_id).all():
                     count = count + 1
                 artist.set("albumCount", str(count))
-        return self.makeResp(req, child=indexes)
+        return self.makeResp(child=indexes)
 
 
-addCmd(GetIndexes())
+addCmd(GetIndexes)

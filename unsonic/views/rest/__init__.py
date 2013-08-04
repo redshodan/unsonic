@@ -13,6 +13,9 @@ commands = {}
 class MissingParam(Exception):
     pass
 
+class NotFound(Exception):
+    pass
+
 
 class Command(object):
     E_GENERIC = ("0", "An unknown error occured")
@@ -26,20 +29,20 @@ class Command(object):
     # 60, trial period over, intentionally skipped, cause screw that noise.
     E_NOT_FOUND = ("60", "Requsted data not found")
     
-    def __init__(self, name, url_postfix=".view"):
-        self.name = name
-        self.url_postfix = url_postfix
-        self.param_defs = {}
+    def __init__(self, req):
+        self.req = req
         self.params = {}
 
-    def processReq(self, req):
+    def __call__(self):
         try:
-            self.parseParams(req)
-            return self.handleReq(req)
+            self.parseParams()
+            return self.handleReq()
         except MissingParam, e:
-            return self.makeResp(req, status=(Command.E_MISSING_PARAM, str(e)))
+            return self.makeResp(status=(Command.E_MISSING_PARAM, str(e)))
+        except NotFound, e:
+            return self.makeResp(status=(Command.E_NOT_FOUND, str(e)))
 
-    def handleReq(self, req):
+    def handleReq(self):
         raise Exception("Command must implement handleReq()")
         
     def makeBody(self, attrs, child, status):
@@ -62,21 +65,21 @@ class Command(object):
             body.append(child)
         return XML_HEADER + ET.tostring(body)
 
-    def makeResp(self, req, attrs={}, child=None, status=True, body=None):
+    def makeResp(self, attrs={}, child=None, status=True, body=None):
         if body is None:
             body = self.makeBody(attrs, child, status)
         elif isinstance(body, ET.Element):
             body = XML_HEADER + ET.tostring(body)
-        resp = req.response
+        resp = self.req.response
         resp.body = body
         resp.content_type = "text/xml"
         resp.charset = "UTF-8"
         return resp
 
-    def parseParams(self, req):
+    def parseParams(self):
         for name, values in self.param_defs.iteritems():
-            if name in req.params:
-                val = req.params[name]
+            if name in self.req.params:
+                val = self.req.params[name]
                 if "type" in values:
                     val = values["type"](val)
                 self.params[name] = val
@@ -89,9 +92,6 @@ class Command(object):
                     self.params[name] = None
                 if "required" in values and values["required"]:
                     raise MissingParam(name)
-
-    def getURL(self):
-        return "/rest/%s%s" % (self.name, self.url_postfix)
 
 
 def addCmd(cmd):
