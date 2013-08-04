@@ -2,11 +2,11 @@ from . import Command, addCmd
 
 
 class Ping(Command):
-    def __init__(self):
-        super(Ping, self).__init__("ping")
+    name = "ping.view"
+    param_defs = {}
 
-    def handleReq(self, req):
-        return self.makeResp(req, {"name":"unsonic"})
+    def handleReq(self):
+        return self.makeResp({"name":"unsonic"})
 
 
-addCmd(Ping())
+addCmd(Ping)

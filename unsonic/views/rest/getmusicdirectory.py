@@ -7,11 +7,10 @@ from ... import db
 
 
 class GetMusicDirectory(Command):
-    def __init__(self):
-        super(GetMusicDirectory, self).__init__("getMusicDirectory")
-        self.param_defs = {"id": {"required": True}}
-        
-    def handleReq(self, req):
+    name = "getMusicDirectory.view"
+    param_defs = {"id": {"required": True}}
+
+    def handleReq(self):
         session = self.mash_db.Session()
         directory = ET.Element("directory")
         if self.params["id"].startswith("fl-"):
@@ -50,7 +49,7 @@ class GetMusicDirectory(Command):
             directory.set("id", self.params["id"])
         else:
             raise MissingParam("Invalid value for 'id'")
-        return self.makeResp(req, child=directory)
+        return self.makeResp(child=directory)
 
 
-addCmd(GetMusicDirectory())
+addCmd(GetMusicDirectory)

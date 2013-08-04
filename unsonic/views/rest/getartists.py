@@ -5,11 +5,10 @@ from mishmash.orm import Track, Artist, Album, Meta, Label
 
 
 class GetArtists(Command):
-    def __init__(self):
-        super(GetArtists, self).__init__("getArtists")
-        self.param_defs = {}
-        
-    def handleReq(self, req):
+    name = "getArtists.view"
+    param_defs = {}
+    
+    def handleReq(self):
         session = self.mash_db.Session()
         artists = ET.Element("artists")
         index_group = None
@@ -29,7 +28,7 @@ class GetArtists(Command):
                         Album.artist_id == int(artist.get("id")[3:])).all():
                     count = count + 1
                 artist.set("albumCount", str(count))
-        return self.makeResp(req, child=artists)
+        return self.makeResp(child=artists)
 
 
-addCmd(GetArtists())
+addCmd(GetArtists)
