@@ -6,11 +6,20 @@ Installation
 Development build
 -----------------
   * make devel
-  * make db
+  * Install eyeD3-0.7.4 (FIXME) into external/eyed3
+  * Install mishmash (FIXME) into external/mishmash
+  * make devel-db
 
-Run it
-------
-  * make run
+Release build
+-------------
+  * make release
+  * make release-db
+
+Running
+-------
+  * make devel-run
+      ..or..
+  * make release-run
 
 Manual Installation
 ===================
@@ -18,17 +27,18 @@ Manual Installation
 Requirements
 ------------
   * virtualenv $venv
-  * $venv/bin/pip install pyramid
-  * $venv/bin/pip install SQLAlchemy
-  * $venv/bin/pip install psycopg2
-  * $venv/bin/pip install eyeD3
-  * Install mishmash (FIXME)
+  * Install eyeD3-0.7.4 (FIXME) into external/eyed3
+  * Install mishmash (FIXME) into external/mishmash
 
-Build
+Building
 -----
   * $venv/bin/python setup.py develop
-  * $venv/bin/initialize_unsonic_db development.ini
-  * $venv/bin/pserve development.ini
+  * ./bin/unsonic-db init <config.ini>
+  * ./bin/unsonic-db sync <config.ini>
+
+Running
+---
+  * ./bin/unsonic <config.ini>
 
 License
 =======

@@ -1,5 +1,3 @@
 ^build/.*$
 .*\.pyc$
 ^unsonic.egg-info/.*$
-^unsonic.sqlite$
-^unsonic-mishmash.sqlite$

@@ -10,10 +10,15 @@ requires = [
     'pyramid',
     'SQLAlchemy',
     'transaction',
+    'pyramid',
     'pyramid_tm',
     'pyramid_debugtoolbar',
     'zope.sqlalchemy',
     'waitress',
+    'paste',
+    'psycopg2',
+    # 'eyeD3',
+    # 'mishmash'
     ]
 
 setup(name='unsonic',
