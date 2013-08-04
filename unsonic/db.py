@@ -10,7 +10,7 @@ from pyramid.settings import aslist
 
 from sqlalchemy import engine_from_config
 
-from ..models import DBSession, MyModel, Base
+from .models import DBSession, MyModel, Base
 
 
 def asdict(value):

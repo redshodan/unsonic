@@ -65,6 +65,9 @@ unsonic.sqlite: $(VBIN)/initialize_unsonic_db
 run:
 	$(PYTHON) bin/unsonic development.ini --reload
 
+tests:
+	PYTHONPATH=external/eyed3/src/:external/mishmash/src $(PYTHON) setup.py test
+
 clean:
 	find unsonic -name '*.pyc' | xargs rm
 
