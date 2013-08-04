@@ -1,4 +1,5 @@
 import os, unittest, transaction
+import xml.etree.ElementTree as ET
 
 from pyramid import testing
 
@@ -23,6 +24,16 @@ class RestTestCase(unittest.TestCase):
         cmd = klass(request)
         cmd.mash_db = self.mash_db
         return cmd
+
+    def checkResp(self, req, resp, ok=True):
+        sub_resp = ET.fromstring(resp.body)
+        if ok is True:
+            self.assertEqual(sub_resp.get("status"), "ok")
+        else:
+            self.assertEqual(sub_resp.get("status"), "failed")
+            error = sub_resp.find("error")
+            self.assertEqual(error.get("code"), ok[0])
+        return sub_resp
 
     @classmethod
     def setUpClass(klass):
