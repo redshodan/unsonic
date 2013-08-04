@@ -6,12 +6,44 @@ from pyramid import testing
 from . import RestTestCase
 from ...models import DBSession
 from ...views.rest.getartist import GetArtist
+from ...views.rest import Command
+
 
 class TestArtist(RestTestCase):
-    def testBasic(self):
+    def testNoAlbums(self):
+        aid = "ar-1"
         cmd = self.buildCmd(GetArtist)
-        cmd.req.params["id"] = "ar-1"
-        ret = cmd()
-        print ret
-        print dir(ret)
-        print ret.body
+        cmd.req.params["id"] = aid
+        resp = cmd()
+        sub_resp = self.checkResp(cmd.req, resp)
+        artist = sub_resp.find("artist")
+        self.assertEqual(artist.get("id"), aid)
+        self.assertEqual(artist.get("coverArt"), aid)
+
+    def testTwoAlbums(self):
+        aid = "ar-6"
+        cmd = self.buildCmd(GetArtist)
+        cmd.req.params["id"] = aid
+        resp = cmd()
+        sub_resp = self.checkResp(cmd.req, resp)
+        artist = sub_resp.find("artist")
+        self.assertEqual(artist.get("id"), aid)
+        self.assertEqual(artist.get("coverArt"), aid)
+        for album in artist.iter("album"):
+            self.assertTrue(album.get("id").startswith("al-"))
+            self.assertTrue(int(album.get("id")[3:]) > 0)
+            self.assertEqual(album.get("artist"), artist.get("name"))
+            self.assertTrue(int(album.get("songCount")) > 0)
+            self.assertTrue(int(album.get("duration")) >= 0)
+
+    def testNotFound(self):
+        cmd = self.buildCmd(GetArtist)
+        cmd.req.params["id"] = "ar-1000000000000"
+        resp = cmd()
+        self.checkResp(cmd.req, resp, Command.E_NOT_FOUND)
+
+    def testBadID(self):
+        cmd = self.buildCmd(GetArtist)
+        cmd.req.params["id"] = "foobar"
+        resp = cmd()
+        self.checkResp(cmd.req, resp, Command.E_MISSING_PARAM)

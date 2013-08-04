@@ -1,10 +1,9 @@
 import os, types
 import xml.etree.ElementTree as ET
 
-from ...version import VERSION
+from ...version import VERSION, PROTOCOL_VERSION, UNSONIC_PROTOCOL_VERSION
 
 
-PROTOCOL_VERSION = "1.10.0"
 XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>'
 
 commands = {}
@@ -27,7 +26,7 @@ class Command(object):
     E_AUTH = ("40", "Username or password incorrect")
     E_PERM = ("50", "Permission denied for this operation")
     # 60, trial period over, intentionally skipped, cause screw that noise.
-    E_NOT_FOUND = ("60", "Requsted data not found")
+    E_NOT_FOUND = ("70", "Requsted data not found")
     
     def __init__(self, req):
         self.req = req
@@ -48,7 +47,7 @@ class Command(object):
     def makeBody(self, attrs, child, status):
         body = ET.Element("subsonic-response")
         attrs_ = {"status":"ok" if status is True else "failed",
-                  "version":PROTOCOL_VERSION, "unsonic":VERSION}
+                  "version":PROTOCOL_VERSION, "unsonic":UNSONIC_PROTOCOL_VERSION}
         attrs_.update(attrs)
         for key, value in attrs_.iteritems():
             body.set(key, value)

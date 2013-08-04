@@ -19,7 +19,6 @@ class GetArtist(Command):
         album_count = 0
         for row in session.query(Album).filter(
                 Album.artist_id == self.params["id"]).all():
-            print("FOO")
             album_count = album_count + 1
             album = fillAlbum(row)
             artist.append(album)
