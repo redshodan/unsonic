@@ -1,0 +1,82 @@
+import unittest
+import transaction
+
+from pyramid import testing
+
+from . import RestTestCase
+from ...models import DBSession
+from ...views.rest.getalbumlist import GetAlbumList
+from ...views.rest import Command
+
+
+class TestAlbumList(RestTestCase):
+    def validate(self, cmd, resp):
+        sub_resp = self.checkResp(cmd.req, resp)
+        alist = sub_resp.find("albumList")
+        count = 0
+        titles = []
+        for album in alist.iter("album"):
+            count += 1
+            titles.append(album.get("title"))
+            self.assertTrue(album.get("id").startswith("al-"))
+            self.assertTrue(len(album.get("title")) > 0)
+            self.assertEqual(album.get("isDir"), "true")
+            self.assertEqual(album.get("coverArt"), album.get("id"))
+        return count, titles
+        
+    def testRandom(self):
+        cmd = self.buildCmd(GetAlbumList)
+        cmd.req.params["type"] = "random"
+        resp = cmd()
+        count1, titles1 = self.validate(cmd, resp)
+
+        cmd = self.buildCmd(GetAlbumList)
+        cmd.req.params["type"] = "random"
+        resp = cmd()
+        count2, titles2 = self.validate(cmd, resp)
+
+        self.assertNotEqual(titles1, titles2)
+        
+    def testSized(self):
+        cmd = self.buildCmd(GetAlbumList)
+        cmd.req.params["type"] = "random"
+        cmd.req.params["size"] = "2"
+        resp = cmd()
+        count, titles = self.validate(cmd, resp)
+        self.assertEqual(count, 2)
+
+    def testOffset(self):
+        cmd = self.buildCmd(GetAlbumList)
+        cmd.req.params["type"] = "random"
+        cmd.req.params["size"] = "3"
+        cmd.req.params["offset"] = "1"
+        resp = cmd()
+        count, titles = self.validate(cmd, resp)
+        self.assertEqual(count, 2)
+        
+    def testOffset2(self):
+        cmd = self.buildCmd(GetAlbumList)
+        cmd.req.params["type"] = "random"
+        cmd.req.params["size"] = "3"
+        cmd.req.params["offset"] = "2"
+        resp = cmd()
+        count, titles = self.validate(cmd, resp)
+        self.assertEqual(count, 1)
+
+    def testNewest(self):
+        cmd = self.buildCmd(GetAlbumList)
+        cmd.req.params["type"] = "newest"
+        resp = cmd()
+        count1, titles1 = self.validate(cmd, resp)
+            
+        cmd = self.buildCmd(GetAlbumList)
+        cmd.req.params["type"] = "newest"
+        resp = cmd()
+        count2, titles2 = self.validate(cmd, resp)
+            
+        self.assertEqual(titles1, titles2)
+        
+    def testNoType(self):
+        cmd = self.buildCmd(GetAlbumList)
+        resp = cmd()
+        self.checkResp(cmd.req, resp, Command.E_MISSING_PARAM)

@@ -23,6 +23,7 @@ class RestTestCase(unittest.TestCase):
         request.context = testing.DummyResource()
         cmd = klass(request)
         cmd.mash_db = self.mash_db
+        cmd.mash_settings = {"music.paths":"Music: test/music"}
         return cmd
 
     def checkResp(self, req, resp, ok=True):
