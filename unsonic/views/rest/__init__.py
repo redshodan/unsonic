@@ -147,7 +147,10 @@ def fillAlbum(row, name="album"):
 def fillSong(row, name="song"):
     song = ET.Element(name)
     song.set("id", "tr-%d" % row.id)
-    song.set("parent", "al-%d" % row.album_id)
+    if row.album_id:
+        song.set("parent", "al-%d" % row.album_id)
+    else:
+        song.set("parent", "UNKNOWN")
     song.set("title", row.title)
     song.set("isDir", "false")
     album_name = ""

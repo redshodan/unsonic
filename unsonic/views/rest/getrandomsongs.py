@@ -8,7 +8,7 @@ from mishmash.orm import Track, Artist, Album, Meta, Label
 class GetRandomSongs(Command):
     name = "getRandomSongs.view"
     param_defs = {
-        "size": {"type": int},
+        "size": {"default": 10, "type": int},
         "genre": {},
         "fromYear": {},
         "toYear": {},
