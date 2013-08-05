@@ -44,6 +44,5 @@ setup(name='unsonic',
       [paste.app_factory]
       main = unsonic:main
       [console_scripts]
-      initialize_unsonic_db = unsonic.scripts.initializedb:main
       """,
       )
