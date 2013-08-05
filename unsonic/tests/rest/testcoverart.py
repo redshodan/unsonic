@@ -20,7 +20,7 @@ class TestCoverArt(RestTestCase):
         self.assertEqual(len(resp.body), len(art))
         self.assertEqual(resp.body, art)
     
-    def testNoType(self):
+    def testNoID(self):
         cmd = self.buildCmd(GetCoverArt)
         resp = cmd()
         self.checkResp(cmd.req, resp, Command.E_MISSING_PARAM)
