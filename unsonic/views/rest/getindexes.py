@@ -6,10 +6,13 @@ from mishmash.orm import Track, Artist, Album, Meta, Label
 
 class GetIndexes(Command):
     name = "getIndexes.view"
-    param_defs = {"id": {}}
+    param_defs = {
+        "musicFolderId": {},
+        "ifModifiedSince": {},
+        }
         
     def handleReq(self):
-        # TODO: handle param id
+        # TODO: handle params
         session = self.mash_db.Session()
         indexes = ET.Element("indexes")
         index_group = None

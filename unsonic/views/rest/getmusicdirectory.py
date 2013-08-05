@@ -1,4 +1,5 @@
-from . import Command, MissingParam, addCmd, fillAlbum, fillArtist, fillSong
+from . import (Command, MissingParam, NotFound, addCmd, fillAlbum, fillArtist,
+               fillSong)
 import xml.etree.ElementTree as ET
 
 from mishmash.orm import Track, Artist, Album, Meta, Label
@@ -18,9 +19,11 @@ class GetMusicDirectory(Command):
         elif self.params["id"].startswith("ar-"):
             artist_id = int(self.params["id"][3:])
             # FIXME: Do we care about the top level directory hierarchy?
-            directory.set("parent", db.getMashPaths(self.mash_settings).keys()[0])
+            directory.set(
+                "parent",
+                "fl-%s" % db.getMashPaths(self.mash_settings).keys()[0])
             directory.set("id", self.params["id"])
-            artist_name = "UNKNOWN"
+            artist_name = None
             for row in session.query(Album).filter(
                     Album.artist_id == artist_id).all():
                 album = ET.Element("child")
@@ -33,19 +36,33 @@ class GetMusicDirectory(Command):
                     album.set("artist", row.artist.name)
                 album.set("isDir", "true")
                 album.set("coverArt", "al-%d" % row.id)
+            if not artist_name:
+                rows = session.query(Artist).filter(Artist.id ==
+                                                   artist_id).all()
+                if len(rows) == 1:
+                    artist_name = rows[0].name
+            if not artist_name:
+                raise NotFound(self.params["id"])
             directory.set("name", artist_name)
         elif self.params["id"].startswith("al-"):
             album_id = int(self.params["id"][3:])
-            dir_parent = "-1"
-            dir_name = "UNKNOWN"
-            for row in session.query(Track).filter(Track.album_id == album_id).all():
+            dir_parent = None
+            dir_name = None
+            song = None
+            for row in session.query(Track).filter(Track.album_id ==
+                                                   album_id).all():
                 song = fillSong(row, "child")
                 directory.append(song)
                 if row.artist:
-                    dir_parent = "al-%d" % row.artist.id
+                    dir_parent = "ar-%d" % row.artist.id
                 if row.album and row.album.title:
                     dir_name = row.album.title
-            directory.set("parent", dir_parent)
+            if song is None:
+                raise NotFound(self.params["id"])
+            if dir_parent:
+                directory.set("parent", dir_parent)
+            if dir_name:
+                directory.set("name", dir_name)
             directory.set("id", self.params["id"])
         else:
             raise MissingParam("Invalid value for 'id'")

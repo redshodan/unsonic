@@ -147,7 +147,7 @@ def fillAlbum(row, name="album"):
 def fillSong(row, name="song"):
     song = ET.Element(name)
     song.set("id", "tr-%d" % row.id)
-    song.set("parent", str(row.album_id))
+    song.set("parent", "al-%d" % row.album_id)
     song.set("title", row.title)
     song.set("isDir", "false")
     album_name = ""
@@ -161,7 +161,7 @@ def fillSong(row, name="song"):
     if row.track_num:
         song.set("track", str(row.track_num))
     if row.album and row.album.release_date:
-        song.set("year", row.album.release_date.strftime("%Y"))
+        song.set("year", row.album.release_date)
     # FIXME
     song.set("genre", "rock")
     # FIXME

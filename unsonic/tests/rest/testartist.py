@@ -1,5 +1,4 @@
-import unittest
-import transaction
+import unittest, transaction
 
 from pyramid import testing
 
@@ -47,3 +46,9 @@ class TestArtist(RestTestCase):
         cmd.req.params["id"] = "foobar"
         resp = cmd()
         self.checkResp(cmd.req, resp, Command.E_MISSING_PARAM)
+
+    def testNoID(self):
+        cmd = self.buildCmd(GetArtist)
+        resp = cmd()
+        self.checkResp(cmd.req, resp, Command.E_MISSING_PARAM)
+        
