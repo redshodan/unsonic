@@ -1,5 +1,6 @@
 import time
-from . import Command, addCmd, bool_t, fillArtist, fillAlbum, fillSong
+from . import (Command, addCmd, bool_t, positive_t, fillArtist, fillAlbum,
+               fillSong)
 import xml.etree.ElementTree as ET
 
 from mishmash.orm import Track, Artist, Album, Meta, Label
@@ -9,12 +10,12 @@ class Search2(Command):
     name = "search2.view"
     param_defs = {
         "query": {"required": True},
-        "artistCount": {"default": 20, "type": int},
-        "artistOffset": {"default": 0, "type": int},
-        "albumCount": {"default": 20, "type": int},
-        "albumOffset": {"default": 0, "type": int},
-        "songCount": {"default": 20, "type": int},
-        "songOffset": {"default": 0, "type": int},
+        "artistCount": {"default": 20, "type": positive_t},
+        "artistOffset": {"default": 0, "type": positive_t},
+        "albumCount": {"default": 20, "type": positive_t},
+        "albumOffset": {"default": 0, "type": positive_t},
+        "songCount": {"default": 20, "type": positive_t},
+        "songOffset": {"default": 0, "type": positive_t},
         }
     
     def handleReq(self):
@@ -29,35 +30,32 @@ class Search2(Command):
         session = self.mash_db.Session()
         result = ET.Element("searchResult2")
         if ar_count:
-            count = 0
             for row in session.query(Artist). \
                            filter(Artist.name.ilike(u"%%%s%%" % query)). \
                            limit(ar_count). \
                            offset(ar_off):
-                count += 1
-                if count >= ar_off:
-                    artist = fillArtist(row)
-                    result.append(artist)
+                artist = fillArtist(row)
+                result.append(artist)
         if al_count:
-            count = 0
             for row in session.query(Album). \
                            filter(Album.title.ilike(u"%%%s%%" % query)). \
                            limit(al_count). \
                            offset(al_off):
-                count += 1
-                if count >= al_off:
-                    album = fillAlbum(row)
-                    result.append(album)
+                album = fillAlbum(row)
+                result.append(album)
+                if row.artist:
+                    album.set("parent", "ar-%d" % row.artist.id)
+                else:
+                    album.set("parent", "UNKNOWN")
+                album.set("isDir", "true")
+                album.set("title", album.get("name"))
         if tr_count:
-            count = 0
             for row in session.query(Track). \
                            filter(Track.title.ilike(u"%%%s%%" % query)). \
                            limit(tr_count). \
                            offset(tr_off):
-                count += 1
-                if count >= tr_off:
-                    track = fillSong(row)
-                    result.append(track)
+                track = fillSong(row)
+                result.append(track)
         return self.makeResp(child=result)
 
 

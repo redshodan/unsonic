@@ -105,6 +105,13 @@ def bool_t(value):
         return False
     else:
         raise MissingParam("Invalid type")
+
+def positive_t(value):
+    val = int(value)
+    if val < 0:
+        raise MissingParam("Invalid number, can not be negative")
+    else:
+        return val
         
 def artist_t(value):
     if not value.startswith("ar-"):
@@ -147,7 +154,7 @@ def fillAlbum(row, name="album"):
         album.set("created", "".join(release))
     if row.artist and row.artist.name:
         album.set("artist", row.artist.name)
-    album.set("artistId", str(row.artist_id))
+    album.set("artistId", "al-%d" % row.id)
     return album
 
 def fillSong(row, name="song"):
@@ -159,11 +166,11 @@ def fillSong(row, name="song"):
         song.set("parent", "UNKNOWN")
     song.set("title", row.title)
     song.set("isDir", "false")
-    album_name = ""
+    album_name = "-"
     if row.album and row.album.title:
         album_name = row.album.title
     song.set("album", album_name)
-    artist_name = ""
+    artist_name = "-"
     if row.artist and row.artist.name:
         artist_name = row.artist.name
     song.set("artist", artist_name)
