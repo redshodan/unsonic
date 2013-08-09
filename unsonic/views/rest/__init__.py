@@ -137,8 +137,14 @@ def fillAlbum(row, name="album"):
     album.set("name", row.title)
     # FIXME
     album.set("coverArt", "al-%d" % row.id)
-    album.set("created",
-              str(row.release_date) if row.release_date else "")
+    if row.release_date:
+        release = []
+        for c in row.release_date:
+            if c.isdigit():
+                release.append(c)
+            else:
+                break
+        album.set("created", "".join(release))
     if row.artist and row.artist.name:
         album.set("artist", row.artist.name)
     album.set("artistId", str(row.artist_id))
@@ -164,7 +170,13 @@ def fillSong(row, name="song"):
     if row.track_num:
         song.set("track", str(row.track_num))
     if row.album and row.album.release_date:
-        song.set("year", row.album.release_date)
+        year = []
+        for c in row.album.release_date:
+            if c.isdigit():
+                year.append(c)
+            else:
+                break
+        song.set("year", "".join(year))
     # FIXME
     song.set("genre", "rock")
     # FIXME
