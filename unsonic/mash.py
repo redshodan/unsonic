@@ -1,16 +1,10 @@
 from __future__ import print_function
 
-import os, sys, transaction
+import os
 
 import mishmash
 from mishmash.commands import Command
 from mishmash.database import DBInfo, Database
-
-from pyramid.settings import aslist
-
-from sqlalchemy import engine_from_config
-
-from .models import DBSession, MyModel, Base
 
 
 def asdict(value):
@@ -21,29 +15,20 @@ def asdict(value):
             ret[key.strip()] = val.strip()
     return ret
 
-# Setup the pyramid database
-def initPyramid(settings):
-    engine = engine_from_config(settings, 'sqlalchemy.')
-    DBSession.configure(bind=engine)
-    Base.metadata.create_all(engine)
-    with transaction.manager:
-        model = MyModel(name='one', value=1)
-        DBSession.add(model)
-
-def initMash(settings):
+def init(settings):
     dbinfo = DBInfo(uri=settings["sqlalchemy.url"])
     Command.cmds["init"].run(dbinfo)
 
-def syncMash(settings):
+def sync(settings):
     dbinfo = DBInfo(uri=settings["sqlalchemy.url"])
-    paths = [v for v in getMashPaths(settings).itervalues()]
+    paths = [v for v in getPaths(settings).itervalues()]
     Command.cmds["sync"].run(dbinfo, paths)
 
-def getMashPaths(settings):
+def getPaths(settings):
     paths = asdict(settings["music.paths"])
     for key in paths.keys():
         paths[key] = os.path.expandvars(os.path.expanduser(paths[key]))
     return paths
     
-def loadMash(settings):
+def load(settings):
     return Database(DBInfo(uri=settings["sqlalchemy.url"]))

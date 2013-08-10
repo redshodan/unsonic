@@ -37,4 +37,4 @@ sys.path[0:0] = [os.path.abspath(os.path.join(path, "..")),
 
 if __name__ == "__main__":
     import unsonic
-    unsonic.dbMain()
+    sys.exit(unsonic.dbMain())

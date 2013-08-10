@@ -35,8 +35,9 @@ Building
 
 Running
 ---
-  * ./bin/unsonic-db init <config.ini>
-  * ./bin/unsonic-db sync <config.ini>
+  * ./bin/unsonic-db -c <config.ini> init
+  * ./bin/unsonic-db -c <config.ini> sync
+  * ./bin/unsonic-db -c <config.ini> adduser name pass
   * ./bin/unsonic <config.ini>
 
 License

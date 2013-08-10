@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 
 from . import Command, addCmd
-from ... import db
+from ... import mash
 
 
 class GetMusicFolders(Command):
@@ -10,7 +10,7 @@ class GetMusicFolders(Command):
 
     def handleReq(self):
         folders = ET.Element("musicFolders")
-        for name, path in db.getMashPaths(self.mash_settings).iteritems():
+        for name, path in mash.getPaths(self.mash_settings).iteritems():
             folder = ET.Element("musicFolder")
             folders.append(folder)
             folder.set("id", "fl-%s" % name)

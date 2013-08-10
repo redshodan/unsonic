@@ -5,7 +5,6 @@ from pyramid import testing
 from mishmash.orm import Track, Artist, Album, Meta, Label
 
 from . import RestTestCase
-from ... import db
 from ...models import DBSession
 from ...views.rest.stream import Stream
 from ...views.rest import Command

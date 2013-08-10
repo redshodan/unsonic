@@ -3,7 +3,7 @@ from . import Command, addCmd
 
 from pyramid.response import FileResponse
 
-from ... import db
+from ... import mash
 
 
 class GetCoverArt(Command):
@@ -12,7 +12,7 @@ class GetCoverArt(Command):
 
     # FIXME: Do this right once there is art info in mishmash
     def handleReq(self):
-        return FileResponse(os.path.join(db.getMashPaths(self.mash_settings).values()[0],
+        return FileResponse(os.path.join(mash.getPaths(self.mash_settings).values()[0],
                                          "albumart.png"))
 
 

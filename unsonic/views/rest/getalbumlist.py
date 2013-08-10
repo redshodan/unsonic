@@ -4,8 +4,6 @@ from  sqlalchemy.sql.expression import func as dbfunc
 
 from mishmash.orm import Track, Artist, Album, Meta, Label
 
-from ... import db
-
 
 class GetAlbumList(Command):
     name = "getAlbumList.view"

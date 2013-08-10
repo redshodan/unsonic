@@ -11,10 +11,7 @@ class TestCase(unittest.TestCase):
         self.config = testing.setUp()
         from sqlalchemy import create_engine
         engine = create_engine('sqlite://')
-        from ..models import (
-            Base,
-            MyModel,
-            )
+        from ..models import Base, MyModel
         DBSession.configure(bind=engine)
         Base.metadata.create_all(engine)
         with transaction.manager:

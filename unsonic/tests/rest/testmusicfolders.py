@@ -3,7 +3,6 @@ import os, unittest, transaction
 from pyramid import testing
 
 from . import RestTestCase
-from ... import db
 from ...models import DBSession
 from ...views.rest.getmusicfolders import GetMusicFolders
 from ...views.rest import Command

@@ -29,9 +29,10 @@ $(PY_LIB)/unsonic.egg-link:
 
 db: devel-db
 devel-db: build/unsonic.sqlite
-build/unsonic.sqlite: bin/unsonic-db development.ini $(PY_LIB)/unsonic.egg-link
-	bin/unsonic-db init development.ini
-	bin/unsonic-db sync development.ini
+build/unsonic.sqlite: bin/unsonic-db development.ini
+	bin/unsonic-db -c development.ini init
+	bin/unsonic-db -c development.ini sync
+	bin/unsonic-db -c development.ini adduser test test
 
 run: devel-run
 devel-run: bin/unsonic build/unsonic.sqlite
