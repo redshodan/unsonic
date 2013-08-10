@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 
 from mishmash.orm import Track, Artist, Album, Meta, Label
 
-from ... import db
+from ... import mash
 
 
 class GetMusicDirectory(Command):
@@ -21,7 +21,7 @@ class GetMusicDirectory(Command):
             # FIXME: Do we care about the top level directory hierarchy?
             directory.set(
                 "parent",
-                "fl-%s" % db.getMashPaths(self.mash_settings).keys()[0])
+                "fl-%s" % mash.getPaths(self.mash_settings).keys()[0])
             directory.set("id", self.params["id"])
             artist_name = None
             for row in session.query(Album).filter(

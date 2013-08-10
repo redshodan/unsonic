@@ -1,6 +1,8 @@
 import os, types
 import xml.etree.ElementTree as ET
 
+from pyramid.security import Allow, Authenticated, DENY_ALL
+
 from ...version import VERSION, PROTOCOL_VERSION, UNSONIC_PROTOCOL_VERSION
 
 
@@ -8,6 +10,12 @@ XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>'
 
 commands = {}
 
+
+class RouteContext(object):
+    __acl__ = [ (Allow, Authenticated, 'rest'), DENY_ALL ]
+    
+    def __init__(self, request):
+        pass
 
 class MissingParam(Exception):
     pass

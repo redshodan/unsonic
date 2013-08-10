@@ -49,8 +49,8 @@ class RestTestCase(unittest.TestCase):
             if e.errno != 2:
                 raise
         try:
-            dbMain(["init", "testing.ini"])
-            dbMain(["sync", "testing.ini"])
+            dbMain(["-c", "testing.ini", "init"])
+            dbMain(["-c", "testing.ini", "sync"])
         finally:
             DBSession.remove()
         global the_mash_db
