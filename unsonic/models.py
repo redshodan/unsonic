@@ -3,7 +3,10 @@ from __future__ import print_function
 import transaction
 from argparse import Namespace
 
-from sqlalchemy import engine_from_config, Column, Integer, Text, ForeignKey
+import sqlalchemy
+from sqlalchemy import (engine_from_config, Column, Integer, Text, ForeignKey,
+                        event)
+from sqlalchemy.engine import Engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, relation
@@ -15,15 +18,12 @@ Base = declarative_base()
 users = {}
 
 
-from sqlalchemy.engine import Engine
-from sqlalchemy import event
-
-@event.listens_for(Engine, "connect")
+@sqlalchemy.event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
-    cursor = dbapi_connection.cursor()
-    cursor.execute("PRAGMA foreign_keys=ON")
-    cursor.close()
-    
+    if "sqlite" in DBSession.get_bind().driver:
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
 
 
 ### DB models
