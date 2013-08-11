@@ -1,8 +1,7 @@
-from . import Command, addCmd, bool_t, track_t
-
 from pyramid.response import FileResponse
 
-from mishmash.orm import Track, Artist, Album, Meta, Label
+from . import Command, addCmd, bool_t, track_t
+from ...models import DBSession, Track
 
 
 class Stream(Command):
@@ -17,8 +16,7 @@ class Stream(Command):
         }
 
     def handleReq(self):
-        session = self.mash_db.Session()
-        row = session.query(Track).filter(Track.id == self.params["id"]).all()[0]
+        row = DBSession.query(Track).filter(Track.id == self.params["id"]).all()[0]
         return FileResponse(row.path)
 
 

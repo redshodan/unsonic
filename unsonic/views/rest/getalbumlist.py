@@ -1,8 +1,8 @@
-from . import Command, MissingParam, addCmd, fillAlbum, fillArtist, fillSong
 import xml.etree.ElementTree as ET
 from  sqlalchemy.sql.expression import func as dbfunc
 
-from mishmash.orm import Track, Artist, Album, Meta, Label
+from . import Command, MissingParam, addCmd, fillAlbum, fillArtist, fillSong
+from ...models import DBSession, Artist, Album
 
 
 class GetAlbumList(Command):
@@ -18,19 +18,18 @@ class GetAlbumList(Command):
     
     def handleReq(self):
         alist = ET.Element("albumList")
-        session = self.mash_db.Session()
         if self.params["type"] == "random":
-            result = session.query(Album).order_by(dbfunc.random()). \
+            result = DBSession.query(Album).order_by(dbfunc.random()). \
                          limit(self.params["size"])
         elif self.params["type"] == "newest":
-            result = session.query(Album).order_by(Album.date_added). \
+            result = DBSession.query(Album).order_by(Album.date_added). \
                          limit(self.params["size"])
         elif self.params["type"] == "alphabeticalByName":
-            result = session.query(Album).order_by(Album.title). \
+            result = DBSession.query(Album).order_by(Album.title). \
                          limit(self.params["size"])
         # elif self.params["type"] == "alphabeticalByArtist":
         # FIXME: How to do this with sqlalchemy?
-        #result=session.query(Album).order_by(Album.artist.name).limit(size)
+        #result=DBSession.query(Album).order_by(Album.artist.name).limit(size)
         else:
             # FIXME: Implement the rest once play tracking is done
             raise MissingParam("Unsupported type")

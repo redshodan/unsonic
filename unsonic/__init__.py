@@ -11,7 +11,6 @@ from pyramid.paster import get_appsettings, setup_logging
 from pyramid.security import forget
 from pyramid.view import view_config, forbidden_view_config
 
-from mishmash.commands import makeCmdLineParser
 
 from . import mash, models
 from .views import rest
@@ -28,6 +27,7 @@ def forbidden_view(request):
     return response
 
 
+# Support the silly original auth scheme that Subsonic has
 class SubsonicAuth(BasicAuthAuthenticationPolicy):
     def __init__(self, realm='Realm', debug=False):
         super(SubsonicAuth, self).__init__(
@@ -54,30 +54,22 @@ class SubsonicAuth(BasicAuthAuthenticationPolicy):
 
     # Shared between both auth schemes
     def authCheck(self, username, password, req):
-        if username in models.users.keys():
-            user = models.users[username]
-            if password == user.password:
-                return user.groups
-    
-    
-def initMash():
-    makeCmdLineParser()
+        user = models.getUserByName(username)
+        if password == user.password:
+            # Stash the user for easy access
+            req.authed_user = user.export()
+            return req.authed_user.groups
 
-def loadMash(settings):
-    return mash.load(settings)
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
 
     # Setup models
-    models.init(settings)
-    models.loadData()
+    models.init(settings, True)
     
     # Setup mishmash
-    initMash()
-    mash_settings = get_appsettings(global_config["__file__"], name="mishmash")
-    mash_db = loadMash(mash_settings)
+    mash.load(settings)
 
     # Pyramid framework
     config = Configurator(settings=settings)
@@ -96,8 +88,7 @@ def main(global_config, **settings):
     
     # Add the rest interfaces
     for cmd in rest.commands.itervalues():
-        cmd.mash_db = mash_db
-        cmd.mash_settings = mash_settings
+        cmd.settings = settings
         config.add_route(cmd.name, "/rest/" + cmd.name,
                          factory="unsonic.views.rest.RouteContext")
         config.add_view(cmd, route_name=cmd.name, permission="rest")
@@ -108,17 +99,15 @@ def main(global_config, **settings):
 
 
 ### Logic for the unsonic-db tool. Located here for testing.
-def doInit(args, settings, mash_settings):
-    models.init(settings)
-    models.initModels()
-    mash.init(mash_settings)
+def doInit(args, settings):
+    models.initDB(settings)
     return 0
 
-def doSync(args, settings, mash_settings):
-    mash.sync(mash_settings)
+def doSync(args, settings):
+    mash.syncDB(settings)
     return 0
 
-def doAddUser(args, settings, mash_settings):
+def doAddUser(args, settings):
     print("Adding user '%s'.." % args.username[0])
     for group in ["rest", "users"]:
         if group not in args.groups:
@@ -131,13 +120,13 @@ def doAddUser(args, settings, mash_settings):
         print(ret)
         return -1
 
-def doDelUser(args, settings, mash_settings):
+def doDelUser(args, settings):
     print("Deleting user '%s'" % args.username[0])
     models.delUser(args.username[0])
     print("Deleted.")
     return 0
 
-def doListUsers(args, settings, mash_settings):
+def doListUsers(args, settings):
     print("Users:")
     for user in models.DBSession.query(models.User).all():
         groups = [g.name for g in user.groups]
@@ -177,7 +166,7 @@ def buildParser():
     deluser = subparsers.add_parser("listusers",
                                     help="List users in the database")
     deluser.set_defaults(func=doListUsers)
-    
+
     return parser
 
 def dbMain(argv=sys.argv[1:]):
@@ -186,8 +175,7 @@ def dbMain(argv=sys.argv[1:]):
 
     setup_logging(args.config)
     settings = get_appsettings(args.config)
-    mash_settings = get_appsettings(args.config, name="mishmash")
 
-    models.init(settings)
-    initMash()
-    return args.func(args, settings, mash_settings)
+    mash.init(settings)
+    models.init(settings, False)
+    return args.func(args, settings)

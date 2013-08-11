@@ -1,9 +1,9 @@
 import time
-from . import (Command, addCmd, bool_t, positive_t, fillArtist, fillAlbum,
-               fillSong)
 import xml.etree.ElementTree as ET
 
-from mishmash.orm import Track, Artist, Album, Meta, Label
+from . import (Command, addCmd, bool_t, positive_t, fillArtist, fillAlbum,
+               fillSong)
+from ...models import DBSession, Artist, Album, Track
 
 
 class Search2(Command):
@@ -27,17 +27,16 @@ class Search2(Command):
         tr_count = self.params["songCount"]
         tr_off = self.params["songOffset"]
 
-        session = self.mash_db.Session()
         result = ET.Element("searchResult2")
         if ar_count:
-            for row in session.query(Artist). \
+            for row in DBSession.query(Artist). \
                            filter(Artist.name.ilike(u"%%%s%%" % query)). \
                            limit(ar_count). \
                            offset(ar_off):
                 artist = fillArtist(row)
                 result.append(artist)
         if al_count:
-            for row in session.query(Album). \
+            for row in DBSession.query(Album). \
                            filter(Album.title.ilike(u"%%%s%%" % query)). \
                            limit(al_count). \
                            offset(al_off):
@@ -50,7 +49,7 @@ class Search2(Command):
                 album.set("isDir", "true")
                 album.set("title", album.get("name"))
         if tr_count:
-            for row in session.query(Track). \
+            for row in DBSession.query(Track). \
                            filter(Track.title.ilike(u"%%%s%%" % query)). \
                            limit(tr_count). \
                            offset(tr_off):

@@ -11,11 +11,11 @@ class TestCase(unittest.TestCase):
         self.config = testing.setUp()
         from sqlalchemy import create_engine
         engine = create_engine('sqlite://')
-        from ..models import Base, MyModel
+        from ..models import Base
         DBSession.configure(bind=engine)
         Base.metadata.create_all(engine)
         with transaction.manager:
-            model = MyModel(name='one', value=55)
+            # model = MyModel(name='one', value=55)
             DBSession.add(model)
 
     def tearDown(self):
