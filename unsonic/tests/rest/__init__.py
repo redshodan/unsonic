@@ -13,7 +13,6 @@ from ... import dbMain
 class RestTestCase(unittest.TestCase):
     def setUp(self):
         self.config = testing.setUp()
-        self.mash_db = the_mash_db
 
     def tearDown(self):
         testing.tearDown()
@@ -22,8 +21,7 @@ class RestTestCase(unittest.TestCase):
         request = testing.DummyRequest()
         request.context = testing.DummyResource()
         cmd = klass(request)
-        cmd.mash_db = self.mash_db
-        cmd.mash_settings = {"music.paths":"Music: test/music"}
+        cmd.settings = {"mishmash.paths":"Music: test/music"}
         return cmd
 
     def checkResp(self, req, resp, ok=True):
@@ -44,15 +42,7 @@ class RestTestCase(unittest.TestCase):
             if e.errno != 2:
                 raise
         try:
-            os.unlink("build/testing-mishmash.sqlite")
-        except OSError, e:
-            if e.errno != 2:
-                raise
-        try:
             dbMain(["-c", "testing.ini", "init"])
             dbMain(["-c", "testing.ini", "sync"])
         finally:
             DBSession.remove()
-        global the_mash_db
-        db_uri = "sqlite:///%s/build/testing-mishmash.sqlite" % os.getcwd()
-        the_mash_db = Database(DBInfo(uri=db_uri))

@@ -23,6 +23,9 @@ class MissingParam(Exception):
 class NotFound(Exception):
     pass
 
+class InternalError(Exception):
+    pass
+
 
 class Command(object):
     E_GENERIC = ("0", "An unknown error occured")
@@ -48,6 +51,8 @@ class Command(object):
             return self.makeResp(status=(Command.E_MISSING_PARAM, str(e)))
         except NotFound, e:
             return self.makeResp(status=(Command.E_NOT_FOUND, str(e)))
+        except InternalError, e:
+            return self.makeResp(status=(Command.E_GENERIC, str(e)))
 
     def handleReq(self):
         raise Exception("Command must implement handleReq()")
@@ -136,6 +141,11 @@ def track_t(value):
         raise MissingParam("Invalid id")
     return int(value[3:])
 
+def playlist_t(value):
+    if not value.startswith("pl-"):
+        raise MissingParam("Invalid id")
+    return int(value[3:])
+
 
 ### Utilities for wrangling data into xml form
 def fillArtist(row, name="artist"):
@@ -209,3 +219,27 @@ def fillSong(row, name="song"):
     song.set("bitRate", "128")
     song.set("path", os.path.join(artist_name, album_name, row.title))
     return song
+
+def fillPlayList(row):
+    playlist = ET.Element("playlist")
+    playlist.set("id", "pl-%d" % row.id)
+    playlist.set("name", row.name)
+    playlist.set("comment", row.comment if row.comment else "")
+    playlist.set("owner", row.owner.name)
+    playlist.set("public", "true" if row.public else "false")
+    playlist.set("created", row.created.isoformat())
+
+    count = 0
+    duration = 0
+    for trow in row.tracks:
+        count += 1
+        duration += trow.track.time_secs
+        playlist.set("songCount", str(count))
+        playlist.set("duration", str(duration))
+            
+    for urow in row.users:
+        auser = ET.Element("allowedUser")
+        auser.text = urow.user.name
+        playlist.append(auser)
+
+    return playlist

@@ -1,7 +1,7 @@
-from . import Command, addCmd, fillArtist
 import xml.etree.ElementTree as ET
 
-from mishmash.orm import Track, Artist, Album, Meta, Label
+from . import Command, addCmd, fillArtist
+from ...models import DBSession, Artist, Album
 
 
 class GetArtists(Command):
@@ -9,10 +9,9 @@ class GetArtists(Command):
     param_defs = {}
     
     def handleReq(self):
-        session = self.mash_db.Session()
         artists = ET.Element("artists")
         index_group = None
-        for row in session.query(Artist).order_by(Artist.sort_name).all():
+        for row in DBSession.query(Artist).order_by(Artist.sort_name).all():
             first = row.sort_name[0].upper()
             if index_group != first:
                 index_group = first
@@ -24,7 +23,7 @@ class GetArtists(Command):
         for index in artists:
             for artist in index:
                 count = 0
-                for album in session.query(Album).filter(
+                for album in DBSession.query(Album).filter(
                         Album.artist_id == int(artist.get("id")[3:])).all():
                     count = count + 1
                 artist.set("albumCount", str(count))

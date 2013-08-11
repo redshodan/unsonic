@@ -1,5 +1,6 @@
-from . import Command, addCmd
 import xml.etree.ElementTree as ET
+
+from . import Command, addCmd
 
 
 class GetLicense(Command):

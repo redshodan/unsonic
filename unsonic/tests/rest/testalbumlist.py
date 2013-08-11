@@ -29,13 +29,6 @@ class TestAlbumList(RestTestCase):
         cmd.req.params["type"] = "random"
         resp = cmd()
         count1, titles1 = self.validate(cmd, resp)
-
-        cmd = self.buildCmd(GetAlbumList)
-        cmd.req.params["type"] = "random"
-        resp = cmd()
-        count2, titles2 = self.validate(cmd, resp)
-
-        self.assertNotEqual(titles1, titles2)
         
     def testSized(self):
         cmd = self.buildCmd(GetAlbumList)

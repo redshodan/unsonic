@@ -1,7 +1,7 @@
-from . import Command, NotFound, addCmd, artist_t, fillAlbum, fillArtist
 import xml.etree.ElementTree as ET
 
-from mishmash.orm import Track, Artist, Album, Meta, Label
+from . import Command, NotFound, addCmd, artist_t, fillAlbum, fillArtist
+from ...models import DBSession, Artist, Album, Track
 
 
 class GetArtist(Command):
@@ -9,15 +9,14 @@ class GetArtist(Command):
     param_defs = {"id": {"required": True, "type": artist_t}}
 
     def handleReq(self):
-        session = self.mash_db.Session()
         artist = None
-        for row in session.query(Artist).\
+        for row in DBSession.query(Artist).\
                        filter(Artist.id == self.params["id"]).all():
             artist = fillArtist(row)
         if artist is None:
             raise NotFound(self.req.params["id"])
         album_count = 0
-        for row in session.query(Album).filter(
+        for row in DBSession.query(Album).filter(
                 Album.artist_id == self.params["id"]).all():
             album_count = album_count + 1
             album = fillAlbum(row)
@@ -25,7 +24,7 @@ class GetArtist(Command):
         for album in artist:
             song_count = 0
             duration = 0
-            for row in session.query(Track).filter(
+            for row in DBSession.query(Track).filter(
                     Track.album_id == int(album.get("id")[3:])).all():
                 song_count = song_count + 1
                 duration = duration + row.time_secs

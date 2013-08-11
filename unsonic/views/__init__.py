@@ -4,7 +4,7 @@ from pyramid.view import view_config
 
 from sqlalchemy.exc import DBAPIError
 
-from ..models import DBSession, MyModel
+from ..models import DBSession, User
 
 
 class RouteContext(object):
@@ -18,10 +18,10 @@ class RouteContext(object):
              permission="users")
 def my_view(request):
     try:
-        one = DBSession.query(MyModel).filter(MyModel.name == 'one').first()
+        DBSession.query(User).all()
     except DBAPIError:
         return Response(conn_err_msg, content_type='text/plain', status_int=500)
-    return {'one': one, 'project': 'Unsonic'}
+    return {'project': 'Unsonic'}
 
 
 conn_err_msg = """\

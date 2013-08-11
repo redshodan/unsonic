@@ -28,23 +28,23 @@ $(PY_LIB)/unsonic.egg-link:
 	touch $@
 
 db: devel-db
-devel-db: build/unsonic.sqlite
-build/unsonic.sqlite: bin/unsonic-db development.ini
+devel-db: build/development.sqlite
+build/development.sqlite: bin/unsonic-db development.ini
 	bin/unsonic-db -c development.ini init
 	bin/unsonic-db -c development.ini sync
 	bin/unsonic-db -c development.ini adduser test test
 
 run: devel-run
-devel-run: bin/unsonic build/unsonic.sqlite
+devel-run: bin/unsonic build/development.sqlite
 	bin/unsonic development.ini --reload
 
 tests:
 	PYTHONPATH=external/eyed3/src/:external/mishmash/src $(PYTHON) setup.py test
 
 clean:
-	-find unsonic -name '*.pyc' | xargs rm
+	-find unsonic external -name '*.pyc' | xargs rm
 
 dist-clean: clean
-	rm -rf build unsonic.egg-info unsonic.sqlite bin/unsonic bin/unsonic-db
+	rm -rf build unsonic.egg-info development.sqlite bin/unsonic bin/unsonic-db
 
 .PHONY: devel db pyramid paste sqlalchemy psycopg2 eyed3 run tests clean dist-clean

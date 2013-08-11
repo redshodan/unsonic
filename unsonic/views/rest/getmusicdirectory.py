@@ -1,9 +1,8 @@
-from . import (Command, MissingParam, NotFound, addCmd, fillAlbum, fillArtist,
-               fillSong)
 import xml.etree.ElementTree as ET
 
-from mishmash.orm import Track, Artist, Album, Meta, Label
-
+from . import (Command, MissingParam, NotFound, addCmd, fillAlbum, fillArtist,
+               fillSong)
+from ...models import DBSession, Artist, Album, Track
 from ... import mash
 
 
@@ -12,7 +11,6 @@ class GetMusicDirectory(Command):
     param_defs = {"id": {"required": True}}
 
     def handleReq(self):
-        session = self.mash_db.Session()
         directory = ET.Element("directory")
         if self.params["id"].startswith("fl-"):
             raise Exception("TOP LEVEL FOLDER")
@@ -21,10 +19,10 @@ class GetMusicDirectory(Command):
             # FIXME: Do we care about the top level directory hierarchy?
             directory.set(
                 "parent",
-                "fl-%s" % mash.getPaths(self.mash_settings).keys()[0])
+                "fl-%s" % mash.getPaths(self.settings).keys()[0])
             directory.set("id", self.params["id"])
             artist_name = None
-            for row in session.query(Album).filter(
+            for row in DBSession.query(Album).filter(
                     Album.artist_id == artist_id).all():
                 album = ET.Element("child")
                 directory.append(album)
@@ -37,8 +35,8 @@ class GetMusicDirectory(Command):
                 album.set("isDir", "true")
                 album.set("coverArt", "al-%d" % row.id)
             if not artist_name:
-                rows = session.query(Artist).filter(Artist.id ==
-                                                   artist_id).all()
+                rows = DBSession.query(Artist).filter(Artist.id ==
+                                                      artist_id).all()
                 if len(rows) == 1:
                     artist_name = rows[0].name
             if not artist_name:
@@ -49,8 +47,8 @@ class GetMusicDirectory(Command):
             dir_parent = None
             dir_name = None
             song = None
-            for row in session.query(Track).filter(Track.album_id ==
-                                                   album_id).all():
+            for row in DBSession.query(Track).filter(Track.album_id ==
+                                                     album_id).all():
                 song = fillSong(row, "child")
                 directory.append(song)
                 if row.artist:

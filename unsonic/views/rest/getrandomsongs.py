@@ -1,8 +1,8 @@
-from . import Command, addCmd, fillAlbum, fillArtist, fillSong
 import xml.etree.ElementTree as ET
 from  sqlalchemy.sql.expression import func as dbfunc
 
-from mishmash.orm import Track, Artist, Album, Meta, Label
+from . import Command, addCmd, fillAlbum, fillArtist, fillSong
+from ...models import DBSession, Artist, Album, Track
 
 
 class GetRandomSongs(Command):
@@ -16,9 +16,8 @@ class GetRandomSongs(Command):
         }
         
     def handleReq(self):
-        session = self.mash_db.Session()
         random_songs = ET.Element("randomSongs")
-        for row in session.query(Track).order_by(dbfunc.random()).\
+        for row in DBSession.query(Track).order_by(dbfunc.random()).\
                        limit(self.params["size"]):
             song = fillSong(row)
             random_songs.append(song)

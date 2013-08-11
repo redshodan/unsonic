@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-import transaction
+import transaction, datetime, argparse
 from argparse import Namespace
 
 import sqlalchemy
@@ -12,10 +12,15 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, relation
 from zope.sqlalchemy import ZopeTransactionExtension
 
+import mishmash.orm
+from mishmash.orm import OrmObject, Artist, Album, Meta, Label, Track
+from mishmash.orm import TYPES as MASH_TYPES
 
-DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
-Base = declarative_base()
-users = {}
+from .moduleref import ModuleRef
+
+
+DBSession = ModuleRef()
+Base = mishmash.orm.Base
 
 
 @sqlalchemy.event.listens_for(Engine, "connect")
@@ -27,85 +32,123 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
 
 
 ### DB models
-
-# Borrowed from mishmash
-class OrmObject(object):
-    @staticmethod
-    def initTable(session):
-        pass
-
-    def __repr__(self):
-        attrs = []
-        for key in self.__dict__:
-            if not key.startswith('_'):
-                attrs.append((key, getattr(self, key)))
-        return self.__class__.__name__ + '(' + ', '.join(x[0] + '=' +
-                                            repr(x[1]) for x in attrs) + ')'
-
-class MyModel(Base, OrmObject):
-    __tablename__ = 'models'
-    
-    id = Column(Integer, primary_key=True)
-    name = Column(Text, unique=True)
-    value = Column(Integer)
-
-
 class User(Base, OrmObject):
-    __tablename__ = 'users'
+    __tablename__ = 'un_users'
     
     id = Column(Integer, primary_key=True)
     name = Column(Text, unique=True)
     password = Column(Text)
     groups = relation("Group", cascade="all, delete-orphan",
                       passive_deletes=True)
+    playlists = relation("PlayList", cascade="all, delete-orphan",
+                         passive_deletes=True)
+
+    def export(self):
+        ret = argparse.Namespace()
+        ret.id = self.id
+        ret.name = self.name
+        ret.password = self.password
+        ret.groups = []
+        for group in self.groups:
+            ret.groups.append(group.name)
+        return ret
 
 
 class Group(Base, OrmObject):
-    __tablename__ = 'groups'
+    __tablename__ = 'un_groups'
     
     id = Column(Integer, primary_key=True)
-    name = Column(Text)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete='CASCADE'),
+    user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
                      nullable=False)
+    name = Column(Text)
     user = relation("User")
 
 
+class PlayList(Base, OrmObject):
+    __tablename__ = 'un_playlists'
+        
+    id = Column(Integer, primary_key=True)
+    owner_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
+                      nullable=False)
+    name = Column(Text)
+    comment = Column(Text)
+    public = Column(Integer, default=0)
+    created = sqlalchemy.Column(sqlalchemy.DateTime(), nullable=False,
+                         default=datetime.datetime.now)
+    users = relation("PlayListUser", cascade="all, delete-orphan",
+                     passive_deletes=True)
+    tracks = relation("PlayListTrack", cascade="all, delete-orphan",
+                      passive_deletes=True)
+    owner = relation("User")
+
+
+class PlayListUser(Base, OrmObject):
+    __tablename__ = 'un_playlistusers'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False)
+    playlist_id = Column(Integer, ForeignKey("un_playlists.id",
+                                             ondelete='CASCADE'),
+                         nullable=False)
+    playlist = relation("PlayList")
+    user = relation("User")
+
+
+class PlayListTrack(Base, OrmObject):
+    __tablename__ = 'un_playlisttracks'
+
+    id = Column(Integer, primary_key=True)
+    track_id = Column(Integer, ForeignKey("tracks.id"), nullable=False)
+    playlist_id = Column(Integer, ForeignKey("un_playlists.id",
+                                             ondelete='CASCADE'),
+                         nullable=False)
+    track = relation("Track")
+    playlist = relation("PlayList")
+
+
+# Modify the Track to include a relation to PlayListTrack
+Track.playlist = relation("PlayListTrack")
+    
+
 ### Utility functions
-def init(settings):
+def init(settings, webapp):
     engine = engine_from_config(settings, 'sqlalchemy.')
+    # Prevent fighting over the transaction model
+    # FIXME maybe make transaction control optional in mishmash?
+    if webapp:
+        DBSession.__setobj__(scoped_session(sessionmaker(
+            extension=ZopeTransactionExtension())))
+    else:
+        DBSession.__setobj__(scoped_session(sessionmaker(autocommit=True,
+                                                         autoflush=False)))
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
 
-def initModels():
+def initDB(settings):
+    from . import mash
     Base.metadata.create_all()
-    with transaction.manager:
-        ret = DBSession.query(MyModel).filter(MyModel.name == "one").all()
-        if len(ret) == 0:
-            model = MyModel(name='one', value=1)
-            DBSession.add(model)
-
-def loadData():
-    for userdb in DBSession.query(User).all():
-        groups = []
-        for groupdb in userdb.groups:
-            groups.append(groupdb.name)
-        user = Namespace(name=userdb.name, password=userdb.password,
-                         groups=groups)
-        users[user.name] = user
+    with DBSession.begin():
+        for table in MASH_TYPES:
+            table.initTable(DBSession)
 
 def addUser(username, password, groups):
-    with transaction.manager:
-        try:
+    try:
+        with DBSession.begin():
             user = User(name=username, password=password)
             DBSession.add(user)
             DBSession.flush()
             for name in groups:
                 group = Group(name=name, user_id=user.id)
                 DBSession.add(group)
-        except IntegrityError:
-            return "Failed to add user. User already exists."
-        return True
+    except IntegrityError:
+        return "Failed to add user. User already exists."
+    return True
 
 def delUser(username):
-    with transaction.manager:
-        DBSession.query(User).filter(User.name == username).delete()
+    DBSession.query(User).filter(User.name == username).delete()
+
+def getUserByName(username):
+    return DBSession.query(User).filter(User.name == username).one()
+
+def getUserByID(id):
+    return DBSession.query(User).filter(User.id == id).one()
