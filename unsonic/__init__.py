@@ -27,11 +27,39 @@ def forbidden_view(request):
     response.headers.update(forget(request))
     return response
 
-def authCheck(username, passwd, req):
-    if username in models.users.keys():
-        user = models.users[username]
-        return user.groups
 
+class SubsonicAuth(BasicAuthAuthenticationPolicy):
+    def __init__(self, realm='Realm', debug=False):
+        super(SubsonicAuth, self).__init__(
+            self.authCheck, realm=realm, debug=debug)
+
+    def unauthenticated_userid(self, request):
+        if request.headers.get('Authorization'):
+            return super(SubsonicAuth, self).unauthenticated_userid(request)
+        elif ("u" not in request.params.keys() or
+              "p" not in request.params.keys()):
+            return None
+        else:
+            return request.params["u"]
+
+    def callback(self, username, request):
+        if request.headers.get('Authorization'):
+            return super(SubsonicAuth, self).callback(username, request)
+        elif ("u" not in request.params.keys() or
+              "p" not in request.params.keys()):
+            return None
+        else:
+            return self.check(request.params["u"], request.params["p"],
+                              request)
+
+    # Shared between both auth schemes
+    def authCheck(self, username, password, req):
+        if username in models.users.keys():
+            user = models.users[username]
+            if password == user.password:
+                return user.groups
+    
+    
 def initMash():
     makeCmdLineParser()
 
@@ -42,27 +70,26 @@ def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
 
+    # Setup models
+    models.init(settings)
+    models.loadData()
+    
     # Setup mishmash
     initMash()
     mash_settings = get_appsettings(global_config["__file__"], name="mishmash")
     mash_db = loadMash(mash_settings)
 
-    # Setup models
-    models.init(settings)
-    models.loadData()
-
     # Pyramid framework
     config = Configurator(settings=settings)
-    config.add_static_view('static', 'static', cache_max_age=3600)
-    config.add_route('home', '/')
+    config.add_static_view('static', 'static', cache_max_age=3600,)
+    config.add_route('home', '/', factory="unsonic.views.RouteContext")
     config.scan()
 
     global NAME
     if "unsonic.name" in settings:
         NAME = settings["unsonic.name"]
 
-    authn_policy = BasicAuthAuthenticationPolicy(authCheck, realm=NAME,
-                                                 debug=True)
+    authn_policy = SubsonicAuth(realm=NAME)
     authz_policy = ACLAuthorizationPolicy()
     config.set_authentication_policy(authn_policy)
     config.set_authorization_policy(authz_policy)
@@ -93,8 +120,9 @@ def doSync(args, settings, mash_settings):
 
 def doAddUser(args, settings, mash_settings):
     print("Adding user '%s'.." % args.username[0])
-    if "rest" not in args.groups:
-        args.groups.append("rest")
+    for group in ["rest", "users"]:
+        if group not in args.groups:
+            args.groups.append(group)
     ret = models.addUser(args.username[0], args.password[0], args.groups)
     if ret is True:
         print("Added.")
@@ -124,7 +152,7 @@ def buildParser():
     subparsers = parser.add_subparsers(title="commands")
 
     # Init
-    init = subparsers.add_parser("init", help="Initiliaze the databases")
+    init = subparsers.add_parser("init", help="Initialize the databases")
     init.set_defaults(func=doInit)
 
     # Sync
