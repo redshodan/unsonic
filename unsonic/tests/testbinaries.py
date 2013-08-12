@@ -3,7 +3,7 @@ import os, unittest, transaction
 from pyramid import testing
 
 from .. import dbMain
-from ..models import DBSession, Base, User, Group
+from ..models import DBSession, Base, User, Role
 
 
 class TestBinaries(unittest.TestCase):
@@ -39,38 +39,38 @@ class TestBinaries(unittest.TestCase):
     def testAddUser(self):
         self.testDBInit()
         try:
-            ret = dbMain(["-c", "testing.ini", "adduser", "sue", "pass", "group1", "group2"])
+            ret = dbMain(["-c", "testing.ini", "adduser", "sue", "pass", "role1", "role2"])
             self.assertEqual(ret, 0)
             row = DBSession.query(User).filter(User.name == "sue").all()
             self.assertEqual(len(row), 1)
             self.assertEqual(row[0].name, "sue")
             self.assertEqual(row[0].password, "pass")
-            self.assertEqual(row[0].groups[0].name, "group1")
-            self.assertEqual(row[0].groups[1].name, "group2")
+            self.assertEqual(row[0].roles[0].name, "role1")
+            self.assertEqual(row[0].roles[1].name, "role2")
         finally:
             DBSession.remove()
 
     def testAddUserTwice(self):
         self.testDBInit()
         try:
-            ret = dbMain(["-c", "testing.ini", "adduser", "sue", "pass", "group1", "group2"])
+            ret = dbMain(["-c", "testing.ini", "adduser", "sue", "pass", "role1", "role2"])
             DBSession.remove()
             self.assertEqual(ret, 0)
-            ret = dbMain(["-c", "testing.ini", "adduser", "sue", "pass", "group1", "group2"])
+            ret = dbMain(["-c", "testing.ini", "adduser", "sue", "pass", "role1", "role2"])
             self.assertEqual(ret, -1)
             row = DBSession.query(User).filter(User.name == "sue").all()
             self.assertEqual(len(row), 1)
             self.assertEqual(row[0].name, "sue")
             self.assertEqual(row[0].password, "pass")
-            self.assertEqual(row[0].groups[0].name, "group1")
-            self.assertEqual(row[0].groups[1].name, "group2")
+            self.assertEqual(row[0].roles[0].name, "role1")
+            self.assertEqual(row[0].roles[1].name, "role2")
         finally:
             DBSession.remove()
             
     def testDelUser(self):
         self.testDBInit()
         try:
-            ret = dbMain(["-c", "testing.ini", "adduser", "sue", "pass", "group1", "group2"])
+            ret = dbMain(["-c", "testing.ini", "adduser", "sue", "pass", "role1", "role2"])
             DBSession.remove()
             self.assertEqual(ret, 0)
             ret = dbMain(["-c", "testing.ini", "deluser", "sue"])

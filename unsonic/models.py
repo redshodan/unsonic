@@ -38,7 +38,7 @@ class User(Base, OrmObject):
     id = Column(Integer, primary_key=True)
     name = Column(Text, unique=True)
     password = Column(Text)
-    groups = relation("Group", cascade="all, delete-orphan",
+    roles = relation("Role", cascade="all, delete-orphan",
                       passive_deletes=True)
     playlists = relation("PlayList", cascade="all, delete-orphan",
                          passive_deletes=True)
@@ -48,14 +48,14 @@ class User(Base, OrmObject):
         ret.id = self.id
         ret.name = self.name
         ret.password = self.password
-        ret.groups = []
-        for group in self.groups:
-            ret.groups.append(group.name)
+        ret.roles = []
+        for role in self.roles:
+            ret.roles.append(role.name)
         return ret
 
 
-class Group(Base, OrmObject):
-    __tablename__ = 'un_groups'
+class Role(Base, OrmObject):
+    __tablename__ = 'un_roles'
     
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
@@ -131,15 +131,15 @@ def initDB(settings):
         for table in MASH_TYPES:
             table.initTable(DBSession)
 
-def addUser(username, password, groups):
+def addUser(username, password, roles):
     try:
         with DBSession.begin():
             user = User(name=username, password=password)
             DBSession.add(user)
             DBSession.flush()
-            for name in groups:
-                group = Group(name=name, user_id=user.id)
-                DBSession.add(group)
+            for name in roles:
+                role = Role(name=name, user_id=user.id)
+                DBSession.add(role)
     except IntegrityError:
         return "Failed to add user. User already exists."
     return True

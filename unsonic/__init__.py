@@ -58,7 +58,7 @@ class SubsonicAuth(BasicAuthAuthenticationPolicy):
         if password == user.password:
             # Stash the user for easy access
             req.authed_user = user.export()
-            return req.authed_user.groups
+            return req.authed_user.roles
 
 
 def main(global_config, **settings):
@@ -109,10 +109,10 @@ def doSync(args, settings):
 
 def doAddUser(args, settings):
     print("Adding user '%s'.." % args.username[0])
-    for group in ["rest", "users"]:
-        if group not in args.groups:
-            args.groups.append(group)
-    ret = models.addUser(args.username[0], args.password[0], args.groups)
+    for role in ["rest", "users"]:
+        if role not in args.roles:
+            args.roles.append(role)
+    ret = models.addUser(args.username[0], args.password[0], args.roles)
     if ret is True:
         print("Added.")
         return 0
@@ -129,8 +129,8 @@ def doDelUser(args, settings):
 def doListUsers(args, settings):
     print("Users:")
     for user in models.DBSession.query(models.User).all():
-        groups = [g.name for g in user.groups]
-        print("   %s:  groups: %s" % (user.name, ", ".join(groups)))
+        roles = [g.name for g in user.roles]
+        print("   %s:  roles: %s" % (user.name, ", ".join(roles)))
     return 0
     
 def buildParser():
@@ -152,8 +152,8 @@ def buildParser():
     adduser = subparsers.add_parser("adduser", help="Add a user to the database")
     adduser.add_argument("username", nargs=1, help="Username")
     adduser.add_argument("password", nargs=1, help="Password")
-    adduser.add_argument("groups", nargs=argparse.REMAINDER,
-                         help="Groups for the user")
+    adduser.add_argument("roles", nargs=argparse.REMAINDER,
+                         help="Roles for the user")
     adduser.set_defaults(func=doAddUser)
 
     # deluser
