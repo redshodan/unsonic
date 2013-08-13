@@ -12,7 +12,7 @@ from pyramid.security import forget
 from pyramid.view import view_config, forbidden_view_config
 
 
-from . import mash, models
+from . import mash, models, log
 from .views import rest
 
 
@@ -65,6 +65,8 @@ def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
 
+    # log.setupMash()
+    
     # Setup models
     models.init(settings, True)
     
@@ -176,6 +178,7 @@ def dbMain(argv=sys.argv[1:]):
     setup_logging(args.config)
     settings = get_appsettings(args.config)
 
+    # log.setupMash()
     mash.init(settings)
     models.init(settings, False)
     return args.func(args, settings)
