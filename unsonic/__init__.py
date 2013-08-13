@@ -76,6 +76,7 @@ def main(global_config, **settings):
     # Pyramid framework
     config = Configurator(settings=settings)
     config.add_static_view('static', 'static', cache_max_age=3600,)
+    config.add_static_view('jamstash', 'jamstash', cache_max_age=3600,)
     config.add_route('home', '/', factory="unsonic.views.RouteContext")
     config.scan()
 
