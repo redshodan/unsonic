@@ -3,6 +3,9 @@ import sys, logging
 import eyed3.utils.console
 
 
+log = logging.getLogger("unsonic")
+
+
 ### Ripped from stdlib logging to remove the extra newline that it puts on
 class StdoutHandler(logging.StreamHandler):
     def emit(self, record):

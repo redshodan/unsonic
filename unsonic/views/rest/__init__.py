@@ -1,8 +1,10 @@
-import os, types
+import os, types, json
 import xml.etree.ElementTree as ET
 
 from pyramid.security import Allow, Authenticated, DENY_ALL
 
+from ...log import log
+from ...utils import xmltodict
 from ...version import VERSION, PROTOCOL_VERSION, UNSONIC_PROTOCOL_VERSION
 
 
@@ -83,9 +85,15 @@ class Command(object):
         elif isinstance(body, ET.Element):
             body = XML_HEADER + ET.tostring(body)
         resp = self.req.response
-        resp.body = body
-        resp.content_type = "text/xml"
+        if "f" in self.req.params and self.req.params["f"] == "json":
+            body = xmltodict.parse(body)
+            resp.body = json.dumps(body)
+            resp.content_type = "application/json"
+        else:
+            resp.body = body
+            resp.content_type = "text/xml"
         resp.charset = "UTF-8"
+        log.debug("Response: \n" + str(resp))
         return resp
 
     def parseParams(self):
