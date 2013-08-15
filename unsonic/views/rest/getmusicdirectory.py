@@ -10,8 +10,18 @@ class GetMusicDirectory(Command):
     name = "getMusicDirectory.view"
     param_defs = {"id": {"required": True}}
 
+    def __init__(self, req):
+        super(GetMusicDirectory, self).__init__(req)
+        self.setParams()
+
+    def setParams(self, dir_param="directory", album_param="child",
+                  track_param="child"):
+        self.dir_param = dir_param
+        self.album_param = album_param
+        self.track_param = track_param
+
     def handleReq(self):
-        directory = ET.Element("directory")
+        directory = ET.Element(self.dir_param)
         if self.params["id"].startswith("fl-"):
             raise Exception("TOP LEVEL FOLDER")
         elif self.params["id"].startswith("ar-"):
@@ -24,16 +34,10 @@ class GetMusicDirectory(Command):
             artist_name = None
             for row in DBSession.query(Album).filter(
                     Album.artist_id == artist_id).all():
-                album = ET.Element("child")
+                album = fillAlbum(row, self.album_param)
                 directory.append(album)
-                album.set("id", "al-%d" % row.id)
-                album.set("parent", self.params["id"])
-                album.set("title", row.title)
                 if row.artist and row.artist.name:
                     artist_name = row.artist.name
-                    album.set("artist", row.artist.name)
-                album.set("isDir", "true")
-                album.set("coverArt", "al-%d" % row.id)
             if not artist_name:
                 rows = DBSession.query(Artist).filter(Artist.id ==
                                                       artist_id).all()
@@ -47,12 +51,12 @@ class GetMusicDirectory(Command):
             dir_parent = None
             dir_name = None
             song = None
-            for row in DBSession.query(Track).filter(Track.album_id ==
-                                                     album_id).all():
-                song = fillSong(row, "child")
+            for row in DBSession.query(Track).filter(
+                    Track.album_id == album_id).order_by(Track.track_num).all():
+                song = fillSong(row, self.track_param)
                 directory.append(song)
                 if row.artist:
-                    dir_parent = "ar-%d" % row.artist.id
+                    dir_parent = "al-%d" % row.id
                 if row.album and row.album.title:
                     dir_name = row.album.title
             if song is None:
@@ -62,6 +66,13 @@ class GetMusicDirectory(Command):
             if dir_name:
                 directory.set("name", dir_name)
             directory.set("id", self.params["id"])
+        elif self.params["id"].startswith("tr-"):
+            track_id = int(self.params["id"][3:])
+            row = DBSession.query(Track).filter(Track.id == track_id).one()
+            if row is None:
+                raise NotFound(self.params["id"])
+            song = fillSong(row, self.track_param)
+            directory = song
         else:
             raise MissingParam("Invalid value for 'id'")
         return self.makeResp(child=directory)

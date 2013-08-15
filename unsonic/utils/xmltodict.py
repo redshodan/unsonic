@@ -60,7 +60,7 @@ class _DictSAXHandler(object):
                  item_depth=0,
                  item_callback=lambda *args: True,
                  xml_attribs=True,
-                 attr_prefix='@',
+                 attr_prefix='',
                  cdata_key='#text',
                  force_cdata=False,
                  cdata_separator='',
@@ -227,7 +227,7 @@ def parse(xml_input, encoding='utf-8', expat=expat, *args, **kwargs):
     return handler.item
 
 def _emit(key, value, content_handler,
-          attr_prefix='@',
+          attr_prefix='',
           cdata_key='#text',
           root=True,
           preprocessor=None):
