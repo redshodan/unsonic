@@ -85,10 +85,16 @@ class Command(object):
         elif isinstance(body, ET.Element):
             body = XML_HEADER + ET.tostring(body)
         resp = self.req.response
-        if "f" in self.req.params and self.req.params["f"] == "json":
-            body = xmltodict.parse(body)
-            resp.body = json.dumps(body)
-            resp.content_type = "application/json"
+        if "f" in self.req.params:
+            if self.req.params["f"] == "jsonp" and "callback" in self.req.params:
+                body = xmltodict.parse(body)
+                txt = "%s(%s)" % (self.req.params["callback"], json.dumps(body))
+                resp.body = txt.encode("utf-8")
+                resp.content_type = "application/javascript"
+            elif self.req.params["f"] == "json":
+                body = xmltodict.parse(body)
+                resp.body = json.dumps(body)
+                resp.content_type = "application/json"
         else:
             resp.body = body
             resp.content_type = "text/xml"
@@ -168,6 +174,11 @@ def fillAlbum(row, name="album"):
     album = ET.Element(name)
     album.set("id", "al-%d" % row.id)
     album.set("name", row.title)
+    album.set("album", row.title)
+    album.set("title", row.title)
+    album.set("isDir", "true")
+    if row.artist:
+        album.set("parent", "ar-%s" % row.artist.id)
     # FIXME
     album.set("coverArt", "al-%d" % row.id)
     if row.release_date:
@@ -218,14 +229,18 @@ def fillSong(row, name="song"):
     song.set("size", str(row.size_bytes))
     # FIXME
     song.set("contentType", "audio/mpeg")
+    song.set("transcodedContentType", "audio/mpeg")
     suffix = os.path.basename(row.path).split(".")
     suffix = suffix[-1] if len(suffix) else None
-    if suffix:
-        song.set("suffix", suffix)
+    if not suffix:
+        suffix = "mp3"
+    song.set("suffix", suffix)
+    song.set("transcodedSuffix", suffix)
     song.set("duration", str(row.time_secs))
     # FIXME
     song.set("bitRate", "128")
     song.set("path", os.path.join(artist_name, album_name, row.title))
+    song.set("isVideo", "false")
     return song
 
 def fillPlayList(row):

@@ -3,62 +3,16 @@ from __future__ import print_function
 import os, sys, argparse
 
 from paste.translogger import TransLogger
-from pyramid.authentication import BasicAuthAuthenticationPolicy
-from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
-from pyramid.httpexceptions import HTTPForbidden, HTTPUnauthorized
 from pyramid.paster import get_appsettings, setup_logging
-from pyramid.security import forget
 from pyramid.view import view_config, forbidden_view_config
 
 
-from . import mash, models, log
+from . import mash, models, log, auth
 from .views import rest
 
 
 NAME = "Unsonic"
-
-
-# Causes auth challenges to be sent back
-@forbidden_view_config()
-def forbidden_view(request):
-    response = HTTPUnauthorized()
-    response.headers.update(forget(request))
-    return response
-
-
-# Support the silly original auth scheme that Subsonic has
-class SubsonicAuth(BasicAuthAuthenticationPolicy):
-    def __init__(self, realm='Realm', debug=False):
-        super(SubsonicAuth, self).__init__(
-            self.authCheck, realm=realm, debug=debug)
-
-    def unauthenticated_userid(self, request):
-        if request.headers.get('Authorization'):
-            return super(SubsonicAuth, self).unauthenticated_userid(request)
-        elif ("u" not in request.params.keys() or
-              "p" not in request.params.keys()):
-            return None
-        else:
-            return request.params["u"]
-
-    def callback(self, username, request):
-        if request.headers.get('Authorization'):
-            return super(SubsonicAuth, self).callback(username, request)
-        elif ("u" not in request.params.keys() or
-              "p" not in request.params.keys()):
-            return None
-        else:
-            return self.check(request.params["u"], request.params["p"],
-                              request)
-
-    # Shared between both auth schemes
-    def authCheck(self, username, password, req):
-        user = models.getUserByName(username)
-        if password == user.password:
-            # Stash the user for easy access
-            req.authed_user = user.export()
-            return req.authed_user.roles
 
 
 def main(global_config, **settings):
@@ -76,7 +30,6 @@ def main(global_config, **settings):
     # Pyramid framework
     config = Configurator(settings=settings)
     config.add_static_view('static', 'static', cache_max_age=3600,)
-    config.add_static_view('jamstash', 'jamstash', cache_max_age=3600,)
     config.add_route('home', '/', factory="unsonic.views.RouteContext")
     config.scan()
 
@@ -84,12 +37,14 @@ def main(global_config, **settings):
     if "unsonic.name" in settings:
         NAME = settings["unsonic.name"]
 
-    authn_policy = SubsonicAuth(realm=NAME)
-    authz_policy = ACLAuthorizationPolicy()
-    config.set_authentication_policy(authn_policy)
-    config.set_authorization_policy(authz_policy)
-    
+    # Init auth
+    auth.init(global_config, config)
+
+    # Init jamstash
+    jamstash.init(global_config, config)
+
     # Add the rest interfaces
+    config.add_route("rest", "/rest", factory="unsonic.views.rest.RouteContext")
     for cmd in rest.commands.itervalues():
         cmd.settings = settings
         config.add_route(cmd.name, "/rest/" + cmd.name,
