@@ -22,6 +22,7 @@
 
 "Makes working with XML feel like you are working with JSON"
 
+import types
 from xml.parsers import expat
 from xml.sax.saxutils import XMLGenerator
 from xml.sax.xmlreader import AttributesImpl
@@ -145,7 +146,19 @@ class _DictSAXHandler(object):
             item[key] = data
         return item
 
-def parse(xml_input, encoding='utf-8', expat=expat, *args, **kwargs):
+def parse(xml_input, *args, **kwargs):
+    dicts = parse2(xml_input, *args, **kwargs)
+    def recurse(d):
+        if isinstance(d, types.DictType):
+            for k, v in d.iteritems():
+                if v is None:
+                    d[k] = []
+                else:
+                    recurse(v)
+    recurse(dicts)
+    return dicts
+
+def parse2(xml_input, encoding='utf-8', expat=expat, *args, **kwargs):
     """Parse the given XML input and convert it into a dictionary.
 
     `xml_input` can either be a `string` or a file-like object.

@@ -10,6 +10,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, relation
+from sqlalchemy.orm.exc import NoResultFound
 from zope.sqlalchemy import ZopeTransactionExtension
 
 import mishmash.orm
@@ -148,7 +149,13 @@ def delUser(username):
     DBSession.query(User).filter(User.name == username).delete()
 
 def getUserByName(username):
-    return DBSession.query(User).filter(User.name == username).one()
+    try:
+        return DBSession.query(User).filter(User.name == username).one()
+    except NoResultFound:
+        return None
 
 def getUserByID(id):
-    return DBSession.query(User).filter(User.id == id).one()
+    try:
+        return DBSession.query(User).filter(User.id == id).one()
+    except NoResultFound:
+        return None
