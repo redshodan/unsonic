@@ -4,7 +4,7 @@ PYTHON=$(VBIN)/python
 PY_LIB=$(VLIB)/python*/site-packages
 
 
-all: bins devel
+all: bins external devel
 
 bins: bin/unsonic bin/unsonic-db
 
@@ -20,9 +20,22 @@ build/venv/bin/python:
 	[ ! -d build ] && mkdir build
 	virtualenv build/venv
 
+external: external/jamstash external/eyed3 external/mishmash
+
+external/jamstash:
+	cd external; hg clone 'https://redshodan@bitbucket.org/redshodan/jamstash-for-unsonic' jamstash
+
+external/eyed3:
+	cd external; hg clone 'https://redshodan@bitbucket.org/redshodan/eyed3-for-unsonic' eyed3
+	cd external/eyed3; paver build
+
+external/mishmash:
+	cd external; hg clone 'https://redshodan@bitbucket.org/redshodan/mishmash-music-server' mishmash
+
 devel: $(PY_LIB)/unsonic.egg-link 
 
-$(PY_LIB)/unsonic.egg-link: build/venv/bin/python setup.py setup.cfg README.rst development.ini
+$(PY_LIB)/unsonic.egg-link: build/venv/bin/python setup.py setup.cfg README.rst 
+$(PY_LIB)/unsonic.egg-link: development.ini
 $(PY_LIB)/unsonic.egg-link:
 	$(PYTHON) setup.py develop
 	touch $@
@@ -47,4 +60,5 @@ clean:
 dist-clean: clean
 	rm -rf build unsonic.egg-info development.sqlite bin/unsonic bin/unsonic-db
 
-.PHONY: devel db pyramid paste sqlalchemy psycopg2 eyed3 run tests clean dist-clean
+.PHONY: devel db pyramid paste sqlalchemy psycopg2 eyed3 run tests clean 
+.PHONY: dist-clean external
