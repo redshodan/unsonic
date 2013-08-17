@@ -5,6 +5,7 @@ import os, sys, argparse
 from paste.translogger import TransLogger
 from pyramid.config import Configurator
 from pyramid.paster import get_appsettings, setup_logging
+from pyramid.response import FileResponse
 from pyramid.view import view_config, forbidden_view_config
 
 
@@ -31,6 +32,8 @@ def main(global_config, **settings):
     config = Configurator(settings=settings)
     config.add_static_view('static', 'static', cache_max_age=3600,)
     config.add_route('home', '/', factory="unsonic.views.RouteContext")
+    config.add_view('unsonic.jamstash.view', route_name='home',
+                    permission="users")
     config.scan()
 
     global NAME

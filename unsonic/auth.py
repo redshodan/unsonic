@@ -48,7 +48,7 @@ class SubsonicAuth(BasicAuthAuthenticationPolicy):
     # Shared between both auth schemes
     def authCheck(self, username, password, req):
         user = models.getUserByName(username)
-        if password == user.password:
+        if user and password == user.password:
             # Stash the user for easy access
             req.authed_user = user.export()
             return req.authed_user.roles

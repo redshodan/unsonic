@@ -32,12 +32,19 @@ class GetMusicDirectory(Command):
                 "fl-%s" % mash.getPaths(self.settings).keys()[0])
             directory.set("id", self.params["id"])
             artist_name = None
+            # Gather albums
             for row in DBSession.query(Album).filter(
                     Album.artist_id == artist_id).all():
                 album = fillAlbum(row, self.album_param)
                 directory.append(album)
                 if row.artist and row.artist.name:
                     artist_name = row.artist.name
+            # Gather tracks with no album
+            for row in DBSession.query(Track).filter(
+                    Track.album_id == None, Track.artist_id == artist_id).\
+                    order_by(Track.track_num).all():
+                song = fillSong(row, self.track_param)
+                directory.append(song)
             if not artist_name:
                 rows = DBSession.query(Artist).filter(Artist.id ==
                                                       artist_id).all()
@@ -72,7 +79,16 @@ class GetMusicDirectory(Command):
             if row is None:
                 raise NotFound(self.params["id"])
             song = fillSong(row, self.track_param)
-            directory = song
+            if row.album:
+                directory.set("parent", "al-%d" % row.album.id)
+                directory.set("name", row.album.title)
+            elif row.artist:
+                directory.set("parent", "ar-%d" % row.artist.id)
+                directory.set("name", row.artist.name)
+            if self.dir_param == "song":
+                directory = song
+            else:
+                directory.append(song)
         else:
             raise MissingParam("Invalid value for 'id'")
         return self.makeResp(child=directory)
