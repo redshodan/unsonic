@@ -3,4 +3,3 @@
 ^build/.*$
 .*\.pyc$
 ^unsonic.egg-info/.*$
-^external/jamstash/.*$
