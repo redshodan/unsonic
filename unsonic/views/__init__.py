@@ -4,18 +4,18 @@ from pyramid.view import view_config
 
 from sqlalchemy.exc import DBAPIError
 
-from ..models import DBSession, User
+from ..models import DBSession, User, Roles
 
 
 class RouteContext(object):
-    __acl__ = [ (Allow, Authenticated, 'users'), DENY_ALL ]
+    __acl__ = [ (Allow, Authenticated, Roles.USERS), DENY_ALL ]
     
     def __init__(self, request):
         pass
 
 
 # @view_config(route_name='home', renderer='../templates/mytemplate.pt',
-#              permission="users")
+#              permission=Roles.USERS)
 # def my_view(request):
 #     try:
 #         DBSession.query(User).all()

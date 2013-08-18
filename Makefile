@@ -52,6 +52,11 @@ run: devel-run
 devel-run: bin/unsonic build/development.sqlite
 	bin/unsonic development.ini --reload
 
+stat:
+	-hg stat
+	-@cd external; for dir in `find -maxdepth 1 -mindepth 1 -type d`; do \
+        (echo; echo $${dir}; cd $${dir}; hg stat); done
+
 in:
 	-hg in
 	-@cd external; for dir in `find -maxdepth 1 -mindepth 1 -type d`; do \

@@ -77,7 +77,7 @@ class Command(object):
             body.append(error)
         if child is not None:
             body.append(child)
-        return XML_HEADER + ET.tostring(body)
+        return XML_HEADER + ET.tostring(body) + "\n"
 
     def makeResp(self, attrs={}, child=None, status=True, body=None):
         if body is None:
