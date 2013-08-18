@@ -52,8 +52,22 @@ class User(Base, OrmObject):
         ret.roles = []
         for role in self.roles:
             ret.roles.append(role.name)
+        def isAdmin():
+            return Roles.ADMIN in ret.roles
+        ret.isAdmin = isAdmin
+        def isUser():
+            return Roles.USERS in ret.roles
+        ret.isUser = isUser
+        def isRest():
+            return Roles.REST in ret.roles
+        ret.isRest = isRest
         return ret
 
+
+class Roles(object):
+    ADMIN = "admin"
+    USERS = "users"
+    REST = "rest"
 
 class Role(Base, OrmObject):
     __tablename__ = 'un_roles'
@@ -131,6 +145,7 @@ def initDB(settings):
     with DBSession.begin():
         for table in MASH_TYPES:
             table.initTable(DBSession)
+    addUser("admin", None, [Roles.REST, Roles.USERS, Roles.ADMIN])
 
 def addUser(username, password, roles):
     try:

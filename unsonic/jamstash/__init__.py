@@ -2,6 +2,8 @@ import os
 
 from pyramid.response import FileResponse
 
+from ..models import Roles
+
 
 def view(req):
     resp = req.response
@@ -35,7 +37,7 @@ def index(request):
 def init(global_config, config):
     config.add_static_view('jamstash', 'jamstash', cache_max_age=3600,
                            factory="unsonic.views.RouteContext",
-                           permission="users")
+                           permission=Roles.USERS)
 
     ### FIXME: Throw this away maybe? Not sure its needed with jamstash 3.0.x
     # config.add_route('jamstash_index', '/jamstash/index.html')
@@ -58,5 +60,5 @@ def init(global_config, config):
     #     url_part = f[size:]
     #     config.add_route(url_part, "/jamstash/" + url_part,
     #                      factory="unsonic.views.RouteContext")
-    #     config.add_view("unsonic.jamstash.view", route_name=url_part, permission="users")
+    #     config.add_view("unsonic.jamstash.view", route_name=url_part, permission=Roles.USERS)
     

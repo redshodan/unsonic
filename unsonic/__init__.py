@@ -33,7 +33,7 @@ def main(global_config, **settings):
     config.add_static_view('static', 'static', cache_max_age=3600,)
     config.add_route('home', '/', factory="unsonic.views.RouteContext")
     config.add_view('unsonic.jamstash.view', route_name='home',
-                    permission="users")
+                    permission=models.Roles.USERS)
     config.scan()
 
     global NAME
@@ -70,7 +70,7 @@ def doSync(args, settings):
 
 def doAddUser(args, settings):
     print("Adding user '%s'.." % args.username[0])
-    for role in ["rest", "users"]:
+    for role in [models.Roles.REST, models.Roles.USERS]:
         if role not in args.roles:
             args.roles.append(role)
     ret = models.addUser(args.username[0], args.password[0], args.roles)
@@ -93,7 +93,17 @@ def doListUsers(args, settings):
         roles = [g.name for g in user.roles]
         print("   %s:  roles: %s" % (user.name, ", ".join(roles)))
     return 0
-    
+
+def doPassword(args, settings):
+    print("Setting password...")
+    user = models.getUserByName(args.username[0])
+    if not user:
+        print("User not found")
+        return -1
+    user.password = args.password[0]
+    models.DBSession.flush()
+    return 0
+
 def buildParser():
     parser = argparse.ArgumentParser(prog="unsonic-db")
     required = parser.add_argument_group('required arguments')
@@ -128,6 +138,12 @@ def buildParser():
                                     help="List users in the database")
     deluser.set_defaults(func=doListUsers)
 
+    # password
+    password = subparsers.add_parser("password", help="Change a users password")
+    password.add_argument("username", nargs=1, help="Username")
+    password.add_argument("password", nargs=1, help="Password")
+    password.set_defaults(func=doPassword)
+    
     return parser
 
 def dbMain(argv=sys.argv[1:]):
