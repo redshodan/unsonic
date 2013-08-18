@@ -51,6 +51,31 @@ run: devel-run
 devel-run: bin/unsonic build/development.sqlite
 	bin/unsonic development.ini --reload
 
+in:
+	-hg in
+	-@cd external; for dir in `find -maxdepth 1 -mindepth 1 -type d`; do \
+        (echo; cd $${dir}; hg in); done
+
+pull:
+	-hg pull
+	-@cd external; for dir in `find -maxdepth 1 -mindepth 1 -type d`; do \
+        (echo; cd $${dir}; hg pull); done
+
+out:
+	-hg out
+	-@cd external; for dir in `find -maxdepth 1 -mindepth 1 -type d`; do \
+        (echo; cd $${dir}; hg out); done
+
+push:
+	-hg push
+	-@cd external; for dir in `find -maxdepth 1 -mindepth 1 -type d`; do \
+        (echo; cd $${dir}; hg push); done
+
+up:
+	-hg up
+	-@cd external; for dir in `find -maxdepth 1 -mindepth 1 -type d`; do \
+        (echo; cd $${dir}; hg up); done
+
 tests:
 	PYTHONPATH=external/eyed3/src/:external/mishmash/src $(PYTHON) setup.py test
 
