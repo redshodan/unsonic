@@ -27,6 +27,7 @@ external/jamstash:
 
 external/eyed3:
 	cd external; hg clone 'https://redshodan@bitbucket.org/redshodan/eyed3-for-unsonic' eyed3
+	cd external/eyed3; hg up stable
 	cd external/eyed3; paver build
 
 external/mishmash:
