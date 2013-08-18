@@ -1,5 +1,14 @@
+Unsonic is built on top of a number of pieces of code. The ones pulled in to
+the Unsonic code base are xmldict, and jamstash.
+
+Unsonic is licensed with the GPLv2
+Jamstash is licesned with the GPLv2
+xmldict uses a BSD-like license
+
+The licensees follow: 
+
 License for xmldict:
-====================================================================================
+===================================================================================
 
 Copyright (C) 2012 Martin Blech and individual contributors.
 
@@ -24,7 +33,7 @@ SOFTWARE.
 ===================================================================================
 
 
-License for unsonic:
+License for both unsonic and jamstash:
 ===================================================================================
                     GNU GENERAL PUBLIC LICENSE
                        Version 2, June 1991

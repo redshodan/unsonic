@@ -20,10 +20,7 @@ build/venv/bin/python:
 	[ ! -d build ] && mkdir build
 	virtualenv build/venv
 
-external: external/jamstash external/eyed3 external/mishmash
-
-external/jamstash:
-	cd external; hg clone 'https://redshodan@bitbucket.org/redshodan/jamstash-for-unsonic' jamstash
+external: external/eyed3 external/mishmash
 
 external/eyed3:
 	cd external; hg clone 'https://redshodan@bitbucket.org/redshodan/eyed3-for-unsonic' eyed3
@@ -43,7 +40,7 @@ $(PY_LIB)/unsonic.egg-link:
 
 db: devel-db
 devel-db: build/development.sqlite
-build/development.sqlite: bin/unsonic-db development.ini
+build/development.sqlite:
 	bin/unsonic-db -c development.ini init
 	bin/unsonic-db -c development.ini sync
 	bin/unsonic-db -c development.ini adduser test test

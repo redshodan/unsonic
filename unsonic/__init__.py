@@ -10,7 +10,7 @@ from pyramid.view import view_config, forbidden_view_config
 
 
 from . import mash, models, log, auth
-from .views import rest
+from .views import rest, ui
 
 
 NAME = "Unsonic"
@@ -32,7 +32,7 @@ def main(global_config, **settings):
     config = Configurator(settings=settings)
     config.add_static_view('static', 'static', cache_max_age=3600,)
     config.add_route('home', '/', factory="unsonic.views.RouteContext")
-    config.add_view('unsonic.jamstash.view', route_name='home',
+    config.add_view('unsonic.views.ui.view', route_name='home',
                     permission=models.Roles.USERS)
     config.scan()
 
@@ -43,8 +43,8 @@ def main(global_config, **settings):
     # Init auth
     auth.init(global_config, config)
 
-    # Init jamstash
-    jamstash.init(global_config, config)
+    # Init ui
+    ui.init(global_config, config)
 
     # Add the rest interfaces
     config.add_route("rest", "/rest", factory="unsonic.views.rest.RouteContext")
