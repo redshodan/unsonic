@@ -120,7 +120,6 @@ require(['jquery', 'knockout', 'sammy', 'global', 'utils', 'mainViewModel', 'pla
         //applyDefaultStyles: true
     };
     $('#SubsonicAlbums').layout(layoutOptions);
-    $('#ArchiveAlbums').layout(layoutOptions);
 
     // Custom Binding for (stopBinding: true)
     ko.bindingHandlers.stopBinding = {
@@ -163,7 +162,6 @@ require(['jquery', 'knockout', 'sammy', 'global', 'utils', 'mainViewModel', 'pla
 
     ko.applyBindings(new mainViewModel());
     //ko.applyBindings(subsonicViewModel, $('#tabLibrary')[0]);
-    //ko.applyBindings(archiveViewModel, $('#tabArchive')[0]);
 
     // Variable Init
     if (global.settings.SaveTrackPosition()) {

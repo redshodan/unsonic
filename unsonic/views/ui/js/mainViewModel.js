@@ -1,4 +1,4 @@
-﻿define(['knockout', 'postbox', 'sammy', 'utils', 'global', 'player', 'subsonicViewModel', 'archiveViewModel', 'subsonic', 'jqueryui', 'jquery.layout', 'jquery.scrollTo'], function (ko, postbox, Sammy, utils, global, player, subsonicViewModel, archiveViewModel, subsonic) {
+﻿define(['knockout', 'postbox', 'sammy', 'utils', 'global', 'player', 'subsonicViewModel', 'subsonic', 'jqueryui', 'jquery.layout', 'jquery.scrollTo'], function (ko, postbox, Sammy, utils, global, player, subsonicViewModel, subsonic) {
     return function mainViewModel() {
         var self = this;
         self.settings = global.settings;
@@ -8,7 +8,6 @@
             utils.changeTab(tab);
         };
         self.tabLibrary = false;
-        self.tabArchive = false;
 
         self.queue = new ko.observableArray([]).subscribeTo("queue");
         window.onbeforeunload = function () {
@@ -52,12 +51,6 @@
                     //$('#SubsonicAlbums').layout(layoutOptions);
                     $("#SubsonicAlbums").layout("resizeAll");
                     self.tabLibrary = true;
-                }
-                if (id == 'tabArchive' && !self.tabArchive) {
-                    ko.applyBindings(new archiveViewModel(), $('#tabArchive')[0]);
-                    //$('#ArchiveAlbums').layout(layoutOptions);
-                    $("#ArchiveAlbums").layout("resizeAll");
-                    self.tabArchive = true;
                 }
                 self.activeTab(id);
             });
