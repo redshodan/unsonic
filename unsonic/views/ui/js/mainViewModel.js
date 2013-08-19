@@ -26,29 +26,8 @@
 
             this.get('#:tab', function () {
                 var id = this.params.tab;
-                /*
-                var layoutOptions = {
-                east__size: .5,
-                east__minSize: 400,
-                east__maxSize: .5, // 50% of layout width
-                east__initClosed: false,
-                east__initHidden: false,
-                //center__size: 'auto',
-                center__minWidth: .3,
-                center__initClosed: false,
-                center__initHidden: false,
-                west__size: .2,
-                west__minSize: 200,
-                west__initClosed: false,
-                west__initHidden: false,
-                //stateManagement__enabled: true, // automatic cookie load & save enabled by default
-                showDebugMessages: true // log and/or display messages from debugging & testing code
-                //applyDefaultStyles: true
-                };
-                */
                 if (id == 'tabLibrary' && !self.tabLibrary) {
                     ko.applyBindings(new subsonicViewModel(), $('#tabLibrary')[0]);
-                    //$('#SubsonicAlbums').layout(layoutOptions);
                     $("#SubsonicAlbums").layout("resizeAll");
                     self.tabLibrary = true;
                 }
@@ -59,7 +38,7 @@
             this.get('', function () { this.app.runRoute('get', '#tabLibrary') });
 
             this.notFound = function () {
-                //alert('notFound');
+                alert('notFound Sammy');
             }
         }).run();
 
