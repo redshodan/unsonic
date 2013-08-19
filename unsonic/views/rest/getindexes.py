@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
 
-from . import Command, addCmd, fillArtist
+from . import Command, addCmd, fillArtistUser
 from ...models import DBSession, Artist, Album
 
 
@@ -22,7 +22,7 @@ class GetIndexes(Command):
                 index = ET.Element("index")
                 indexes.append(index)
                 index.set("name", index_group)
-            artist = fillArtist(row)
+            artist = fillArtistUser(row, self.req.authed_user)
             index.append(artist)
         for index in indexes:
             for artist in index:

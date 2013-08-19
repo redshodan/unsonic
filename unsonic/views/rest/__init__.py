@@ -6,6 +6,7 @@ from pyramid.security import Allow, Authenticated, DENY_ALL
 from ...log import log
 from ...utils import xmltodict
 from ...version import VERSION, PROTOCOL_VERSION, UNSONIC_PROTOCOL_VERSION
+from ...models import ArtistRating, AlbumRating, TrackRating
 
 
 XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>'
@@ -140,6 +141,14 @@ def positive_t(value):
     else:
         return val
         
+def playable_id_t(value):
+    for prefix in ["ar-", "al-", "tr-"]:
+        if value.startswith(prefix):
+            break
+    else:
+        raise MissingParam("Invalid id")
+    return value
+
 def artist_t(value):
     if not value.startswith("ar-"):
         raise MissingParam("Invalid id")
@@ -170,6 +179,13 @@ def fillArtist(row, name="artist"):
     artist.set("coverArt", "ar-%d" % row.id)
     return artist
 
+def fillArtistUser(row, user, name="artist"):
+    artist = fillArtist(row, name=name)
+    rating = ArtistRating.get(row.id, user.id)
+    if rating and rating.starred:
+        artist.set("starred", rating.starred.isoformat())
+    return artist
+
 def fillAlbum(row, name="album"):
     album = ET.Element(name)
     album.set("id", "al-%d" % row.id)
@@ -192,6 +208,13 @@ def fillAlbum(row, name="album"):
     if row.artist and row.artist.name:
         album.set("artist", row.artist.name)
     album.set("artistId", "al-%d" % row.id)
+    return album
+
+def fillAlbumUser(row, user, name="album"):
+    album = fillAlbum(row, name=name)
+    rating = AlbumRating.get(row.id, user.id)
+    if rating and rating.starred:
+        album.set("starred", rating.starred.isoformat())
     return album
 
 def fillSong(row, name="song"):
@@ -225,7 +248,9 @@ def fillSong(row, name="song"):
     song.set("genre", "rock")
     # FIXME
     if row.album_id:
-        song.set("coverArt", ("al-%d" % row.album_id))
+        song.set("coverArt", ("tr-%d" % row.album_id))
+    else:
+        song.set("coverArt", "tr-UNKNOWN")
     song.set("size", str(row.size_bytes))
     # FIXME
     song.set("contentType", "audio/mpeg")
@@ -241,6 +266,13 @@ def fillSong(row, name="song"):
     song.set("bitRate", "128")
     song.set("path", os.path.join(artist_name, album_name, row.title))
     song.set("isVideo", "false")
+    return song
+
+def fillSongUser(row, user, name="song"):
+    song = fillSong(row, name=name)
+    rating = TrackRating.get(row.id, user.id)
+    if rating and rating.starred:
+        song.set("starred", rating.starred.isoformat())
     return song
 
 def fillPlayList(row):

@@ -24,6 +24,7 @@ def main(global_config, **settings):
     
     # Setup models
     models.init(settings, True)
+    models.load()
     
     # Setup mishmash
     mash.load(settings)
@@ -73,7 +74,8 @@ def doAddUser(args, settings):
     for role in [models.Roles.REST, models.Roles.USERS]:
         if role not in args.roles:
             args.roles.append(role)
-    ret = models.addUser(args.username[0], args.password[0], args.roles)
+    with models.DBSession.begin():
+        ret = models.addUser(args.username[0], args.password[0], args.roles)
     if ret is True:
         print("Added.")
         return 0
