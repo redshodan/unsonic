@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 
-from . import (Command, MissingParam, NotFound, addCmd, fillAlbum, fillArtist,
-               fillSong)
+from . import (Command, MissingParam, NotFound, addCmd, fillAlbumUser,
+               fillSongUser)
 from ...models import DBSession, Artist, Album, Track
 from ... import mash
 
@@ -35,7 +35,8 @@ class GetMusicDirectory(Command):
             # Gather albums
             for row in DBSession.query(Album).filter(
                     Album.artist_id == artist_id).all():
-                album = fillAlbum(row, self.album_param)
+                album = fillAlbumUser(row, self.req.authed_user,
+                                      self.album_param)
                 directory.append(album)
                 if row.artist and row.artist.name:
                     artist_name = row.artist.name
@@ -43,7 +44,7 @@ class GetMusicDirectory(Command):
             for row in DBSession.query(Track).filter(
                     Track.album_id == None, Track.artist_id == artist_id).\
                     order_by(Track.track_num).all():
-                song = fillSong(row, self.track_param)
+                song = fillSongUser(row, self.req.authed_user, self.track_param)
                 directory.append(song)
             if not artist_name:
                 rows = DBSession.query(Artist).filter(Artist.id ==
@@ -60,7 +61,7 @@ class GetMusicDirectory(Command):
             song = None
             for row in DBSession.query(Track).filter(
                     Track.album_id == album_id).order_by(Track.track_num).all():
-                song = fillSong(row, self.track_param)
+                song = fillSongUser(row, self.req.authed_user, self.track_param)
                 directory.append(song)
                 if row.artist:
                     dir_parent = "al-%d" % row.id
@@ -78,7 +79,7 @@ class GetMusicDirectory(Command):
             row = DBSession.query(Track).filter(Track.id == track_id).one()
             if row is None:
                 raise NotFound(self.params["id"])
-            song = fillSong(row, self.track_param)
+            song = fillSongUser(row, self.req.authed_user, self.track_param)
             if row.album:
                 directory.set("parent", "al-%d" % row.album.id)
                 directory.set("name", row.album.title)
