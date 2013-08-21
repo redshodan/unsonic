@@ -5,10 +5,10 @@ from argparse import Namespace
 
 import sqlalchemy
 from sqlalchemy import (engine_from_config, Column, Integer, Text, ForeignKey,
-                        String, DateTime, event)
+                        String, DateTime, event, Index)
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.orm import scoped_session, sessionmaker, relation
 from sqlalchemy.orm.exc import NoResultFound
 from zope.sqlalchemy import ZopeTransactionExtension
@@ -24,7 +24,7 @@ from .version import DB_VERSION
 
 DBSession = ModuleRef()
 Base = mishmash.orm.Base
-dbinfo = argparse.Namespace()
+dbinfo = Namespace()
 
 
 @sqlalchemy.event.listens_for(Engine, "connect")
@@ -77,9 +77,18 @@ class User(Base, OrmObject):
     @staticmethod
     def initTable(session):
         addUser("admin", None, [Roles.REST, Roles.USERS, Roles.ADMIN])
+
+    @staticmethod
+    def loadTable(session):
+        dbinfo.users = {}
+        for user in DBSession.query(User).all():
+            u = Namespace()
+            u.name = user.name
+            u.listening = None
+            dbinfo.users[u.name] = u
     
     def export(self):
-        ret = argparse.Namespace()
+        ret = Namespace()
         ret.id = self.id
         ret.name = self.name
         ret.password = self.password
@@ -231,6 +240,37 @@ class TrackRating(Base, OrmObject):
 Track.rating = relation("TrackRating")
 
 
+class PlayCount(Base, OrmObject):
+    __tablename__ = "un_playcounts"
+
+    track_id = Column(Integer, ForeignKey("tracks.id"), nullable=False,
+                      primary_key=True)
+    user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False,
+                     primary_key=True)
+    count = Column(Integer, nullable=False)
+    track = relation("Track")
+    user = relation("User")
+    
+Track.play_count = relation("PlayCount")
+
+
+class Scrobble(Base, OrmObject):
+    __tablename__ = "un_scrobbles"
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False)
+    track_id = Column(Integer, ForeignKey("tracks.id"), nullable=False)
+    tstamp = Column(DateTime, default=None, nullable=False)
+    track = relation("Track")
+    user = relation("User")
+
+    @declared_attr
+    def __table_args__(cls):
+        return (Index("scrobble_user_index", "user_id"), )
+
+Track.scrobbles = relation("Scrobble")
+
+
 ### Utility functions
 def init(settings, webapp):
     engine = engine_from_config(settings, 'sqlalchemy.')
@@ -324,4 +364,4 @@ def rateItem(user_id, item_id, rating=None, starred=None):
 
 
 UN_TYPES = [DBInfo, User, Role, PlayList, PlayListUser, PlayListTrack,
-            ArtistRating, AlbumRating, TrackRating]
+            ArtistRating, AlbumRating, TrackRating, PlayCount, Scrobble]
