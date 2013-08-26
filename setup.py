@@ -17,6 +17,7 @@ requires = [
     'waitress',
     'paste',
     'psycopg2',
+    'pysqlite',
     # 'eyeD3',
     # 'mishmash'
     ]
