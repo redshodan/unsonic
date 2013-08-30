@@ -25,7 +25,7 @@ class CreatePlayList(Command):
             print "Update!"
         else:
             with transaction.manager:
-                plist = PlayList(owner_id=self.req.authed_user.id,
+                plist = PlayList(user_id=self.req.authed_user.id,
                                  name=self.params["name"])
                 DBSession.add(plist)
                 for sid in self.params.getall("songId"):

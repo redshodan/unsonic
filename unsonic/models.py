@@ -5,7 +5,7 @@ from argparse import Namespace
 
 import sqlalchemy
 from sqlalchemy import (engine_from_config, Column, Integer, Text, ForeignKey,
-                        String, DateTime, event, Index)
+                        String, DateTime, event, Index, Boolean)
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
@@ -127,7 +127,7 @@ class PlayList(Base, OrmObject):
     __tablename__ = 'un_playlists'
         
     id = Column(Integer, primary_key=True)
-    owner_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
+    user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
                       nullable=False)
     name = Column(Text)
     comment = Column(Text)
@@ -145,10 +145,10 @@ class PlayListUser(Base, OrmObject):
     __tablename__ = 'un_playlistusers'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False)
     playlist_id = Column(Integer, ForeignKey("un_playlists.id",
                                              ondelete='CASCADE'),
                          nullable=False)
+    user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False)
     playlist = relation("PlayList")
     user = relation("User")
 
@@ -157,10 +157,10 @@ class PlayListTrack(Base, OrmObject):
     __tablename__ = 'un_playlisttracks'
 
     id = Column(Integer, primary_key=True)
-    track_id = Column(Integer, ForeignKey("tracks.id"), nullable=False)
     playlist_id = Column(Integer, ForeignKey("un_playlists.id",
                                              ondelete='CASCADE'),
                          nullable=False)
+    track_id = Column(Integer, ForeignKey("tracks.id"), nullable=False)
     track = relation("Track")
     playlist = relation("PlayList")
 
@@ -176,7 +176,9 @@ class ArtistRating(Base, OrmObject):
     user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False,
                      primary_key=True)
     rating = Column(Integer, default=None, nullable=True)
+    pseudo_rating = Column(Boolean, default=True, nullable=False)
     starred = Column(DateTime, default=None, nullable=True)
+    pseudo_starred = Column(Boolean, default=True, nullable=False)
     artist = relation("Artist")
     user = relation("User")
 
@@ -200,7 +202,9 @@ class AlbumRating(Base, OrmObject):
     user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False,
                      primary_key=True)
     rating = Column(Integer, default=None, nullable=True)
+    pseudo_rating = Column(Boolean, default=True, nullable=False)
     starred = Column(DateTime, default=None, nullable=True)
+    pseudo_starred = Column(Boolean, default=True, nullable=False)
     album = relation("Album")
     user = relation("User")
 
@@ -258,8 +262,8 @@ class Scrobble(Base, OrmObject):
     __tablename__ = "un_scrobbles"
     
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False)
     track_id = Column(Integer, ForeignKey("tracks.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False)
     tstamp = Column(DateTime, default=None, nullable=False)
     track = relation("Track")
     user = relation("User")
@@ -330,38 +334,125 @@ def getUserByID(id):
 
 def rateItem(user_id, item_id, rating=None, starred=None):
     num = int(item_id[3:])
+    artist_id = None
+    album_id = None
     if item_id.startswith("ar-"):
-        try:
-            row = DBSession.query(ArtistRating). \
-              filter(ArtistRating.user_id == user_id,
-                     ArtistRating.artist_id == num).one()
-        except NoResultFound:
-            row = ArtistRating(user_id=user_id, artist_id=num)
+        row = ArtistRating.get(num, user_id)
+        if row is None:
+            row = ArtistRating(artist_id=num, user_id=user_id)
             DBSession.add(row)
     elif item_id.startswith("al-"):
-        try:
-            row = DBSession.query(AlbumRating). \
-              filter(AlbumRating.user_id == user_id,
-                     AlbumRating.album_id == num).one()
-        except NoResultFound:
-            row = AlbumRating(user_id=user_id, album_id=num)
+        row = AlbumRating.get(num, user_id)
+        if row is None:
+            row = AlbumRating(album_id=num, user_id=user_id)
             DBSession.add(row)
+            DBSession.flush()
+        artist_id = row.album.artist_id
     elif item_id.startswith("tr-"):
-        try:
-            row = DBSession.query(TrackRating). \
-              filter(TrackRating.user_id == user_id,
-                     TrackRating.track_id == num).one()
-        except NoResultFound:
-            row = TrackRating(user_id=user_id, track_id=num)
+        row = TrackRating.get(num, user_id)
+        if row is None:
+            row = TrackRating(track_id=num, user_id=user_id)
             DBSession.add(row)
+            DBSession.flush()
+        album_id = row.track.album_id
     if rating is not None:
-        row.rating = rating
+        if rating == 0:
+            row.rating = None
+            row.pseudo_rating = True
+        else:
+            row.rating = rating
+            row.pseudo_rating = False
     if isinstance(starred, datetime.datetime):
         row.starred = starred
+        row.pseudo_starred = False
     elif starred is True:
         row.starred = None
+        row.pseudo_starred = True
     DBSession.flush()
+    if artist_id or album_id:
+        updatePseudoRatings(user_id=user_id, album_id=album_id,
+                            artist_id=artist_id)
 
+ALL = object()
+def updatePseudoRatings(user_id=None, album_id=ALL, artist_id=ALL):
+    # Update albums first
+    albums = None
+    if album_id is ALL:
+        albums = DBSession.query(Album).all()
+    elif album_id is not None:
+        albums = DBSession.query(Album).filter(Album.id == album_id).all()
+
+    if albums:
+        for album in albums:
+            alrating = AlbumRating.get(album.id, user_id)
+            if alrating is None:
+                alrating = AlbumRating(album_id=album.id, user_id=user_id)
+                DBSession.add(alrating)
+            tracks = DBSession.query(Track). \
+                         filter(Track.album_id == album.id).all()
+            pseudo = 0
+            count = 0
+            starred = None
+            for track in tracks:
+                trating = TrackRating.get(track.id, user_id)
+                if trating:
+                    if trating.rating is not None:
+                        pseudo += trating.rating
+                    if trating.starred is not None:
+                        if starred is None or starred > trating.starred:
+                            # Extract the oldest starred date
+                            starred = trating.starred
+                # Down rank for unrated tracks
+                count += 1
+            if count and alrating.pseudo_rating:
+                pseudo = round(float(pseudo) / float(count))
+                alrating.rating = pseudo
+                alrating.pseudo_rating = True
+            if starred and alrating.pseudo_starred:
+                alrating.starred = starred
+                alrating.pseudo_starred = True
+
+    # Update artists last
+    artists = None
+    if artist_id is ALL:
+        artists = DBSession.query(Artist).all()
+    elif artist_id is not None:
+        artists = DBSession.query(Artist).filter(Artist.id == artist_id).all()
+
+    if artists:
+        for artist in artists:
+            arrating = ArtistRating.get(artist.id, user_id)
+            if arrating is None:
+                arrating = ArtistRating(user_id=user_id, artist_id=artist.id)
+                DBSession.add(arrating)
+            if arrating.rating is None or not arrating.pseudo_rating:
+                print("skipping hand set rating", arrating, artist)
+                continue
+            albums = DBSession.query(Album). \
+                         filter(Album.artist_id == artist.id).all()
+            pseudo = 0
+            count = 0
+            starred = None
+            for album in albums:
+                alrating = AlbumRating.get(album.id, user_id)
+                if alrating:
+                    if alrating.rating is not None:
+                        pseudo += alrating.rating
+                    if alrating.starred is not None:
+                        if starred is None or starred > alrating.starred:
+                            # Extract the oldest starred date
+                            starred = alrating.starred
+                    
+                # Down rank for unrated albums
+                count += 1
+            if count:
+                pseudo = round(float(pseudo) / float(count))
+                arrating.rating = pseudo
+                arrating.pseudo_rating = True
+            if starred and arrating.pseudo_starred:
+                arrating.starred = starred
+                arrating.pseudo_starred = True
+        
 
 UN_TYPES = [DBInfo, User, Role, PlayList, PlayListUser, PlayListTrack,
             ArtistRating, AlbumRating, TrackRating, PlayCount, Scrobble]
