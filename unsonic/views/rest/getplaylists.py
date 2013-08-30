@@ -20,7 +20,7 @@ class GetPlayLists(Command):
 
         playlists = ET.Element("playlists")
         for plrow in DBSession.query(PlayList). \
-                         filter(PlayList.owner_id ==
+                         filter(PlayList.user_id ==
                                 self.req.authed_user.id).all():
             playlist = fillPlayList(plrow)
             playlists.append(playlist)

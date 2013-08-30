@@ -213,7 +213,7 @@ def fillAlbum(row, name="album"):
 def fillAlbumUser(row, user, name="album"):
     album = fillAlbum(row, name=name)
     rating = AlbumRating.get(row.id, user.id)
-    if rating and rating.starred:
+    if rating and rating.starred and not rating.pseudo_starred:
         album.set("starred", rating.starred.isoformat())
     return album
 
