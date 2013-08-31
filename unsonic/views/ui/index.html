@@ -20,7 +20,7 @@
     <div id="container" >
       <div id="messages"></div>    
       <div id="loading"></div>
-      <div id="version">[Beta]</div>
+      <!-- <div id="version">[Beta]</div> -->
       <div id="nav">
         <ul class="tabs">
           <li>
@@ -58,6 +58,8 @@
                      title="Wildcards (*) supported" 
                      data-bind="returnKey: $root.search"/>
               <select id="SearchType" name="SearchType">
+                <option value="all">All</option>
+                <option value="artist">Artist</option>
                 <option value="album">Album</option>
                 <option value="song">Song</option>
               </select>
