@@ -944,7 +944,6 @@ ul.songlist li:hover
     border-top: 1px solid #cbcbcb;
     border-bottom: 1px solid #cbcbcb;
     margin: 4px 0;
-    height: 75px;
     position: absolute;
     bottom: 0; /* Sit it on the bottom */
     left: 0;
