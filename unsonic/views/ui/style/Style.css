@@ -1432,9 +1432,10 @@ input.chat
 }
 input#Search
 {
+    top: 0px;
     border: 1px solid #DCDCDC;
     width: 110px;
-    margin: 0 0 0 5px;
+    position: relative;
 }
 select
 {
@@ -1450,6 +1451,7 @@ select.large
 select#SearchType
 {
     margin: 0;
+    position: relative;
 }
 select.folders
 {
