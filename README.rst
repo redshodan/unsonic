@@ -3,10 +3,12 @@ Unsonic, the ultimate un-music server.
 Installation
 ============
 
-Prerequisites
--------------
-  * Install eyeD3-0.7.4 (FIXME) into external/eyed3
-  * Install mishmash (FIXME) into external/mishmash
+TLDR: The uber short version
+++++++++++++++++++++++++++++
+  * make run
+
+The longer version
+++++++++++++++++++
 
 Development build
 -----------------
@@ -21,24 +23,28 @@ Release build
   * make release-run
 
 Manual Installation
-===================
++++++++++++++++++++
 
 Requirements
 ------------
   * virtualenv $venv
-  * Install eyeD3-0.7.4 (FIXME) into external/eyed3
+  * Install eyeD3-0.7.4 into external/eyed3
+	* cd external; hg clone 'https://bitbucket.org/redshodan/eyed3-for-unsonic' eyed3
+	* cd external/eyed3; hg up stable
+	* cd external/eyed3; paver build
   * Install mishmash (FIXME) into external/mishmash
+	* cd external; hg clone 'https://bitbucket.org/redshodan/mishmash-music-server' mishmash
 
 Building
------
+--------
   * $venv/bin/python setup.py develop
 
 Running
----
+-------
   * ./bin/unsonic-db -c <config.ini> init
   * ./bin/unsonic-db -c <config.ini> sync
   * ./bin/unsonic-db -c <config.ini> adduser name pass
-  * ./bin/unsonic <config.ini>
+  * ./bin/unsonic <config.ini> --reload
 
 License
 =======
