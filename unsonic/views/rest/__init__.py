@@ -250,8 +250,8 @@ def fillSong(row, name="song"):
             else:
                 break
         song.set("year", "".join(year))
-    # FIXME
-    song.set("genre", "rock")
+    if row.genre_id is not None:
+        song.set("genre", row.genre.name)
     if row.album is not None:
         fillCoverArt(row.album, song, "al")
     song.set("size", str(row.size_bytes))
