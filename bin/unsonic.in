@@ -35,7 +35,7 @@ sys.path[0:0] = [os.path.abspath(os.path.join(path, "..")),
                  os.path.abspath(os.path.join(path, "../external/eyed3/src"))]
     
 
-__requires__ = 'pyramid==1.4.3'
+__requires__ = 'pyramid>=1.4.3'
 import sys, time
 from pkg_resources import load_entry_point
 
@@ -49,7 +49,7 @@ wait = 3
 while True:
     try:
         sys.exit(
-            load_entry_point('pyramid==1.4.3', 'console_scripts', 'pserve')()
+            load_entry_point('pyramid>=1.4.3', 'console_scripts', 'pserve')()
             )
         break
     except IndentationError, e:
