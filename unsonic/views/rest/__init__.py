@@ -171,12 +171,19 @@ def playlist_t(value):
 
 
 ### Utilities for wrangling data into xml form
+def fillCoverArt(row, elem, name):
+    if row.artwork is not None and len(row.artwork) > 0:
+        elem.set("coverArt", "%s-%d" % (name, row.artwork[0].id))
+        for art in row.artwork:
+            sub = ET.Element("cover-art")
+            sub.text = "%s-%d" % (name, art.id)
+            elem.append(sub)
+
 def fillArtist(row, name="artist"):
     artist = ET.Element(name)
     artist.set("id", "ar-%d" % row.id)
     artist.set("name", row.name)
-    if row.artwork is not None and len(row.artwork) > 0:
-        artist.set("coverArt", "ar-%d" % row.artwork[0].id)
+    fillCoverArt(row, artist, "ar")
     return artist
 
 def fillArtistUser(row, user, name="artist"):
@@ -195,8 +202,7 @@ def fillAlbum(row, name="album"):
     album.set("isDir", "true")
     if row.artist:
         album.set("parent", "ar-%s" % row.artist.id)
-    if row.artwork is not None and len(row.artwork) > 0:
-        album.set("coverArt", ("al-%d" % row.artwork[0].id))
+    fillCoverArt(row, album, "al")
     if row.release_date:
         release = []
         for c in row.release_date:
@@ -246,9 +252,8 @@ def fillSong(row, name="song"):
         song.set("year", "".join(year))
     # FIXME
     song.set("genre", "rock")
-    if (row.album is not None and row.album.artwork is not None and
-        len(row.album.artwork) > 0):
-        song.set("coverArt", ("al-%d" % row.album.artwork[0].id))
+    if row.album is not None:
+        fillCoverArt(row.album, song, "al")
     song.set("size", str(row.size_bytes))
     # FIXME
     song.set("contentType", "audio/mpeg")
