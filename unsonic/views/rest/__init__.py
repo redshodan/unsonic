@@ -175,8 +175,8 @@ def fillArtist(row, name="artist"):
     artist = ET.Element(name)
     artist.set("id", "ar-%d" % row.id)
     artist.set("name", row.name)
-    # FIXME
-    artist.set("coverArt", "ar-%d" % row.id)
+    if row.artwork is not None and len(row.artwork) > 0:
+        artist.set("coverArt", "ar-%d" % row.artwork[0].id)
     return artist
 
 def fillArtistUser(row, user, name="artist"):
@@ -195,8 +195,8 @@ def fillAlbum(row, name="album"):
     album.set("isDir", "true")
     if row.artist:
         album.set("parent", "ar-%s" % row.artist.id)
-    # FIXME
-    album.set("coverArt", "al-%d" % row.id)
+    if row.artwork is not None and len(row.artwork) > 0:
+        album.set("coverArt", ("al-%d" % row.artwork[0].id))
     if row.release_date:
         release = []
         for c in row.release_date:
@@ -246,11 +246,9 @@ def fillSong(row, name="song"):
         song.set("year", "".join(year))
     # FIXME
     song.set("genre", "rock")
-    # FIXME
-    if row.album_id:
-        song.set("coverArt", ("tr-%d" % row.album_id))
-    else:
-        song.set("coverArt", "tr-UNKNOWN")
+    if (row.album is not None and row.album.artwork is not None and
+        len(row.album.artwork) > 0):
+        song.set("coverArt", ("al-%d" % row.album.artwork[0].id))
     song.set("size", str(row.size_bytes))
     # FIXME
     song.set("contentType", "audio/mpeg")
