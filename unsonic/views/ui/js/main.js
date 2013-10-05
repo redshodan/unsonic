@@ -115,6 +115,10 @@ require(['jquery', 'knockout', 'sammy', 'global', 'utils', 'mainViewModel', 'pla
         west__minSize: 200,
         west__initClosed: false,
         west__initHidden: false,
+        south__size: .2,
+        south__minSize: 100,
+        south__initClosed: false,
+        south__initHidden: false,
         //stateManagement__enabled: true, // automatic cookie load & save enabled by default
         showDebugMessages: true // log and/or display messages from debugging & testing code
         //applyDefaultStyles: true
@@ -161,7 +165,6 @@ require(['jquery', 'knockout', 'sammy', 'global', 'utils', 'mainViewModel', 'pla
     };           
 
     ko.applyBindings(new mainViewModel());
-    //ko.applyBindings(subsonicViewModel, $('#tabLibrary')[0]);
 
     // Variable Init
     if (global.settings.SaveTrackPosition()) {

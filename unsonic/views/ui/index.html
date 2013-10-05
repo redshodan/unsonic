@@ -23,13 +23,13 @@
       <!-- <div id="version">[Beta]</div> -->
       <div id="nav">
         <ul class="tabs">
-          <li>
-            <a href="#tabQueue" title="Play Queue" 
-               data-bind="click: $root.changeTab.bind($data, 'tabQueue'), 
-                          css: { active: $root.activeTab() === 'tabQueue' } ">
-              <img src="images/play_alt_gd_16x16.png" />
-            </a>
-          </li>
+          <!-- <li> -->
+          <!--   <a href="#tabQueue" title="Play Queue"  -->
+          <!--      data-bind="click: $root.changeTab.bind($data, 'tabQueue'),  -->
+          <!--                 css: { active: $root.activeTab() === 'tabQueue' } "> -->
+          <!--     <img src="images/play_alt_gd_16x16.png" /> -->
+          <!--   </a> -->
+          <!-- </li> -->
           <li>
             <a href="#tabLibrary" class="first" title="Library" 
                data-bind="click: $root.changeTab.bind($data, 'tabLibrary'), 
@@ -217,13 +217,74 @@ data-bind="attr: { id: id }, click: $root.getAlbums,
                 </div>
               </div>
               <div class="ui-layout-center noselect hide" 
- data-bind="templateWithContext: { name: $root.templateToUse(), 
-            data: $root.album, context: { flag: 'subsonic' } }"></div>
+data-bind="templateWithContext: { name: $root.templateToUse(), 
+           data: $root.album, context: { flag: 'subsonic' } }"></div>
               <div class="ui-layout-east noselect hide">
                 <ul class="simplelist songlist" 
                     data-bind="template: { name: 'song-template', 
                                foreach: $root.song }"></ul>
               </div>
+
+        <!-- Start: Queue Tab -->
+        <!-- <div id="tabQueue" class="ui-layout-bottom noselect" > -->
+        <div id="Queue" class="ui-layout-south noselect">
+          <!-- <div class="actions floatleft"> -->
+          <div>
+            <a href="" class="button" title="Shuffle"
+               data-bind="click: $root.queueShuffle">
+              <img src="images/fork_gd_11x12.png" />
+            </a>
+            <a href="#" class="button" id="action_CurrentSelectAll"
+               title="Select All" data-bind="click: $root.selectAll">All</a>
+            <a href="#" class="button" id="action_CurrentSelectNone"
+               title="Select None" data-bind="click: $root.selectNone">None</a>
+            <a href="#" class="button" id="action_CurrentRemoveSongs"
+               title="Remove selected song(s) from Play Queue"
+               data-bind="click: $root.removeSelectedSongs">Remove Song(s)</a>
+            <a href="#" class="button" id="action_Empty" title="Remove All"
+               data-bind="click: $root.emptyQueue">Empty</a>
+            <a href="#" class="button" id="action_AddCurrentToPlaylist"
+               title="Add Selected To Playlist">+ Playlist</a>
+            <div id="submenu_AddCurrentToPlaylist" class="submenu shadow"
+                 style="display: none;"></div>
+          </div>
+          <!-- <div id="Queue" class="section fullsection floatleft noselect"> -->
+          <div>
+            <ul class="simplelist songlist" data-bind="foreach: queue">
+              <li class="row song" artistid="204" duration="194" 
+                  userrating="undefined" 
+                  data-bind="attr: { id: id, parentid: parentid },
+                             css: { selected: selected,  playing: playing }, 
+                             event: { dblclick: playSong.bind($data, false),
+                             click: $root.selectSong } ">
+                <div class="itemactions">
+                  <a class="remove" href="" title="Remove"></a>
+                  <a class="play" href="" title="Play"></a>
+                  <a class="download" href="" title="Download"></a>
+                  <a class="rate" href="" title="Add To Favorites"></a>
+                  <div class="clear"></div>
+                </div>
+                <div class="track floatleft" data-bind="html: track"></div>
+                <div class="title floatleft" data-bind="html: name"></div>
+                <div class="albumblock floatleft">
+                  <img class="floatleft" data-bind="attr: { src: coverartthumb }"
+                       src="images/albumdefault_25.jpg" />
+                  <div class="albumtext floatleft" data-bind="html: album"></div>
+                  <div class="artist floatleft" 
+                       data-bind="html: '[' + artist() + ']'"></div>
+                </div>
+                <div class="time floatleft" data-bind="text: time"></div>
+                <div class="clear"></div>
+              </li>
+            </ul>
+            </div>
+          </div>
+          <div id="status_Current" class="status" 
+               data-bind="text: $root.queueTotal"></div>
+          <div class="clear"></div>
+        <!-- </div> -->
+        <!-- End: Queue Tab -->
+
             </div>
           </div>
           <div class="clear"></div>
@@ -423,62 +484,6 @@ data-bind="click: $root.getRandomSongs.bind($data, 'play', '', value()),
             <div class="clear"></div>
           </li>
         </script>
-        <!-- Start: Queue Tab -->
-        <div id="tabQueue" class="tabcontent" 
-             data-bind="visible: activeTab() == 'tabQueue'">
-          <div class="actions floatleft">
-            <a href="" class="button" title="Shuffle" 
-               data-bind="click: $root.queueShuffle">
-              <img src="images/fork_gd_11x12.png" />
-            </a>
-            <a href="#" class="button" id="action_CurrentSelectAll" 
-               title="Select All" data-bind="click: $root.selectAll">All</a>
-            <a href="#" class="button" id="action_CurrentSelectNone" 
-               title="Select None" data-bind="click: $root.selectNone">None</a>
-            <a href="#" class="button" id="action_CurrentRemoveSongs" 
-               title="Remove selected song(s) from Play Queue" 
-               data-bind="click: $root.removeSelectedSongs">Remove Song(s)</a>
-            <a href="#" class="button" id="action_Empty" title="Remove All" 
-               data-bind="click: $root.emptyQueue">Empty</a>
-            <a href="#" class="button" id="action_AddCurrentToPlaylist" 
-               title="Add Selected To Playlist">+ Playlist</a>
-            <div id="submenu_AddCurrentToPlaylist" class="submenu shadow" 
-                 style="display: none;"></div>
-          </div>
-          <div id="Queue" class="section fullsection floatleft noselect">
-            <ul class="simplelist songlist" data-bind="foreach: queue">
-              <li class="row song" artistid="204" duration="194" 
-                  userrating="undefined" 
-                  data-bind="attr: { id: id, parentid: parentid },
-                             css: { selected: selected,  playing: playing }, 
-                             event: { dblclick: playSong.bind($data, false),
-                             click: $root.selectSong } ">
-                <div class="itemactions">
-                  <a class="remove" href="" title="Remove"></a>
-                  <a class="play" href="" title="Play"></a>
-                  <a class="download" href="" title="Download"></a>
-                  <a class="rate" href="" title="Add To Favorites"></a>
-                  <div class="clear"></div>
-                </div>
-                <div class="track floatleft" data-bind="html: track"></div>
-                <div class="title floatleft" data-bind="html: name"></div>
-                <div class="albumblock floatleft">
-                  <img class="floatleft" data-bind="attr: { src: coverartthumb }"
-                       src="images/albumdefault_25.jpg" />
-                  <div class="albumtext floatleft" data-bind="html: album"></div>
-                  <div class="artist floatleft" 
-                       data-bind="html: '[' + artist() + ']'"></div>
-                </div>
-                <div class="time floatleft" data-bind="text: time"></div>
-                <div class="clear"></div>
-              </li>
-            </ul>
-          </div>
-          <div id="status_Current" class="status" 
-               data-bind="text: $root.queueTotal"></div>
-          <div class="clear"></div>
-        </div>
-        <!-- End: Queue Tab -->
         <!-- Start: Playlist Tab -->
         <div id="tabPlaylists" class="tabcontent" 
              data-bind="visible: activeTab() == 'tabPlaylists',
