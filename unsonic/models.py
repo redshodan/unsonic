@@ -15,7 +15,7 @@ from zope.sqlalchemy import ZopeTransactionExtension
 
 import mishmash.orm
 from mishmash.orm import (Artist, Album, Meta, Label, Track, artist_labels,
-                          album_labels, track_labels, ArtistArt, AlbumArt)
+                          album_labels, track_labels, ArtistArt, AlbumArt, Genre)
 from mishmash.orm import TYPES as MASH_TYPES
 
 from .moduleref import ModuleRef
