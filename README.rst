@@ -46,6 +46,22 @@ Running
   * ./bin/unsonic-db -c <config.ini> adduser name pass
   * ./bin/unsonic <config.ini> --reload
 
+Adjusting the configuration
+===========================
+The main configuration settings are the location of the database ::
+
+  sqlalchemy.url = sqlite:///%(here)s/build/development.sqlite
+
+and the location of the music directory ::
+
+  mishmash.paths = 
+      Music: %(here)s/test/music
+
+Adjust them to fit your deployment needs. The mishmash.paths can have multiple 
+music directories, one per line. %(here) refers to the location of the 
+configuration file itself.
+
+
 License
 =======
 Unsonic is licensed under the GPL v2 license. See the COPYING file for details or
