@@ -265,8 +265,7 @@ def fillSong(row, name="song"):
     song.set("suffix", suffix)
     song.set("transcodedSuffix", suffix)
     song.set("duration", str(row.time_secs))
-    # FIXME
-    song.set("bitRate", "128")
+    song.set("bitRate", str(row.track_bit_rate))
     song.set("path", os.path.join(artist_name, album_name, row.title))
     song.set("isVideo", "false")
     return song
