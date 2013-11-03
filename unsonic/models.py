@@ -14,14 +14,17 @@ from sqlalchemy.orm.exc import NoResultFound
 from zope.sqlalchemy import ZopeTransactionExtension
 
 import mishmash.orm
-from mishmash.orm import (Artist, Album, Meta, Label, Track, artist_labels,
-                          album_labels, track_labels, ArtistArt, AlbumArt, Genre)
+from mishmash.orm import (Artist, Album, Meta, Label, Track, Image,
+                          artist_labels, album_labels, track_labels,
+                          artist_images, album_images)
 from mishmash.orm import TYPES as MASH_TYPES
+from mishmash.database import init as dbinit
 
 from .moduleref import ModuleRef
 from .version import DB_VERSION
 
 
+db_url = None
 DBSession = ModuleRef()
 Base = mishmash.orm.Base
 dbinfo = Namespace()
@@ -29,7 +32,7 @@ dbinfo = Namespace()
 
 @sqlalchemy.event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
-    if "sqlite" in DBSession.get_bind().driver:
+    if db_url.startswith("sqlite://"):
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
         cursor.close()
@@ -277,17 +280,10 @@ Track.scrobbles = relation("Scrobble")
 
 ### Utility functions
 def init(settings, webapp):
-    engine = engine_from_config(settings, 'sqlalchemy.')
-    # Prevent fighting over the transaction model
-    # FIXME maybe make transaction control optional in mishmash?
-    if webapp:
-        DBSession.__setobj__(scoped_session(sessionmaker(
-            extension=ZopeTransactionExtension())))
-    else:
-        DBSession.__setobj__(scoped_session(sessionmaker(autocommit=True,
-                                                         autoflush=False)))
-    DBSession.configure(bind=engine)
-    Base.metadata.bind = engine
+    global db_url
+    db_url = settings["sqlalchemy.url"]
+    engine, session = dbinit(uri=db_url)
+    DBSession.__setobj__(session)
 
 def load():
     with transaction.manager:

@@ -7,7 +7,7 @@ class ModuleRef(object):
 
     def __getattr__(self, name):
         if not self.__obj__:
-            raise AttributeError("name")
+            raise AttributeError("ModuleRef.__obj__ is None")
         return getattr(self.__obj__, name)
 
     def __setattr__(self, name, val):

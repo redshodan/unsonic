@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 
 from . import Command, addCmd
-from ...models import DBSession, Genre
+from ...models import DBSession
 
 
 class GetGenres(Command):

@@ -1,10 +1,11 @@
 from __future__ import print_function
 
 import os
+from argparse import Namespace
 
 import mishmash
 from mishmash.commands import Command, makeCmdLineParser
-from mishmash.database import DBInfo, Database
+from mishmash.database import init as dbinit
 
 from .models import DBSession
 
@@ -21,25 +22,18 @@ def init(settings):
     makeCmdLineParser()
 
 def initDB(settings):
-    dbinfo = DBInfo(uri=settings["sqlalchemy.url"],
-                    dbengine=DBSession.get_bind(),
-                    dbsession=DBSession)
-    Command.cmds["init"].run(dbinfo)
+    cmd = Command.cmds["init"]
+    cmd.db_engine, cmd.db_session = dbinit(settings["sqlalchemy.url"])
+    cmd._run()
 
 def syncDB(settings):
-    dbinfo = DBInfo(uri=settings["sqlalchemy.url"],
-                    dbengine=DBSession.get_bind(),
-                    dbsession=DBSession)
     paths = [v for v in getPaths(settings).itervalues()]
-    Command.cmds["sync"].run(dbinfo, paths)
+    cmd = Command.cmds["sync"]
+    cmd.db_engine, cmd.db_session = dbinit(settings["sqlalchemy.url"])
+    cmd._run(paths=paths)
 
 def getPaths(settings):
     paths = asdict(settings["mishmash.paths"])
     for key in paths.keys():
         paths[key] = os.path.expandvars(os.path.expanduser(paths[key]))
     return paths
-    
-def load(settings):
-    return Database(DBInfo(uri=settings["sqlalchemy.url"],
-                           dbengine=DBSession.get_bind(),
-                           dbsession=DBSession))

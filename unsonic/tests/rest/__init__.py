@@ -3,9 +3,6 @@ import xml.etree.ElementTree as ET
 
 from pyramid import testing
 
-import mishmash
-from mishmash.database import DBInfo, Database
-
 from ...models import DBSession
 from ... import dbMain
 

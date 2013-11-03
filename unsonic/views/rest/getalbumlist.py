@@ -1,7 +1,8 @@
 import xml.etree.ElementTree as ET
 from  sqlalchemy.sql.expression import func as dbfunc
 
-from . import Command, MissingParam, addCmd, fillAlbum, fillArtist, fillSong
+from . import (Command, MissingParam, addCmd, fillAlbum, fillAlbumUser,
+               fillArtist, fillSong)
 from ...models import (DBSession, Artist, Album, AlbumRating, PlayCount, Track,
                        Scrobble)
 
@@ -19,7 +20,7 @@ class GetAlbumList(Command):
 
     def processRows(self, alist, result):
         for row in result:
-            album = fillAlbum(row)
+            album = fillAlbumUser(row, self.req.authed_user)
             alist.append(album)
             if row.artist:
                 album.set("parent", "ar-%d" % row.artist.id)

@@ -20,8 +20,6 @@ def view(req):
     repls = {"rest":req.route_url("rest"),
              "home":req.route_url("home"),
              "user":req.authed_user.name.encode("utf-8")}
-    print(req.authed_user.name, type(req.authed_user.name))
-    print(repls)
     body = open(fname).read()
     for key, val in repls.iteritems():
         body = body.replace("%%%s%%" % key, val)
