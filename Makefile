@@ -29,6 +29,7 @@ external/eyed3:
 
 external/mishmash:
 	cd external; hg clone 'https://redshodan@bitbucket.org/redshodan/mishmash-music-server' mishmash
+	cd external/mishmash; paver build
 
 devel: $(PY_LIB)/unsonic.egg-link 
 

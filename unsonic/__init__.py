@@ -26,9 +26,6 @@ def main(global_config, **settings):
     models.init(settings, True)
     models.load()
     
-    # Setup mishmash
-    mash.load(settings)
-
     # Pyramid framework
     config = Configurator(settings=settings)
     config.add_static_view('static', 'static', cache_max_age=3600,)
@@ -53,7 +50,7 @@ def main(global_config, **settings):
         cmd.settings = settings
         config.add_route(cmd.name, "/rest/" + cmd.name,
                          factory="unsonic.views.rest.RouteContext")
-        config.add_view(cmd, route_name=cmd.name, permission="rest")
+        config.add_view(cmd, route_name=cmd.name, permission=models.Roles.REST)
 
     # Log requests
     app = config.make_wsgi_app()

@@ -6,7 +6,7 @@ from pyramid.security import Allow, Authenticated, DENY_ALL
 from ...log import log
 from ...utils import xmltodict
 from ...version import VERSION, PROTOCOL_VERSION, UNSONIC_PROTOCOL_VERSION
-from ...models import ArtistRating, AlbumRating, TrackRating
+from ...models import Roles, ArtistRating, AlbumRating, TrackRating
 
 
 XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>'
@@ -15,7 +15,7 @@ commands = {}
 
 
 class RouteContext(object):
-    __acl__ = [ (Allow, Authenticated, 'rest'), DENY_ALL ]
+    __acl__ = [ (Allow, Authenticated, Roles.REST), DENY_ALL ]
     
     def __init__(self, request):
         pass
@@ -172,9 +172,9 @@ def playlist_t(value):
 
 ### Utilities for wrangling data into xml form
 def fillCoverArt(row, elem, name):
-    if row.artwork is not None and len(row.artwork) > 0:
-        elem.set("coverArt", "%s-%d" % (name, row.artwork[0].id))
-        for art in row.artwork:
+    if row.images is not None and len(row.images) > 0:
+        elem.set("coverArt", "%s-%d" % (name, row.images[0].id))
+        for art in row.images:
             sub = ET.Element("cover-art")
             sub.text = "%s-%d" % (name, art.id)
             elem.append(sub)
@@ -250,8 +250,8 @@ def fillSong(row, name="song"):
             else:
                 break
         song.set("year", "".join(year))
-    if row.genre_id is not None:
-        song.set("genre", row.genre.name)
+    # if row.genre_id is not None:
+    #     song.set("genre", row.genre.name)
     if row.album is not None:
         fillCoverArt(row.album, song, "al")
     song.set("size", str(row.size_bytes))
@@ -265,7 +265,7 @@ def fillSong(row, name="song"):
     song.set("suffix", suffix)
     song.set("transcodedSuffix", suffix)
     song.set("duration", str(row.time_secs))
-    song.set("bitRate", str(row.track_bit_rate))
+    song.set("bitRate", str(row.bit_rate))
     song.set("path", os.path.join(artist_name, album_name, row.title))
     song.set("isVideo", "false")
     return song
