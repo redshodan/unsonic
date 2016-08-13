@@ -25,19 +25,9 @@ Release build
 Manual Installation
 +++++++++++++++++++
 
-Requirements
-------------
-  * virtualenv $venv
-  * Install eyeD3-0.7.4 into external/eyed3
-	* cd external; hg clone 'https://bitbucket.org/redshodan/eyed3-for-unsonic' eyed3
-	* cd external/eyed3; hg up stable
-	* cd external/eyed3; paver build
-  * Install mishmash (FIXME) into external/mishmash
-	* cd external; hg clone 'https://bitbucket.org/redshodan/mishmash-music-server' mishmash
-
 Building
 --------
-  * $venv/bin/python setup.py develop
+  * make
 
 Running
 -------
@@ -58,7 +48,7 @@ and the location of the music directory ::
       Music: %(here)s/test/music
 
 Adjust them to fit your deployment needs. The mishmash.paths can have multiple 
-music directories, one per line. %(here) refers to the location of the 
+music directories, one per line. %(here)s refers to the location of the 
 configuration file itself.
 
 

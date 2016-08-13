@@ -29,7 +29,7 @@ class GetMusicDirectory(Command):
             # FIXME: Do we care about the top level directory hierarchy?
             directory.set(
                 "parent",
-                "fl-%s" % mash.getPaths(self.settings).keys()[0])
+                "fl-%s" % list(mash.getPaths(self.settings).keys())[0])
             directory.set("id", self.params["id"])
             artist_name = None
             # Gather albums

@@ -1,11 +1,12 @@
-from __future__ import print_function
+
 
 import os
 from argparse import Namespace
 
 import mishmash
-from mishmash.commands import Command, makeCmdLineParser
+from mishmash.commands.command import Command
 from mishmash.database import init as dbinit
+from eyed3.main import makeCmdLineParser
 
 from .models import DBSession
 
@@ -27,13 +28,13 @@ def initDB(settings):
     cmd._run()
 
 def syncDB(settings):
-    paths = [v for v in getPaths(settings).itervalues()]
+    paths = [v for v in getPaths(settings).values()]
     cmd = Command.cmds["sync"]
     cmd.db_engine, cmd.db_session = dbinit(settings["sqlalchemy.url"])
     cmd._run(paths=paths)
 
 def getPaths(settings):
     paths = asdict(settings["mishmash.paths"])
-    for key in paths.keys():
+    for key in list(paths.keys()):
         paths[key] = os.path.expandvars(os.path.expanduser(paths[key]))
     return paths

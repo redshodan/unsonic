@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 
 import transaction, datetime, argparse
 from argparse import Namespace
@@ -14,8 +14,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from zope.sqlalchemy import ZopeTransactionExtension
 
 import mishmash.orm
-from mishmash.orm import (Artist, Album, Meta, Label, Track, Image,
-                          artist_labels, album_labels, track_labels,
+from mishmash.orm import (Artist, Album, Meta, Track, Image,
                           artist_images, album_images)
 from mishmash.orm import TYPES as MASH_TYPES
 from mishmash.database import init as dbinit

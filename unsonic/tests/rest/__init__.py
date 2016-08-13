@@ -35,7 +35,7 @@ class RestTestCase(unittest.TestCase):
     def setUpClass(klass):
         try:
             os.unlink("build/testing.sqlite")
-        except OSError, e:
+        except OSError as e:
             if e.errno != 2:
                 raise
         try:

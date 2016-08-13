@@ -14,7 +14,7 @@ class TestCoverArt(RestTestCase):
         cmd = self.buildCmd(GetCoverArt)
         cmd.req.params["id"] = "al-1"
         resp = cmd()
-        path = os.path.join(mash.getPaths(cmd.settings).values()[0],
+        path = os.path.join(list(mash.getPaths(cmd.settings).values())[0],
                             "albumart.png")
         art = open(path).read()
         self.assertEqual(len(resp.body), len(art))

@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 
 import os, sys, argparse
 
@@ -46,7 +46,7 @@ def main(global_config, **settings):
 
     # Add the rest interfaces
     config.add_route("rest", "/rest", factory="unsonic.views.rest.RouteContext")
-    for cmd in rest.commands.itervalues():
+    for cmd in rest.commands.values():
         cmd.settings = settings
         config.add_route(cmd.name, "/rest/" + cmd.name,
                          factory="unsonic.views.rest.RouteContext")
