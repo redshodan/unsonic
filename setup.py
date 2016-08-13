@@ -15,10 +15,9 @@ requires = [
     'pyramid_debugtoolbar',
     'zope.sqlalchemy',
     'waitress',
+    'pastedeploy',
     'paste',
     'psycopg2',
-    'pysqlite',
-    # 'eyeD3',
     # 'mishmash'
     ]
 

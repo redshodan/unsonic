@@ -30,14 +30,14 @@ class Search2(Command):
         result = ET.Element("searchResult2")
         if ar_count:
             for row in DBSession.query(Artist). \
-                           filter(Artist.name.ilike(u"%%%s%%" % query)). \
+                           filter(Artist.name.ilike("%%%s%%" % query)). \
                            limit(ar_count). \
                            offset(ar_off):
                 artist = fillArtist(row)
                 result.append(artist)
         if al_count:
             for row in DBSession.query(Album). \
-                           filter(Album.title.ilike(u"%%%s%%" % query)). \
+                           filter(Album.title.ilike("%%%s%%" % query)). \
                            limit(al_count). \
                            offset(al_off):
                 album = fillAlbum(row)
@@ -50,7 +50,7 @@ class Search2(Command):
                 album.set("title", album.get("name"))
         if tr_count:
             for row in DBSession.query(Track). \
-                           filter(Track.title.ilike(u"%%%s%%" % query)). \
+                           filter(Track.title.ilike("%%%s%%" % query)). \
                            limit(tr_count). \
                            offset(tr_off):
                 track = fillSong(row)

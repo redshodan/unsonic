@@ -27,7 +27,7 @@ class StdoutHandler(logging.StreamHandler):
                 stream.write(fs % msg)
             else:
                 try:
-                    if (isinstance(msg, unicode) and
+                    if (isinstance(msg, str) and
                         getattr(stream, 'encoding', None)):
                         ufs = fs.decode(stream.encoding)
                         try:

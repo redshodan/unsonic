@@ -22,7 +22,7 @@ class CreatePlayList(Command):
             raise MissingParam("Must supply playlistId or name")
         
         if "playlistId" in self.params:
-            print "Update!"
+            print("Update!")
         else:
             with transaction.manager:
                 plist = PlayList(user_id=self.req.authed_user.id,

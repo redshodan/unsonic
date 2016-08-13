@@ -50,11 +50,11 @@ class Command(object):
         try:
             self.parseParams()
             return self.handleReq()
-        except MissingParam, e:
+        except MissingParam as e:
             return self.makeResp(status=(Command.E_MISSING_PARAM, str(e)))
-        except NotFound, e:
+        except NotFound as e:
             return self.makeResp(status=(Command.E_NOT_FOUND, str(e)))
-        except InternalError, e:
+        except InternalError as e:
             return self.makeResp(status=(Command.E_GENERIC, str(e)))
 
     def handleReq(self):
@@ -65,11 +65,11 @@ class Command(object):
         attrs_ = {"status":"ok" if status is True else "failed",
                   "version":PROTOCOL_VERSION, "unsonic":UNSONIC_PROTOCOL_VERSION}
         attrs_.update(attrs)
-        for key, value in attrs_.iteritems():
+        for key, value in attrs_.items():
             body.set(key, value)
         if status is not True and status is not False:
             error = ET.Element("error")
-            if isinstance(status[0], types.TupleType):
+            if isinstance(status[0], tuple):
                 error.set("code", status[0][0])
                 error.set("message", "%s: %s" % (status[0][1], status[1]))
             else:
@@ -104,7 +104,7 @@ class Command(object):
         return resp
 
     def parseParams(self):
-        for name, values in self.param_defs.iteritems():
+        for name, values in self.param_defs.items():
             if name in self.req.params:
                 val = self.req.params[name]
                 if "type" in values:

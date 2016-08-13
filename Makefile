@@ -1,43 +1,51 @@
-VBIN=build/venv/bin
-VLIB=build/venv/lib
+TOPDIR:=$(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+VBIN=$(TOPDIR)/build/venv/bin
+VLIB=$(TOPDIR)/build/venv/lib
 PYTHON=$(VBIN)/python
+PIP=$(VBIN)/pip
 PY_LIB=$(VLIB)/python*/site-packages
 
 
-all: bins external devel
+all: venv bins external devel
 
 bins: bin/unsonic bin/unsonic-db
 
 bin/unsonic: bin/unsonic.in
-	sed "s?/usr/bin/env python?`pwd`/${PYTHON}?" $< > $@
+	sed "s?/usr/bin/env python?${PYTHON}?" $< > $@
 	chmod +x $@
 
 bin/unsonic-db: bin/unsonic-db.in
-	sed "s?/usr/bin/env python?`pwd`/${PYTHON}?" $< > $@
+	sed "s?/usr/bin/env python?${PYTHON}?" $< > $@
 	chmod +x $@
 
+venv: build/venv/bin/python
 build/venv/bin/python:
 	[ ! -d build ] && mkdir build
-	virtualenv build/venv
+	virtualenv -p python3 build/venv
 
-external: external/eyed3 external/mishmash
+external: mishmash-build
 
-external/eyed3:
-	cd external; hg clone 'https://redshodan@bitbucket.org/redshodan/eyed3-for-unsonic' eyed3
-	cd external/eyed3; hg up stable
-	cd external/eyed3; paver build
+mishmash-build: external/mishmash $(PY_LIB)/eyed3
 
 external/mishmash:
-	cd external; hg clone 'https://redshodan@bitbucket.org/redshodan/mishmash-music-server' mishmash
-	cd external/mishmash; paver build
+	cd external; hg clone 'https://bitbucket.org/nicfit/mishmash' mishmash
+	# cd external; hg clone 'https://bitbucket.org/redshodan/mishmash-music-server' mishmash
 
-devel: $(PY_LIB)/unsonic.egg-link 
+$(PY_LIB)/eyed3:
+	cd external/mishmash; $(PIP) install -U -r requirements.txt
+#	cd external/mishmash; $(PYTHON) setup.py build
+
+devel: $(PY_LIB)/unsonic.egg-link paste-fix
 
 $(PY_LIB)/unsonic.egg-link: build/venv/bin/python setup.py setup.cfg README.rst 
 $(PY_LIB)/unsonic.egg-link: development.ini
 $(PY_LIB)/unsonic.egg-link:
 	$(PYTHON) setup.py develop
 	touch $@
+
+paste-fix: $(PY_LIB)/paste/translogger.py
+$(PY_LIB)/paste/translogger.py:
+	cd $(PY_LIB)/paste; for a in ../Paste-*.egg/paste/*; do ln -s $$a; done
 
 db: devel-db
 devel-db: build/development.sqlite
@@ -81,13 +89,13 @@ up:
         (echo; cd $${dir}; hg up); done
 
 tests:
-	PYTHONPATH=external/eyed3/src/:external/mishmash/src $(PYTHON) setup.py test
+	PYTHONPATH=external/mishmash $(PYTHON) setup.py test
 
 clean:
-	-find unsonic external -name '*.pyc' | xargs rm
+	find unsonic external -name '*.pyc' | xargs rm -f
 
 dist-clean: clean
 	rm -rf build unsonic.egg-info development.sqlite bin/unsonic bin/unsonic-db
 
-.PHONY: devel db pyramid paste sqlalchemy psycopg2 eyed3 run tests clean 
+.PHONY: devel db pyramid paste sqlalchemy psycopg2 run tests clean 
 .PHONY: dist-clean external

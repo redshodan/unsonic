@@ -16,12 +16,12 @@ class TestBinaries(unittest.TestCase):
     def testDBInit(self):
         try:
             os.unlink("build/testing.sqlite")
-        except OSError, e:
+        except OSError as e:
             if e.errno != 2:
                 raise
         try:
             os.unlink("build/testing-mishmash.sqlite")
-        except OSError, e:
+        except OSError as e:
             if e.errno != 2:
                 raise
         try:

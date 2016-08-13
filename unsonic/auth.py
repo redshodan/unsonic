@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 
 import os, sys, argparse
 
@@ -29,8 +29,8 @@ class SubsonicAuth(BasicAuthAuthenticationPolicy):
     def unauthenticated_userid(self, request):
         if request.headers.get('Authorization'):
             return super(SubsonicAuth, self).unauthenticated_userid(request)
-        elif ("u" not in request.params.keys() or
-              "p" not in request.params.keys()):
+        elif ("u" not in list(request.params.keys()) or
+              "p" not in list(request.params.keys())):
             return None
         else:
             return request.params["u"]
@@ -38,8 +38,8 @@ class SubsonicAuth(BasicAuthAuthenticationPolicy):
     def callback(self, username, request):
         if request.headers.get('Authorization'):
             return super(SubsonicAuth, self).callback(username, request)
-        elif ("u" not in request.params.keys() or
-              "p" not in request.params.keys()):
+        elif ("u" not in list(request.params.keys()) or
+              "p" not in list(request.params.keys())):
             return None
         else:
             return self.check(request.params["u"], request.params["p"],

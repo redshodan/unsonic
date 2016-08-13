@@ -10,7 +10,7 @@ class GetMusicFolders(Command):
 
     def handleReq(self):
         folders = ET.Element("musicFolders")
-        for name, path in mash.getPaths(self.settings).iteritems():
+        for name, path in mash.getPaths(self.settings).items():
             folder = ET.Element("musicFolder")
             folders.append(folder)
             folder.set("id", "fl-%s" % name)

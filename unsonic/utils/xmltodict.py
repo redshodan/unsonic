@@ -27,10 +27,10 @@ from xml.parsers import expat
 from xml.sax.saxutils import XMLGenerator
 from xml.sax.xmlreader import AttributesImpl
 try: # pragma no cover
-    from cStringIO import StringIO
+    from io import StringIO
 except ImportError: # pragma no cover
     try:
-        from StringIO import StringIO
+        from io import StringIO
     except ImportError:
         from io import StringIO
 try: # pragma no cover
@@ -42,11 +42,11 @@ except ImportError: # pragma no cover
         OrderedDict = dict
 
 try: # pragma no cover
-    _basestring = basestring
+    _basestring = str
 except NameError: # pragma no cover
     _basestring = str
 try: # pragma no cover
-    _unicode = unicode
+    _unicode = str
 except NameError: # pragma no cover
     _unicode = str
 
@@ -84,14 +84,14 @@ class _DictSAXHandler(object):
         self.strip_whitespace = strip_whitespace
 
     def startElement(self, name, attrs):
-        attrs = self.dict_constructor(zip(attrs[0::2], attrs[1::2]))
+        attrs = self.dict_constructor(list(zip(attrs[0::2], attrs[1::2])))
         self.path.append((name, attrs or None))
         if len(self.path) > self.item_depth:
             self.stack.append((self.item, self.data))
             if self.xml_attribs:
                 attrs = self.dict_constructor(
                     (self.attr_prefix+key, value)
-                    for (key, value) in attrs.items())
+                    for (key, value) in list(attrs.items()))
             else:
                 attrs = None
             self.item = attrs or None
@@ -149,8 +149,8 @@ class _DictSAXHandler(object):
 def parse(xml_input, *args, **kwargs):
     dicts = parse2(xml_input, *args, **kwargs)
     def recurse(d):
-        if isinstance(d, types.DictType):
-            for k, v in d.iteritems():
+        if isinstance(d, dict):
+            for k, v in d.items():
                 if v is None:
                     d[k] = []
                 else:
@@ -263,7 +263,7 @@ def _emit(key, value, content_handler,
         cdata = None
         attrs = OrderedDict()
         children = []
-        for ik, iv in v.items():
+        for ik, iv in list(v.items()):
             if ik == cdata_key:
                 cdata = iv
                 continue
@@ -280,7 +280,7 @@ def _emit(key, value, content_handler,
         content_handler.endElement(key)
 
 def unparse(item, output=None, encoding='utf-8', **kwargs):
-    ((key, value),) = item.items()
+    ((key, value),) = list(item.items())
     must_return = False
     if output == None:
         output = StringIO()
