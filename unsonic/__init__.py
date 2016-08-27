@@ -1,5 +1,3 @@
-
-
 import os, sys, argparse
 
 from paste.translogger import TransLogger
@@ -7,7 +5,6 @@ from pyramid.config import Configurator
 from pyramid.paster import get_appsettings, setup_logging
 from pyramid.response import FileResponse
 from pyramid.view import view_config, forbidden_view_config
-
 
 from . import mash, models, log, auth
 from .views import rest, ui
