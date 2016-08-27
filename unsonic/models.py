@@ -1,5 +1,3 @@
-
-
 import transaction, datetime, argparse
 from argparse import Namespace
 
@@ -51,7 +49,7 @@ class DBInfo(Base, OrmObject):
     last_sync = Column(DateTime)
 
     @staticmethod
-    def initTable(session):
+    def initTable(session, config):
         session.add(DBInfo(version=DB_VERSION))
 
     @staticmethod
@@ -77,7 +75,7 @@ class User(Base, OrmObject):
                          passive_deletes=True)
 
     @staticmethod
-    def initTable(session):
+    def initTable(session, config):
         addUser("admin", None, [Roles.REST, Roles.USERS, Roles.ADMIN])
 
     @staticmethod
@@ -279,10 +277,11 @@ Track.scrobbles = relation("Scrobble")
 
 ### Utility functions
 def init(settings, webapp):
+    from . import mash
     global db_url
     db_url = settings["sqlalchemy.url"]
-    engine, session = dbinit(uri=db_url)
-    DBSession.__setobj__(session)
+    engine, session_maker = dbinit(mash.mashConfig(settings))
+    DBSession.__setobj__(session_maker())
 
 def load():
     with transaction.manager:
@@ -293,10 +292,8 @@ def initDB(settings):
     from . import mash
     Base.metadata.create_all()
     with transaction.manager:
-        for table in MASH_TYPES:
-            table.initTable(DBSession)
         for table in UN_TYPES:
-            table.initTable(DBSession)
+            table.initTable(DBSession, mash.mashConfig(settings))
 
 def addUser(username, password, roles):
     try:
