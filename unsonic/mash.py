@@ -1,12 +1,11 @@
-
-
 import os
 from argparse import Namespace
 
 import mishmash
 from mishmash.commands.command import Command
+from mishmash.commands.sync import SyncPlugin
 from mishmash.database import init as dbinit
-from eyed3.main import makeCmdLineParser
+from eyed3.main import main as eyed3_main
 
 from .models import DBSession
 
@@ -19,23 +18,21 @@ def asdict(value):
             ret[key.strip()] = val.strip()
     return ret
 
-def init(settings):
-    makeCmdLineParser()
+### FIXME: This is pretty bad. Make it mo' nice.
+sync_plugin = None
 
-def initDB(settings):
-    cmd = Command._all_commands["init"]
-    cmd.db_engine, cmd.db_session = dbinit(settings["sqlalchemy.url"])
-    config = Namespace()
-    config.various_artists_name = settings["mishmash.various_artists_name"]
-    cmd._run(config=config)
+def setupSync(subparsers):
+    global sync_plugin
+    parser = subparsers.add_parser("sync", help="Synchronize the music database")
+    parser.set_defaults(func=syncDB)
+    sync_plugin = SyncPlugin(parser) 
 
-def syncDB(settings):
-    paths = [v for v in getPaths(settings).values()]
-    cmd = Command._all_commands["sync"]
-    cmd.db_engine, cmd.db_session = dbinit(mashConfig(settings))
-    config = Namespace()
-    config.various_artists_name = settings["mishmash.various_artists_name"]
-    cmd._run(paths=paths, config=config)
+def syncDB(args, settings):
+    args.plugin = sync_plugin
+    args.paths = [v for v in getPaths(settings).values()]
+    args.db_engine, args.db_session = dbinit(mashConfig(settings))
+    args.db_session = args.db_session()
+    return eyed3_main(args, None)
 
 def getPaths(settings):
     paths = asdict(settings["mishmash.paths"])
@@ -48,5 +45,3 @@ def mashConfig(settings):
     config.db_url = settings["sqlalchemy.url"]
     config.various_artists_name = settings["mishmash.various_artists_name"]
     return config
-
-

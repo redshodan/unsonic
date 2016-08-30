@@ -111,9 +111,9 @@ def buildParser():
     init = subparsers.add_parser("init", help="Initialize the databases")
     init.set_defaults(func=doInit)
 
+    ### FIXME: This is pretty bad. Make it mo' nice.
     # Sync
-    sync = subparsers.add_parser("sync", help="Synchronize the music database")
-    sync.set_defaults(func=doSync)
+    mash.setupSync(subparsers)
 
     # Adduser
     adduser = subparsers.add_parser("adduser", help="Add a user to the database")
@@ -150,6 +150,5 @@ def dbMain(argv=sys.argv[1:]):
     settings = get_appsettings(args.config)
 
     # log.setupMash()
-    mash.init(settings)
     models.init(settings, False)
     return args.func(args, settings)
