@@ -49,19 +49,19 @@ while True:
             load_entry_point('pyramid>=1.4.3', 'console_scripts', 'pserve')()
             )
         break
-    except IndentationError, e:
+    except IndentationError as e:
         if reload:
             print("Failed to (re)start unsonic:", e)
             print("Restarting in %d seconds..." % wait)
         else:
             raise
-    except SyntaxError, e:
+    except SyntaxError as e:
         if reload:
             print("Failed to (re)start unsonic:", e)
             print("Restarting in %d seconds..." % wait)
         else:
             raise
-    except ImportError, e:
+    except ImportError as e:
         if reload:
             print("Failed to (re)start unsonic:", e)
             print("Restarting in %d seconds..." % wait)
