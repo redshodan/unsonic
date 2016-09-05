@@ -18,7 +18,8 @@ requires = [
     'pastedeploy',
     'paste',
     'psycopg2',
-    # 'mishmash'
+    'xmltodict',
+    # 'mishmash',
     ]
 
 setup(name='unsonic',

@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 
 from pyramid import testing
 
-from ...models import DBSession
+from ...models import Session
 from ... import dbMain
 
 
@@ -38,8 +38,8 @@ class RestTestCase(unittest.TestCase):
         except OSError as e:
             if e.errno != 2:
                 raise
-        try:
-            dbMain(["-c", "testing.ini", "init"])
-            dbMain(["-c", "testing.ini", "sync"])
-        finally:
-            DBSession.remove()
+        # try:
+        dbMain(["-c", "testing.ini", "init"])
+        dbMain(["-c", "testing.ini", "sync"])
+        # finally:
+        #     DBSession.remove()

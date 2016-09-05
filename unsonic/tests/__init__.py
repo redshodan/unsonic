@@ -1,9 +1,8 @@
 import unittest
-import transaction
 
 from pyramid import testing
 
-from ..models import DBSession
+from ..models import Session
 
 
 class TestCase(unittest.TestCase):
@@ -12,12 +11,9 @@ class TestCase(unittest.TestCase):
         from sqlalchemy import create_engine
         engine = create_engine('sqlite://')
         from ..models import Base
-        DBSession.configure(bind=engine)
+        # DBSession.configure(bind=engine)
         Base.metadata.create_all(engine)
-        with transaction.manager:
-            # model = MyModel(name='one', value=55)
-            DBSession.add(model)
 
     def tearDown(self):
-        DBSession.remove()
+        # DBSession.remove()
         testing.tearDown()

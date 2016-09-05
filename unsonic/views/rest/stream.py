@@ -1,7 +1,7 @@
 from pyramid.response import FileResponse
 
 from . import Command, addCmd, bool_t, track_t
-from ...models import DBSession, Track
+from ...models import Session, Track
 
 
 class Stream(Command):
@@ -14,9 +14,11 @@ class Stream(Command):
         "size": {"type": int},
         "estimateContentLength": {"default": False, "type": bool_t},
         }
+    dbsess = True
 
-    def handleReq(self):
-        row = DBSession.query(Track).filter(Track.id == self.params["id"]).all()[0]
+
+    def handleReq(self, session):
+        row = session.query(Track).filter(Track.id == self.params["id"]).all()[0]
         return FileResponse(row.path)
 
 

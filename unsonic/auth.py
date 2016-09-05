@@ -10,6 +10,7 @@ from pyramid.view import forbidden_view_config
 
 import unsonic
 from unsonic import models
+from unsonic.models import Session
 
 
 # Causes auth challenges to be sent back
@@ -47,13 +48,14 @@ class SubsonicAuth(BasicAuthAuthenticationPolicy):
 
     # Shared between both auth schemes
     def authCheck(self, username, password, req):
-        user = models.getUserByName(username)
-        if user and not user.password:
-            return
-        if user and password == user.password:
-            # Stash the user for easy access
-            req.authed_user = user.export()
-            return req.authed_user.roles
+        with Session() as session:
+            user = models.getUserByName(session, username)
+            if user and not user.password:
+                return
+            if user and password == user.password:
+                # Stash the user for easy access
+                req.authed_user = user.export()
+                return req.authed_user.roles
 
 
 def init(global_config, config):

@@ -1,16 +1,18 @@
 import xml.etree.ElementTree as ET
 
 from . import Command, addCmd
-from ...models import DBSession
+from ...models import Session
 
 
 class GetGenres(Command):
     name = "getGenres.view"
     param_defs = {}
-        
-    def handleReq(self):
+    dbsess = True
+
+    
+    def handleReq(self, session):
         genres = ET.Element("genres")
-        for row in DBSession.query(Genre).order_by(Genre.name).all():
+        for row in session.query(Genre).order_by(Genre.name).all():
             genre = ET.Element("genre")
             genre.text = row.name.capitalize()
             genres.append(genre)

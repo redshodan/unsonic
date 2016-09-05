@@ -1,15 +1,17 @@
 import xml.etree.ElementTree as ET
 
 from . import Command, addCmd, fillPlayList, InternalError
-from ...models import (getUserByName, DBSession, PlayList, PlayListTrack,
+from ...models import (getUserByName, Session, PlayList, PlayListTrack,
                        PlayListUser)
 
 
 class GetPlayLists(Command):
     name = "getPlaylists.view"
     param_defs = {"username": {}}
+    dbsess = True
+
     
-    def handleReq(self):
+    def handleReq(self, session):
         username = self.params["username"]
         if username:
             other_user = getUser(username)
@@ -19,7 +21,7 @@ class GetPlayLists(Command):
             other_user = None
 
         playlists = ET.Element("playlists")
-        for plrow in DBSession.query(PlayList). \
+        for plrow in session.query(PlayList). \
                          filter(PlayList.user_id ==
                                 self.req.authed_user.id).all():
             playlist = fillPlayList(plrow)

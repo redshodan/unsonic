@@ -1,12 +1,11 @@
-import os, types, json
+import os, types, json, xmltodict
 import xml.etree.ElementTree as ET
 
 from pyramid.security import Allow, Authenticated, DENY_ALL
 
 from ...log import log
-from ...utils import xmltodict
 from ...version import VERSION, PROTOCOL_VERSION, UNSONIC_PROTOCOL_VERSION
-from ...models import Roles, ArtistRating, AlbumRating, TrackRating
+from ...models import Session, Roles, ArtistRating, AlbumRating, TrackRating
 
 
 XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>'
@@ -49,7 +48,11 @@ class Command(object):
     def __call__(self):
         try:
             self.parseParams()
-            return self.handleReq()
+            if hasattr(self, "dbsess"):
+                with Session() as session:
+                    return self.handleReq(session)
+            else:
+                return self.handleReq()
         except MissingParam as e:
             return self.makeResp(status=(Command.E_MISSING_PARAM, str(e)))
         except NotFound as e:
@@ -57,7 +60,7 @@ class Command(object):
         except InternalError as e:
             return self.makeResp(status=(Command.E_GENERIC, str(e)))
 
-    def handleReq(self):
+    def handleReq(self, session=None):
         raise Exception("Command must implement handleReq()")
         
     def makeBody(self, attrs, child, status):
@@ -78,13 +81,14 @@ class Command(object):
             body.append(error)
         if child is not None:
             body.append(child)
-        return XML_HEADER + ET.tostring(body) + "\n"
+        return "%s%s\n" % (XML_HEADER, ET.tostring(body).decode("utf-8"))
+
 
     def makeResp(self, attrs={}, child=None, status=True, body=None):
         if body is None:
             body = self.makeBody(attrs, child, status)
         elif isinstance(body, ET.Element):
-            body = XML_HEADER + ET.tostring(body)
+            body = "%s%s" % (XML_HEADER, ET.tostring(body).decode("utf-8"))
         resp = self.req.response
         if "f" in self.req.params:
             if self.req.params["f"] == "jsonp" and "callback" in self.req.params:
@@ -179,16 +183,16 @@ def fillCoverArt(row, elem, name):
             sub.text = "%s-%d" % (name, art.id)
             elem.append(sub)
 
-def fillArtist(row, name="artist"):
+def fillArtist(session, row, name="artist"):
     artist = ET.Element(name)
     artist.set("id", "ar-%d" % row.id)
     artist.set("name", row.name)
     fillCoverArt(row, artist, "ar")
     return artist
 
-def fillArtistUser(row, user, name="artist"):
-    artist = fillArtist(row, name=name)
-    rating = ArtistRating.get(row.id, user.id)
+def fillArtistUser(session, row, user, name="artist"):
+    artist = fillArtist(session, row, name=name)
+    rating = ArtistRating.get(session, row.id, user.id)
     if rating and rating.starred:
         artist.set("starred", rating.starred.isoformat())
     return artist
@@ -216,9 +220,9 @@ def fillAlbum(row, name="album"):
     album.set("artistId", "al-%d" % row.id)
     return album
 
-def fillAlbumUser(row, user, name="album"):
-    album = fillAlbum(row, name=name)
-    rating = AlbumRating.get(row.id, user.id)
+def fillAlbumUser(session, row, user, name="album"):
+    album = fillAlbum(session, row, name=name)
+    rating = AlbumRating.get(session, row.id, user.id)
     if rating and rating.starred and not rating.pseudo_starred:
         album.set("starred", rating.starred.isoformat())
     return album
@@ -270,9 +274,9 @@ def fillSong(row, name="song"):
     song.set("isVideo", "false")
     return song
 
-def fillSongUser(row, user, name="song"):
+def fillSongUser(session, row, user, name="song"):
     song = fillSong(row, name=name)
-    rating = TrackRating.get(row.id, user.id)
+    rating = TrackRating.get(session, row.id, user.id)
     if rating and rating.starred:
         song.set("starred", rating.starred.isoformat())
     return song

@@ -4,7 +4,7 @@ import transaction
 from pyramid import testing
 
 from . import RestTestCase
-from ...models import DBSession
+from ...models import Session
 from ...views.rest.getartists import GetArtists
 from ...views.rest import Command
 

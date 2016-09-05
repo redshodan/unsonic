@@ -3,7 +3,7 @@ import unittest, transaction, datetime
 from pyramid import testing
 
 from . import RestTestCase
-from ...models import DBSession
+from ...models import Session
 from ...views.rest.getlicense import GetLicense
 from ...views.rest import Command
 

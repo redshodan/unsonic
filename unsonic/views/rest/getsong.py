@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 from . import (Command, MissingParam, NotFound, addCmd, fillAlbum, fillArtist,
                fillSong)
 from .getmusicdirectory import GetMusicDirectory
-from ...models import DBSession, Artist, Album, Track
+from ...models import Session, Artist, Album, Track
 from ... import mash
 
 

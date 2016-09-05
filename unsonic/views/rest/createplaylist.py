@@ -1,8 +1,7 @@
-import transaction
 import xml.etree.ElementTree as ET
 
 from . import Command, addCmd, InternalError, MissingParam
-from ...models import getUserByName, DBSession, PlayList, PlayListTrack, Track
+from ...models import getUserByName, Session, PlayList, PlayListTrack, Track
 
 
 class CreatePlayList(Command):
@@ -12,8 +11,10 @@ class CreatePlayList(Command):
         "name": {},
         "songId": {},
         }
+    dbsess = True
+
     
-    def handleReq(self):
+    def handleReq(self, session):
         if "playlistId" in self.params and "name" in self.params:
             raise MissingParam(
                 "Can't supply playlistId and name at the same time")
@@ -24,22 +25,21 @@ class CreatePlayList(Command):
         if "playlistId" in self.params:
             print("Update!")
         else:
-            with transaction.manager:
-                plist = PlayList(user_id=self.req.authed_user.id,
-                                 name=self.params["name"])
-                DBSession.add(plist)
-                for sid in self.params.getall("songId"):
-                    if not sid.startswith("tr-"):
-                        DBSession.rollback()
-                        raise MissingParam("Invalid songId: %s" % sid)
-                    sid = int(sid[3:])
-                    track = DBSession.query(Track).filter(Track.id == sid).one()
-                    if track is None:
-                        DBSession.rollback()
-                        raise MissingParam("Invalid songId: %s" % sid)
-                    pltrack = PlayListTrack(track_id=track.id,
-                                            playlist_id = plist.id)
-                    DBSession.add(pltrack)
+            plist = PlayList(user_id=self.req.authed_user.id,
+                             name=self.params["name"])
+            session.add(plist)
+            for sid in self.params.getall("songId"):
+                if not sid.startswith("tr-"):
+                    session.rollback()
+                    raise MissingParam("Invalid songId: %s" % sid)
+                sid = int(sid[3:])
+                track = session.query(Track).filter(Track.id == sid).one()
+                if track is None:
+                    session.rollback()
+                    raise MissingParam("Invalid songId: %s" % sid)
+                pltrack = PlayListTrack(track_id=track.id,
+                                        playlist_id = plist.id)
+                session.add(pltrack)
 
         return self.makeResp()
 

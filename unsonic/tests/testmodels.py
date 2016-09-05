@@ -3,7 +3,7 @@ import transaction
 
 from pyramid import testing
 
-from ..models import DBSession
+from ..models import Session
 from . import TestCase
 
 

@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 from  sqlalchemy.sql.expression import func as dbfunc
 
 from . import Command, addCmd, fillAlbum, fillArtist, fillSong
-from ...models import DBSession, Artist, Album, Track
+from ...models import Session, Artist, Album, Track
 
 
 class GetRandomSongs(Command):
@@ -14,10 +14,12 @@ class GetRandomSongs(Command):
         "toYear": {},
         "musicFolderId": {},
         }
-        
-    def handleReq(self):
+    dbsess = True
+
+
+    def handleReq(self, session):
         random_songs = ET.Element("randomSongs")
-        for row in DBSession.query(Track).order_by(dbfunc.random()).\
+        for row in session.query(Track).order_by(dbfunc.random()).\
                        limit(self.params["size"]):
             song = fillSong(row)
             random_songs.append(song)
