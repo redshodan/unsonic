@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 from sqlalchemy.orm.exc import NoResultFound
 
 from . import Command, addCmd, InternalError, MissingParam, bool_t, track_t
-from ...models import getUserByName, DBSession, PlayCount, Track
+from ...models import getUserByName, Session, PlayCount, Track
 from ...models import Scrobble as DBScrobble
 
 
@@ -15,22 +15,24 @@ class Scrobble(Command):
         "time": {},
         "submission": {"default":bool_t},
         }
+    dbsess = True
+
     
-    def handleReq(self):
+    def handleReq(self, session):
         if not self.params["submission"]:
             # User is listening, not scrobbling yet
             dbinfo.users[self.req.authed_user.name].listening = self.params["id"]
         else:
             # Check track id
             try:
-                DBSession.query(Track).filter(
+                session.query(Track).filter(
                     Track.id == self.params["id"]).one()
             except NoResultFound:
                 raise NotFound("Track not found")
             
             # Inc play count
             try:
-                pcount = DBSession.query(PlayCount). \
+                pcount = session.query(PlayCount). \
                            filter(PlayCount.track_id == self.params["id"],
                                   PlayCount.user_id ==
                                   self.req.authed_user.id).one()
@@ -39,14 +41,14 @@ class Scrobble(Command):
                 pcount = PlayCount(track_id=self.params["id"],
                                    user_id=self.req.authed_user.id,
                                    count=1)
-                DBSession.add(pcount)
-            DBSession.flush()
+                session.add(pcount)
+            session.flush()
 
             # Local scrobble
             scrobble = DBScrobble(user_id=self.req.authed_user.id,
                                   track_id=self.params["id"],
                                   tstamp=datetime.datetime.now())
-            DBSession.add(scrobble)
+            session.add(scrobble)
         return self.makeResp()
 
 

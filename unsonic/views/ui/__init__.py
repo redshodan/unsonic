@@ -22,10 +22,10 @@ def view(req):
              "user":req.authed_user.name.encode("utf-8")}
     body = open(fname).read()
     for key, val in repls.items():
-        body = body.replace("%%%s%%" % key, val)
+        body = body.replace("%%%s%%" % str(key), str(val))
 
     resp.charset = "UTF-8"
-    resp.body = body
+    resp.text = body
     return resp
 
 

@@ -2,7 +2,7 @@ import transaction, datetime
 import xml.etree.ElementTree as ET
 
 from . import Command, addCmd, playable_id_t, InternalError, MissingParam
-from ...models import (getUserByName, DBSession, PlayList, PlayListTrack, Track,
+from ...models import (getUserByName, Session, PlayList, PlayListTrack, Track,
                        rateItem)
 
 
@@ -13,8 +13,10 @@ class Star(Command):
         "ablumId": {"type":playable_id_t},
         "artistId": {"type":playable_id_t},
         }
+    dbsess = True
+
     
-    def handleReq(self):
+    def handleReq(self, session):
         if self.params["id"]:
             id = self.params["id"]
         elif self.params["albumId"]:
@@ -24,7 +26,8 @@ class Star(Command):
         else:
             raise MissingParam("Missing a valid id parameter")
 
-        rateItem(self.req.authed_user.id, id, starred=datetime.datetime.now())
+        rateItem(session, self.req.authed_user.id, id,
+                 starred=datetime.datetime.now())
         return self.makeResp()
 
 

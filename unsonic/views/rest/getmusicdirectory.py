@@ -2,17 +2,20 @@ import xml.etree.ElementTree as ET
 
 from . import (Command, MissingParam, NotFound, addCmd, fillAlbumUser,
                fillSongUser)
-from ...models import DBSession, Artist, Album, Track
+from ...models import Session, Artist, Album, Track
 from ... import mash
 
 
 class GetMusicDirectory(Command):
     name = "getMusicDirectory.view"
     param_defs = {"id": {"required": True}}
+    dbsess = True
+
 
     def __init__(self, req):
         super(GetMusicDirectory, self).__init__(req)
         self.setParams()
+
 
     def setParams(self, dir_param="directory", album_param="child",
                   track_param="child"):
@@ -20,7 +23,8 @@ class GetMusicDirectory(Command):
         self.album_param = album_param
         self.track_param = track_param
 
-    def handleReq(self):
+
+    def handleReq(self, session):
         directory = ET.Element(self.dir_param)
         if self.params["id"].startswith("fl-"):
             raise Exception("TOP LEVEL FOLDER")
@@ -33,7 +37,7 @@ class GetMusicDirectory(Command):
             directory.set("id", self.params["id"])
             artist_name = None
             # Gather albums
-            for row in DBSession.query(Album).filter(
+            for row in session.query(Album).filter(
                     Album.artist_id == artist_id).all():
                 album = fillAlbumUser(row, self.req.authed_user,
                                       self.album_param)
@@ -41,13 +45,13 @@ class GetMusicDirectory(Command):
                 if row.artist and row.artist.name:
                     artist_name = row.artist.name
             # Gather tracks with no album
-            for row in DBSession.query(Track).filter(
+            for row in session.query(Track).filter(
                     Track.album_id == None, Track.artist_id == artist_id).\
                     order_by(Track.track_num).all():
                 song = fillSongUser(row, self.req.authed_user, self.track_param)
                 directory.append(song)
             if not artist_name:
-                rows = DBSession.query(Artist).filter(Artist.id ==
+                rows = session.query(Artist).filter(Artist.id ==
                                                       artist_id).all()
                 if len(rows) == 1:
                     artist_name = rows[0].name
@@ -59,7 +63,7 @@ class GetMusicDirectory(Command):
             dir_parent = None
             dir_name = None
             song = None
-            for row in DBSession.query(Track).filter(
+            for row in session.query(Track).filter(
                     Track.album_id == album_id).order_by(Track.track_num).all():
                 song = fillSongUser(row, self.req.authed_user, self.track_param)
                 directory.append(song)
@@ -76,7 +80,7 @@ class GetMusicDirectory(Command):
             directory.set("id", self.params["id"])
         elif self.params["id"].startswith("tr-"):
             track_id = int(self.params["id"][3:])
-            row = DBSession.query(Track).filter(Track.id == track_id).one()
+            row = session.query(Track).filter(Track.id == track_id).one()
             if row is None:
                 raise NotFound(self.params["id"])
             song = fillSongUser(row, self.req.authed_user, self.track_param)

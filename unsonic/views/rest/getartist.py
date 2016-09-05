@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 
 from . import Command, NotFound, addCmd, artist_t, fillAlbum, fillArtist
-from ...models import DBSession, Artist, Album, Track
+from ...models import Session, Artist, Album, Track
 
 
 # class GetArtist(Command):
@@ -10,13 +10,13 @@ from ...models import DBSession, Artist, Album, Track
 
 #     def handleReq(self):
 #         artist = None
-#         for row in DBSession.query(Artist).\
+#         for row in session.query(Artist).\
 #                        filter(Artist.id == self.params["id"]).all():
 #             artist = fillArtist(row)
 #         if artist is None:
 #             raise NotFound(self.req.params["id"])
 #         album_count = 0
-#         for row in DBSession.query(Album).filter(
+#         for row in session.query(Album).filter(
 #                 Album.artist_id == self.params["id"]).all():
 #             album_count = album_count + 1
 #             album = fillAlbum(row)
@@ -24,7 +24,7 @@ from ...models import DBSession, Artist, Album, Track
 #         for album in artist:
 #             song_count = 0
 #             duration = 0
-#             for row in DBSession.query(Track).filter(
+#             for row in session.query(Track).filter(
 #                     Track.album_id == int(album.get("id")[3:])).all():
 #                 song_count = song_count + 1
 #                 duration = duration + row.time_secs

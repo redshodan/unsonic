@@ -4,7 +4,7 @@ from pyramid import testing
 
 from . import RestTestCase
 from ... import mash
-from ...models import DBSession
+from ...models import Session
 from ...views.rest.getcoverart import GetCoverArt
 from ...views.rest import Command
 

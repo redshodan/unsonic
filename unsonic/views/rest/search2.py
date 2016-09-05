@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 
 from . import (Command, addCmd, bool_t, positive_t, fillArtist, fillAlbum,
                fillSong)
-from ...models import DBSession, Artist, Album, Track
+from ...models import Session, Artist, Album, Track
 
 
 class Search2(Command):
@@ -17,8 +17,10 @@ class Search2(Command):
         "songCount": {"default": 20, "type": positive_t},
         "songOffset": {"default": 0, "type": positive_t},
         }
+    dbsess = True
+
     
-    def handleReq(self):
+    def handleReq(self, session):
         query = self.params["query"]
         ar_count = self.params["artistCount"]
         ar_off = self.params["artistOffset"]
@@ -29,14 +31,14 @@ class Search2(Command):
 
         result = ET.Element("searchResult2")
         if ar_count:
-            for row in DBSession.query(Artist). \
+            for row in session.query(Artist). \
                            filter(Artist.name.ilike("%%%s%%" % query)). \
                            limit(ar_count). \
                            offset(ar_off):
                 artist = fillArtist(row)
                 result.append(artist)
         if al_count:
-            for row in DBSession.query(Album). \
+            for row in session.query(Album). \
                            filter(Album.title.ilike("%%%s%%" % query)). \
                            limit(al_count). \
                            offset(al_off):
@@ -49,7 +51,7 @@ class Search2(Command):
                 album.set("isDir", "true")
                 album.set("title", album.get("name"))
         if tr_count:
-            for row in DBSession.query(Track). \
+            for row in session.query(Track). \
                            filter(Track.title.ilike("%%%s%%" % query)). \
                            limit(tr_count). \
                            offset(tr_off):

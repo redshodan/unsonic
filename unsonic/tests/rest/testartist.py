@@ -3,7 +3,7 @@ import unittest, transaction
 from pyramid import testing
 
 from . import RestTestCase
-from ...models import DBSession
+from ...models import Session
 from ...views.rest.getartist import GetArtist
 from ...views.rest import Command
 

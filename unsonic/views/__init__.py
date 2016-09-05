@@ -18,7 +18,7 @@ class RouteContext(object):
 #              permission=Roles.USERS)
 # def my_view(request):
 #     try:
-#         DBSession.query(User).all()
+#         session.query(User).all()
 #     except DBAPIError:
 #         return Response(conn_err_msg, content_type='text/plain', status_int=500)
 #     return {'project': 'Unsonic'}
