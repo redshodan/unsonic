@@ -8,6 +8,7 @@ from pyramid.view import view_config, forbidden_view_config
 
 from . import mash, models, log, auth
 from .views import rest, ui
+from .models import Session
 
 
 NAME = "Unsonic"
@@ -68,7 +69,9 @@ def doAddUser(args, settings):
     for role in [models.Roles.REST, models.Roles.USERS]:
         if role not in args.roles:
             args.roles.append(role)
-    ret = models.addUser(args.username[0], args.password[0], args.roles)
+    with Session() as session:
+        ret = models.addUser(session, args.username[0], args.password[0],
+                             args.roles)
     if ret is True:
         print("Added.")
         return 0
@@ -78,25 +81,22 @@ def doAddUser(args, settings):
 
 def doDelUser(args, settings):
     print("Deleting user '%s'" % args.username[0])
-    models.delUser(args.username[0])
+    with Session() as session:
+        models.delUser(session, args.username[0])
     print("Deleted.")
     return 0
 
 def doListUsers(args, settings):
     print("Users:")
-    for user in models.DBSession.query(models.User).all():
-        roles = [g.name for g in user.roles]
-        print("   %s:  roles: %s" % (user.name, ", ".join(roles)))
+    with Session() as session:
+        for uname, roles in models.listUsers(session):
+            print("   %s:  roles: %s" % (uname, ", ".join(roles)))
     return 0
 
 def doPassword(args, settings):
     print("Setting password...")
-    user = models.getUserByName(args.username[0])
-    if not user:
-        print("User not found")
-        return -1
-    user.password = args.password[0]
-    models.DBSession.flush()
+    with Session() as session:
+        models.setUserPassword(session, args.username[0], args.password[0])
     return 0
 
 def buildParser():

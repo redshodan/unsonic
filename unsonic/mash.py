@@ -7,8 +7,6 @@ from mishmash.commands.sync import SyncPlugin
 from mishmash.database import init as dbinit
 from eyed3.main import main as eyed3_main
 
-from .models import DBSession
-
 
 def asdict(value):
     ret = {}
