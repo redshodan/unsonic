@@ -104,7 +104,7 @@ class Command(object):
             resp.body = body
             resp.content_type = "text/xml"
         resp.charset = "UTF-8"
-        log.debug("Response: \n" + str(resp))
+        log.debug("Response(%s): %s" % (self.name, resp.body.decode("utf-8")))
         return resp
 
     def parseParams(self):
