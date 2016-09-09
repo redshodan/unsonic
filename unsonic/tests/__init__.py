@@ -13,7 +13,9 @@ class TestCase(unittest.TestCase):
         from ..models import Base
         # DBSession.configure(bind=engine)
         Base.metadata.create_all(engine)
+        self.session = Session()
 
     def tearDown(self):
-        # DBSession.remove()
+        self.session.remove()
+        self.session.close()
         testing.tearDown()
