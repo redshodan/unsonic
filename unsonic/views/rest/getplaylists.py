@@ -1,5 +1,7 @@
 import xml.etree.ElementTree as ET
 
+from sqlalchemy.orm import subqueryload
+
 from . import Command, addCmd, fillPlayList, InternalError
 from ...models import (getUserByName, Session, PlayList, PlayListTrack,
                        PlayListUser)
@@ -21,7 +23,7 @@ class GetPlayLists(Command):
             other_user = None
 
         playlists = ET.Element("playlists")
-        for plrow in session.query(PlayList). \
+        for plrow in session.query(PlayList).options(subqueryload("*")). \
                          filter(PlayList.user_id ==
                                 self.req.authed_user.id).all():
             playlist = fillPlayList(session, plrow)

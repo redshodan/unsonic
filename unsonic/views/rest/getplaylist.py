@@ -1,5 +1,7 @@
 import xml.etree.ElementTree as ET
 
+from sqlalchemy.orm import subqueryload
+
 from . import Command, addCmd, fillPlayList, fillSong, playlist_t, MissingParam
 from ...models import (getUserByName, Session, PlayList, PlayListTrack,
                        PlayListUser)
@@ -13,8 +15,8 @@ class GetPlayList(Command):
     
     def handleReq(self, session):
         playlists = ET.Element("playlist")
-        plrow = session.query(PlayList).filter(PlayList.id ==
-                                                 self.params["id"]).all()
+        plrow = session.query(PlayList).options(subqueryload("*")). \
+                    filter(PlayList.id == self.params["id"]).all()
         if not len(plrow):
             raise MissingParam("Invalid playlist id: %s" % self.params["id"])
         plrow = plrow[0]

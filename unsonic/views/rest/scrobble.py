@@ -1,6 +1,7 @@
 import transaction, datetime
 import xml.etree.ElementTree as ET
 
+from sqlalchemy.orm import subqueryload
 from sqlalchemy.orm.exc import NoResultFound
 
 from . import Command, addCmd, InternalError, MissingParam, bool_t, track_t
@@ -25,7 +26,7 @@ class Scrobble(Command):
         else:
             # Check track id
             try:
-                session.query(Track).filter(
+                session.query(Track).options(subqueryload("*")).filter(
                     Track.id == self.params["id"]).one()
             except NoResultFound:
                 raise NotFound("Track not found")
@@ -33,6 +34,7 @@ class Scrobble(Command):
             # Inc play count
             try:
                 pcount = session.query(PlayCount). \
+                           options(subqueryload("*")). \
                            filter(PlayCount.track_id == self.params["id"],
                                   PlayCount.user_id ==
                                   self.req.authed_user.id).one()
