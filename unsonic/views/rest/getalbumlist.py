@@ -1,5 +1,7 @@
 import xml.etree.ElementTree as ET
-from  sqlalchemy.sql.expression import func as dbfunc
+
+from sqlalchemy.orm import subqueryload
+from sqlalchemy.sql.expression import func as dbfunc
 
 from . import (Command, MissingParam, addCmd, fillAlbum, fillAlbumUser,
                fillArtist, fillSong)
@@ -20,7 +22,7 @@ class GetAlbumList(Command):
     dbsess = True
 
 
-    def processRows(self, alist, result):
+    def processRows(self, session, alist, result):
         for row in result:
             album = fillAlbumUser(session, row, self.req.authed_user)
             alist.append(album)
@@ -39,29 +41,33 @@ class GetAlbumList(Command):
         limit = offset + size
         if self.params["type"] == "random":
             result = session.query(Album). \
+                         options(subqueryload("*")). \
                          order_by(dbfunc.random()). \
                          offset(offset). \
                          limit(limit)
-            self.processRows(alist, result)
+            self.processRows(session, alist, result)
         elif self.params["type"] == "newest":
             result = session.query(Album). \
+                         options(subqueryload("*")). \
                          order_by(Album.date_added). \
                          offset(offset). \
                          limit(limit)
-            self.processRows(alist, result)
+            self.processRows(session, alist, result)
         elif self.params["type"] == "highest":
             result = session.query(AlbumRating). \
-                         filter(AlbumRating.user_id ==
-                                self.req.authed_user.id). \
+                        options(subqueryload("*")). \
+                        filter(AlbumRating.user_id ==
+                               self.req.authed_user.id). \
                          order_by(AlbumRating.rating). \
                          offset(offset). \
                          limit(limit)
             albums = []
             for arate in result:
                 albums.append(arate.album)
-            self.processRows(alist, albums)
+            self.processRows(session, alist, albums)
         elif self.params["type"] == "frequent":
             pcounts = session.query(PlayCount). \
+                         options(subqueryload("*")). \
                          join(Track). \
                          filter(PlayCount.user_id ==
                                 self.req.authed_user.id). \
@@ -76,9 +82,10 @@ class GetAlbumList(Command):
                     albums.append(pcount.track.album)
                 if len(albums) >= size:
                     break
-            self.processRows(alist, albums)
+            self.processRows(session, alist, albums)
         elif self.params["type"] == "recent":
             result = session.query(Scrobble). \
+                        options(subqueryload("*")). \
                         filter(Scrobble.user_id ==
                                self.req.authed_user.id). \
                         order_by(Scrobble.tstamp.desc()). \
@@ -92,9 +99,10 @@ class GetAlbumList(Command):
                     albums.append(scrobble.track.album)
                 if len(albums) >= size:
                     break
-            self.processRows(alist, albums)
+            self.processRows(session, alist, albums)
         elif self.params["type"] == "starred":
             result = session.query(AlbumRating). \
+                         options(subqueryload("*")). \
                          filter(AlbumRating.user_id ==
                                 self.req.authed_user.id). \
                          filter(AlbumRating.starred is not None). \
@@ -104,25 +112,28 @@ class GetAlbumList(Command):
             albums = []
             for arate in result:
                 albums.append(arate.album)
-            self.processRows(alist, albums)
+            self.processRows(session, alist, albums)
         elif self.params["type"] == "alphabeticalByName":
             result = session.query(Album). \
+                         options(subqueryload("*")). \
                          order_by(Album.title). \
                          offset(offset). \
                          limit(limit)
-            self.processRows(alist, result)
+            self.processRows(session, alist, result)
         elif self.params["type"] == "alphabeticalByArtist":
             size = self.params["size"]
             artists = session.query(Artist). \
+                          options(subqueryload("*")). \
                           order_by("name"). \
                           limit(limit)
             for artist in artists:
                 albums = session.query(Album). \
+                             options(subqueryload("*")). \
                              filter(Album.artist_id == artist.id). \
                              order_by(Album.title). \
                              offset(offset). \
                              limit(limit)
-                self.processRows(alist, artist.albums)
+                self.processRows(session, alist, artist.albums)
         else:
             # FIXME: Implement the rest once play tracking is done
             raise MissingParam("Unsupported type")

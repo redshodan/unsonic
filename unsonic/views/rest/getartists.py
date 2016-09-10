@@ -1,5 +1,7 @@
 import xml.etree.ElementTree as ET
 
+from sqlalchemy.orm import subqueryload
+
 from . import Command, addCmd, fillArtist
 from ...models import Session, Artist, Album
 
@@ -13,7 +15,8 @@ class GetArtists(Command):
     def handleReq(self, session):
         artists = ET.Element("artists")
         index_group = None
-        for row in session.query(Artist).order_by(Artist.sort_name).all():
+        for row in session.query(Artist).options(subqueryload("*")). \
+          order_by(Artist.sort_name).all():
             first = row.sort_name[0].upper()
             if index_group != first:
                 index_group = first
@@ -25,8 +28,8 @@ class GetArtists(Command):
         for index in artists:
             for artist in index:
                 count = 0
-                for album in session.query(Album).filter(
-                        Album.artist_id == int(artist.get("id")[3:])).all():
+                for album in session.query(Album).options(subqueryload("*")). \
+                  filter(Album.artist_id == int(artist.get("id")[3:])).all():
                     count = count + 1
                 artist.set("albumCount", str(count))
         return self.makeResp(child=artists)
