@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Silly little wrapper for running mishmash standalone. Assumes a lot of env
+export PYTHONPATH="${PYTHONPATH}:${HOME}/src/unsonic/external/mishmash"
+export PYTHON="${HOME}/src/unsonic/build/venv/bin/python"
+
+exec $PYTHON -m mishmash $*

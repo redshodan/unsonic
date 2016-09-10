@@ -1,0 +1,70 @@
+#!/usr/bin/env python
+
+# Copyright (C) 2013 Chris Newton
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+
+import sys
+if ((sys.version_info[0] < 3) and (sys.version_info[1] < 4)):
+    print("unsonic requires Python version 3.4 or higher.")
+    sys.exit(-1)
+    
+### FIXME: Do this right once we have a setup.py and install etc.
+import os
+if os.path.islink(__file__):
+    path = os.path.dirname(os.readlink(__file__))
+else:
+    path = os.path.dirname(__file__)
+sys.path[0:0] = [os.path.abspath(os.path.join(path, "..")),
+                 os.path.abspath(os.path.join(path, "../external/mishmash"))]
+    
+
+__requires__ = 'pyramid>=1.4.3'
+import sys, time
+from pkg_resources import load_entry_point
+
+
+if "--reload" in sys.argv:
+    reload = True
+else:
+    reload = False
+
+wait = 3
+while True:
+    try:
+        sys.exit(
+            load_entry_point('pyramid>=1.4.3', 'console_scripts', 'pserve')()
+            )
+        break
+    except IndentationError as e:
+        if reload:
+            print("Failed to (re)start unsonic:", e)
+            print("Restarting in %d seconds..." % wait)
+        else:
+            raise
+    except SyntaxError as e:
+        if reload:
+            print("Failed to (re)start unsonic:", e)
+            print("Restarting in %d seconds..." % wait)
+        else:
+            raise
+    except ImportError as e:
+        if reload:
+            print("Failed to (re)start unsonic:", e)
+            print("Restarting in %d seconds..." % wait)
+        else:
+            raise
+    time.sleep(wait)
