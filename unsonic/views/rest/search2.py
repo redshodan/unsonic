@@ -35,14 +35,14 @@ class Search2(Command):
                            filter(Artist.name.ilike("%%%s%%" % query)). \
                            limit(ar_count). \
                            offset(ar_off):
-                artist = fillArtist(row)
+                artist = fillArtist(session, row)
                 result.append(artist)
         if al_count:
             for row in session.query(Album). \
                            filter(Album.title.ilike("%%%s%%" % query)). \
                            limit(al_count). \
                            offset(al_off):
-                album = fillAlbum(row)
+                album = fillAlbum(session, row)
                 result.append(album)
                 if row.artist:
                     album.set("parent", "ar-%d" % row.artist.id)
@@ -55,7 +55,7 @@ class Search2(Command):
                            filter(Track.title.ilike("%%%s%%" % query)). \
                            limit(tr_count). \
                            offset(tr_off):
-                track = fillSong(row)
+                track = fillSong(session, row)
                 result.append(track)
         return self.makeResp(child=result)
 

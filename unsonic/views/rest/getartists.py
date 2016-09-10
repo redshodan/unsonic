@@ -20,7 +20,7 @@ class GetArtists(Command):
                 index = ET.Element("index")
                 artists.append(index)
                 index.set("name", index_group)
-            artist = fillArtist(row)
+            artist = fillArtist(session, row)
             index.append(artist)
         for index in artists:
             for artist in index:

@@ -21,7 +21,7 @@ class GetRandomSongs(Command):
         random_songs = ET.Element("randomSongs")
         for row in session.query(Track).order_by(dbfunc.random()).\
                        limit(self.params["size"]):
-            song = fillSong(row)
+            song = fillSong(session, row)
             random_songs.append(song)
         return self.makeResp(child=random_songs)
 

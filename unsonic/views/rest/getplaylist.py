@@ -19,9 +19,9 @@ class GetPlayList(Command):
             raise MissingParam("Invalid playlist id: %s" % self.params["id"])
         plrow = plrow[0]
         
-        playlist = fillPlayList(plrow)
+        playlist = fillPlayList(session, plrow)
         for pltrack in plrow.tracks:
-            entry = fillSong(pltrack.track, name="entry")
+            entry = fillSong(session, pltrack.track, name="entry")
             playlist.append(entry)
 
         return self.makeResp(child=playlist)

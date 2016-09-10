@@ -94,14 +94,14 @@ class Command(object):
             if self.req.params["f"] == "jsonp" and "callback" in self.req.params:
                 body = xmltodict.parse(body)
                 txt = "%s(%s)" % (self.req.params["callback"], json.dumps(body))
-                resp.body = txt.encode("utf-8")
+                resp.text = txt
                 resp.content_type = "application/javascript"
             elif self.req.params["f"] == "json":
                 body = xmltodict.parse(body)
-                resp.body = json.dumps(body)
+                resp.text = json.dumps(body)
                 resp.content_type = "application/json"
         else:
-            resp.body = body
+            resp.text = body
             resp.content_type = "text/xml"
         resp.charset = "UTF-8"
         log.debug("Response(%s): %s" % (self.name, resp.body.decode("utf-8")))
@@ -175,7 +175,7 @@ def playlist_t(value):
 
 
 ### Utilities for wrangling data into xml form
-def fillCoverArt(row, elem, name):
+def fillCoverArt(session, row, elem, name):
     if row.images is not None and len(row.images) > 0:
         elem.set("coverArt", "%s-%d" % (name, row.images[0].id))
         for art in row.images:
@@ -187,7 +187,7 @@ def fillArtist(session, row, name="artist"):
     artist = ET.Element(name)
     artist.set("id", "ar-%d" % row.id)
     artist.set("name", row.name)
-    fillCoverArt(row, artist, "ar")
+    fillCoverArt(session, row, artist, "ar")
     return artist
 
 def fillArtistUser(session, row, user, name="artist"):
@@ -197,7 +197,7 @@ def fillArtistUser(session, row, user, name="artist"):
         artist.set("starred", rating.starred.isoformat())
     return artist
 
-def fillAlbum(row, name="album"):
+def fillAlbum(session, row, name="album"):
     album = ET.Element(name)
     album.set("id", "al-%d" % row.id)
     album.set("name", row.title)
@@ -206,7 +206,7 @@ def fillAlbum(row, name="album"):
     album.set("isDir", "true")
     if row.artist:
         album.set("parent", "ar-%s" % row.artist.id)
-    fillCoverArt(row, album, "al")
+    fillCoverArt(session, row, album, "al")
     if row.release_date:
         release = []
         for c in row.release_date:
@@ -227,7 +227,7 @@ def fillAlbumUser(session, row, user, name="album"):
         album.set("starred", rating.starred.isoformat())
     return album
 
-def fillSong(row, name="song"):
+def fillSong(session, row, name="song"):
     song = ET.Element(name)
     song.set("id", "tr-%d" % row.id)
     if row.album_id:
@@ -257,7 +257,7 @@ def fillSong(row, name="song"):
     # if row.genre_id is not None:
     #     song.set("genre", row.genre.name)
     if row.album is not None:
-        fillCoverArt(row.album, song, "al")
+        fillCoverArt(session, row.album, song, "al")
     song.set("size", str(row.size_bytes))
     # FIXME
     song.set("contentType", "audio/mpeg")
@@ -275,13 +275,13 @@ def fillSong(row, name="song"):
     return song
 
 def fillSongUser(session, row, user, name="song"):
-    song = fillSong(row, name=name)
+    song = fillSong(session, row, name=name)
     rating = TrackRating.get(session, row.id, user.id)
     if rating and rating.starred:
         song.set("starred", rating.starred.isoformat())
     return song
 
-def fillPlayList(row):
+def fillPlayList(session, row):
     playlist = ET.Element("playlist")
     playlist.set("id", "pl-%d" % row.id)
     playlist.set("name", row.name)

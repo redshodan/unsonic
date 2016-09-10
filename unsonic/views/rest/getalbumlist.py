@@ -22,7 +22,7 @@ class GetAlbumList(Command):
 
     def processRows(self, alist, result):
         for row in result:
-            album = fillAlbumUser(row, self.req.authed_user)
+            album = fillAlbumUser(session, row, self.req.authed_user)
             alist.append(album)
             if row.artist:
                 album.set("parent", "ar-%d" % row.artist.id)

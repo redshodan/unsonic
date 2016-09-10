@@ -12,14 +12,14 @@ from ...models import Session, Artist, Album, Track
 #         artist = None
 #         for row in session.query(Artist).\
 #                        filter(Artist.id == self.params["id"]).all():
-#             artist = fillArtist(row)
+#             artist = fillArtist(session, row)
 #         if artist is None:
 #             raise NotFound(self.req.params["id"])
 #         album_count = 0
 #         for row in session.query(Album).filter(
 #                 Album.artist_id == self.params["id"]).all():
 #             album_count = album_count + 1
-#             album = fillAlbum(row)
+#             album = fillAlbum(session, row)
 #             artist.append(album)
 #         for album in artist:
 #             song_count = 0

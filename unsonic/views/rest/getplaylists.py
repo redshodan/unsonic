@@ -24,7 +24,7 @@ class GetPlayLists(Command):
         for plrow in session.query(PlayList). \
                          filter(PlayList.user_id ==
                                 self.req.authed_user.id).all():
-            playlist = fillPlayList(plrow)
+            playlist = fillPlayList(session, plrow)
             playlists.append(playlist)
 
         return self.makeResp(child=playlists)

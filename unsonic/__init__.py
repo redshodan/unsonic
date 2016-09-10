@@ -1,10 +1,15 @@
 import os, sys, argparse
+import logging
+import logging.config
 
 from paste.translogger import TransLogger
 from pyramid.config import Configurator
 from pyramid.paster import get_appsettings, setup_logging
 from pyramid.response import FileResponse
 from pyramid.view import view_config, forbidden_view_config
+
+from eyed3.utils.console import AnsiCodes
+import mishmash.config
 
 from . import mash, models, log, auth
 from .views import rest, ui
@@ -59,9 +64,6 @@ def doInit(args, settings):
     models.initDB(settings)
     return 0
 
-def doSync(args, settings):
-    mash.syncDB(settings)
-    return 0
 
 def doAddUser(args, settings):
     print("Adding user '%s'.." % args.username[0])
@@ -144,8 +146,14 @@ def dbMain(argv=sys.argv[1:]):
     parser = buildParser()
     args = parser.parse_args(args=argv)
 
+    # Mash related setup
+    AnsiCodes.init(True)
+    mash_config, args.config_files = mishmash.config.load(args.config)
+    logging.config.fileConfig(mash_config)
     setup_logging(args.config)
+
     settings = get_appsettings(args.config)
+    settings.mash_config = mash_config
 
     # log.setupMash()
     models.init(settings, False)

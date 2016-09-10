@@ -2,10 +2,13 @@ import os
 from argparse import Namespace
 
 import mishmash
+from mishmash.config import MAIN_SECT, SA_KEY
 from mishmash.commands.command import Command
 from mishmash.commands.sync import SyncPlugin
 from mishmash.database import init as dbinit
 from eyed3.main import main as eyed3_main
+
+from . import models
 
 
 def asdict(value):
@@ -26,11 +29,19 @@ def setupSync(subparsers):
     sync_plugin = SyncPlugin(parser) 
 
 def syncDB(args, settings):
+    args.no_prompt = False
+    args.no_purge = False
     args.plugin = sync_plugin
     args.paths = [v for v in getPaths(settings).values()]
-    args.db_engine, args.db_session = dbinit(mashConfig(settings))
-    args.db_session = args.db_session()
-    return eyed3_main(args, None)
+    args.db_session = models.session_maker()
+    try:
+        ret = eyed3_main(args, None)
+        args.db_session.commit()
+    except:
+        args.db_session.rollback()
+        raise
+    finally:
+        args.db_session.close()
 
 def getPaths(settings):
     paths = asdict(settings["mishmash.paths"])
