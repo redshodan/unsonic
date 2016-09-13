@@ -148,6 +148,13 @@ class Role(Base, OrmObject):
     name = Column(Text)
     user = relation("User")
 
+playlist_images = sql.Table("playlist_images", Base.metadata,
+                            sql.Column("playlist_id", sql.Integer,
+                                       sql.ForeignKey("un_playlist.id")),
+                            sql.Column("img_id", sql.Integer,
+                                       sql.ForeignKey("images.id")))
+'''Pivot table 'album_images' for mapping an album ID to a value in the
+`images` table.'''
 
 class PlayList(Base, OrmObject):
     __tablename__ = 'un_playlists'
@@ -165,6 +172,8 @@ class PlayList(Base, OrmObject):
     tracks = relation("PlayListTrack", cascade="all, delete-orphan",
                       passive_deletes=True)
     owner = relation("User")
+    images = relation("Image", secondary=playlist_images, cascade="all")
+    '''one-to-many playlist images.'''
 
 
 class PlayListUser(Base, OrmObject):
