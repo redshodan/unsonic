@@ -1,6 +1,4 @@
-
-
-import os, sys, argparse
+import os, sys, argparse, hashlib
 
 from pyramid.authentication import BasicAuthAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
@@ -21,7 +19,7 @@ def forbidden_view(request):
     return response
 
 
-# Support the silly original auth scheme that Subsonic has
+# Support the silly auth schemes that Subsonic has
 class SubsonicAuth(BasicAuthAuthenticationPolicy):
     def __init__(self, realm='Realm', debug=False):
         super(SubsonicAuth, self).__init__(
@@ -31,7 +29,9 @@ class SubsonicAuth(BasicAuthAuthenticationPolicy):
         if request.headers.get('Authorization'):
             return super(SubsonicAuth, self).unauthenticated_userid(request)
         elif ("u" not in list(request.params.keys()) or
-              "p" not in list(request.params.keys())):
+              ("p" not in list(request.params.keys()) and
+               "t" not in list(request.params.keys()) and
+               "s" not in list(request.params.keys()))):
             return None
         else:
             return request.params["u"]
@@ -40,18 +40,32 @@ class SubsonicAuth(BasicAuthAuthenticationPolicy):
         if request.headers.get('Authorization'):
             return super(SubsonicAuth, self).callback(username, request)
         elif ("u" not in list(request.params.keys()) or
-              "p" not in list(request.params.keys())):
+              ("p" not in list(request.params.keys()) and
+               "t" not in list(request.params.keys()) and
+               "s" not in list(request.params.keys()))):
             return None
         else:
-            return self.check(request.params["u"], request.params["p"],
-                              request)
+            if "p" in list(request.params.keys()):
+                password = request.params["p"]
+            else:
+                password = None
+            return self.check(request.params["u"], password, request)
 
     # Shared between both auth schemes
     def authCheck(self, username, password, req):
         with Session() as session:
             user = models.getUserByName(session, username)
-            if user and not user.password:
+            if not user or user and not user.password:
                 return
+            if ("t" in list(req.params.keys()) and
+                "s" in list(req.params.keys())):
+                sum = hashlib.md5()
+                sum.update(user.password.encode("utf-8"))
+                sum.update(req.params["s"].encode("utf-8"))
+                if sum.hexdigest() == req.params["t"]:
+                    # Stash the user for easy access
+                    req.authed_user = user.export()
+                    return req.authed_user.roles
             if user and password == user.password:
                 # Stash the user for easy access
                 req.authed_user = user.export()
@@ -63,4 +77,3 @@ def init(global_config, config):
     authz_policy = ACLAuthorizationPolicy()
     config.set_authentication_policy(authn_policy)
     config.set_authorization_policy(authz_policy)
-    

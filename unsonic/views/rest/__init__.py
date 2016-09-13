@@ -289,6 +289,8 @@ def fillPlayList(session, row):
     playlist.set("owner", row.owner.name)
     playlist.set("public", "true" if row.public else "false")
     playlist.set("created", row.created.isoformat())
+    # FIXME: Join/walk the artist/album/track for art
+    fillCoverArt(session, row, playlist, "pl")
 
     count = 0
     duration = 0
