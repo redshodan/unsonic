@@ -30,7 +30,15 @@ def syncDB(args, settings):
     args.paths = [v for v in getPaths(settings).values()]
     args.db_engine, args.db_session = dbinit(mashConfig(settings))
     args.db_session = args.db_session()
-    return eyed3_main(args, None)
+    try:
+        retval = eyed3_main(args, None)
+        args.db_session.commit()
+    except:
+        args.db_session.rollback()
+        raise
+    finally:
+        args.db_session.close()
+    return retval
 
 def getPaths(settings):
     paths = asdict(settings["mishmash.paths"])
