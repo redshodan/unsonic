@@ -33,15 +33,18 @@ def syncDB(args, settings):
     args.no_purge = False
     args.plugin = sync_plugin
     args.paths = [v for v in getPaths(settings).values()]
-    args.db_session = models.session_maker()
+    args.db_engine, session_maker = dbinit(mashConfig(settings))
+    args.db_session = session_maker()
+    # args.db_session = models.session_maker()
     try:
-        ret = eyed3_main(args, None)
+        retval = eyed3_main(args, None)
         args.db_session.commit()
     except:
         args.db_session.rollback()
         raise
     finally:
         args.db_session.close()
+    return retval
 
 def getPaths(settings):
     paths = asdict(settings["mishmash.paths"])
