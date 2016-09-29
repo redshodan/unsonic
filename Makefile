@@ -94,6 +94,9 @@ tests:
 clean:
 	find unsonic external -name '*.pyc' | xargs rm -f
 
+devel-clean:
+	rm build/development.sqlite
+
 dist-clean: clean
 	rm -rf build unsonic.egg-info development.sqlite bin/unsonic bin/unsonic-db
 
