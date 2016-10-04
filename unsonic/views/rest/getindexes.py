@@ -3,14 +3,14 @@ import xml.etree.ElementTree as ET
 from sqlalchemy.orm import subqueryload
 
 from . import Command, addCmd, fillArtistUser
-from ...models import Session, Artist, Album
+from ...models import Session, Artist, Album, Meta
 
 
 class GetIndexes(Command):
     name = "getIndexes.view"
     param_defs = {
         "musicFolderId": {},
-        "ifModifiedSince": {},
+        "ifModifiedSince": {"type": int},
         }
     dbsess = True
 
@@ -19,6 +19,10 @@ class GetIndexes(Command):
         # TODO: handle params
         indexes = ET.Element("indexes")
         index_group = None
+        for row in session.query(Meta):
+            indexes.set("lastModified",
+                        str(int(row.last_sync.timestamp() * 1000)))
+            break
         rows = session.query(Artist).options(subqueryload("*")).\
             options(subqueryload("*")).order_by(Artist.sort_name).all()
         for row in rows:

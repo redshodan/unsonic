@@ -94,7 +94,7 @@ class Command(object):
             if self.req.params["f"] == "jsonp" and "callback" in self.req.params:
                 body = xmltodict.parse(body)
                 txt = "%s(%s)" % (self.req.params["callback"], json.dumps(body))
-                resp.text = txt.encode("utf-8")
+                resp.text = txt
                 resp.content_type = "application/javascript"
             elif self.req.params["f"] == "json":
                 body = xmltodict.parse(body)

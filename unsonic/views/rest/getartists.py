@@ -8,7 +8,7 @@ from ...models import Session, Artist, Album
 
 class GetArtists(Command):
     name = "getArtists.view"
-    param_defs = {}
+    param_defs = {"musicFolderId": {}}
     dbsess = True
 
     
