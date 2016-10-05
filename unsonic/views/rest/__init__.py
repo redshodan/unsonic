@@ -1,4 +1,4 @@
-import os, types, json, xmltodict
+import os, types, json, xmltodict, datetime
 import xml.etree.ElementTree as ET
 
 from pyramid.security import Allow, Authenticated, DENY_ALL
@@ -19,11 +19,14 @@ class RouteContext(object):
     def __init__(self, request):
         pass
 
+
 class MissingParam(Exception):
     pass
 
+
 class NotFound(Exception):
     pass
+
 
 class InternalError(Exception):
     pass
@@ -172,6 +175,13 @@ def playlist_t(value):
     if not value.startswith("pl-"):
         raise MissingParam("Invalid id")
     return int(value[3:])
+
+def year_t(year):
+    try:
+        d = datetime.datetime(int(year), 1, 1)
+        return d
+    except:
+        raise MissingParam("Invalid type for param. '%s' is not a year" % year)
 
 
 ### Utilities for wrangling data into xml form
