@@ -1,9 +1,10 @@
+from datetime import datetime
 import xml.etree.ElementTree as ET
 
 from sqlalchemy.orm import subqueryload
 from sqlalchemy.sql.expression import func as dbfunc
 
-from . import Command, addCmd, fillAlbum, fillArtist, fillSong
+from . import Command, addCmd, fillAlbum, fillArtist, fillSong, year_t
 from ...models import Session, Artist, Album, Track
 
 
@@ -12,8 +13,8 @@ class GetRandomSongs(Command):
     param_defs = {
         "size": {"default": 10, "type": int},
         "genre": {},
-        "fromYear": {},
-        "toYear": {},
+        "fromYear": {"type": year_t},
+        "toYear": {"type": year_t},
         "musicFolderId": {},
         }
     dbsess = True
@@ -21,8 +22,25 @@ class GetRandomSongs(Command):
 
     def handleReq(self, session):
         random_songs = ET.Element("randomSongs")
-        for row in session.query(Track).options(subqueryload("*")). \
-            order_by(dbfunc.random()).limit(self.params["size"]):
+        fy = self.params["fromYear"]
+        ty = self.params["toYear"]
+        if fy and ty:
+            rows = (session.query(Track).options(subqueryload("*")).
+                    join(Album).filter(Album.release_date >= fy and
+                                       Album.release_date <= ty).
+                    order_by(dbfunc.random()).limit(self.params["size"]))
+        elif fy:
+            rows = (session.query(Track).options(subqueryload("*")).
+                    join(Album).filter(Album.release_date >= fy).
+                    order_by(dbfunc.random()).limit(self.params["size"]))
+        elif ty:
+            rows = (session.query(Track).options(subqueryload("*")).
+                    join(Album).filter(Album.release_date <= ty).
+                    order_by(dbfunc.random()).limit(self.params["size"]))
+        else:
+            rows = (session.query(Track).options(subqueryload("*")).
+                    order_by(dbfunc.random()).limit(self.params["size"]))
+        for row in rows:
             song = fillSong(session, row)
             random_songs.append(song)
         return self.makeResp(child=random_songs)
