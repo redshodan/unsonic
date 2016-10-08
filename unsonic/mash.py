@@ -35,7 +35,6 @@ def syncDB(args, settings):
     args.paths = [v for v in getPaths(settings).values()]
     args.db_engine, session_maker = dbinit(mashConfig(settings))
     args.db_session = session_maker()
-    # args.db_session = models.session_maker()
     try:
         retval = eyed3_main(args, None)
         args.db_session.commit()
