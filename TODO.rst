@@ -40,11 +40,11 @@ Missing
 - getNowPlaying:
 - getStarred:
 - getStarred2: id3 version
-- search:
+X search: deprecated, not going to impl
 - search3:
 - updatePlaylist:
 - deletePlaylist:
-- download:
+* download:
 - hls:
 - getCaptions:
 - getLyrics:
