@@ -1,3 +1,7 @@
+General
+=======
+* Proper server logging
+
 For dsub
 ========
 
@@ -8,7 +12,7 @@ For dsub
 unsonic-db
 ==========
 
-* cache auth.User objects with db refresh checks
+* cache auth.User objects with db refresh checks. Update cache on deleteUser call.
 * Add an export-playlists command
 
 
@@ -26,10 +30,17 @@ Exceptions
 ----------
 * No LDAP auth
 * No simple hex encoded passwords
+* 'search' is deprecated, not going to implement
+* You can change your own password without being an admin, as long as you're not
+  a guest.
+* 'changePassword' username param is not required, will default to your own
+  username if not supplied.
 
 General
 -------
 * pathing for responses is weird, has a dash. missing .mp3 ending.
+* Fit guest account concept into the subsonic API. Make it play well with
+  sharing urls
 
 Missing
 -------
@@ -46,11 +57,9 @@ Missing
 - getNowPlaying:
 - getStarred:
 - getStarred2: id3 version
-X search: deprecated, not going to impl
 - search3:
 - updatePlaylist:
 - deletePlaylist:
-* download:
 - hls:
 - getCaptions:
 - getLyrics:
@@ -70,8 +79,6 @@ X search: deprecated, not going to impl
 - getInternetRadioStations:
 - getChatMessages:
 - addChatMessage:
-- deleteUser:
-- changePassword:
 - getBookmarks:
 - createBookmark:
 - deleteBookmark:
