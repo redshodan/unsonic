@@ -4,7 +4,8 @@ from contextlib import contextmanager
 
 import sqlalchemy
 from sqlalchemy import (engine_from_config, Column, Integer, Text, ForeignKey,
-                        String, DateTime, event, Index, Boolean)
+                        String, DateTime, event, Index, Boolean,
+                        UniqueConstraint)
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
@@ -90,6 +91,7 @@ class User(Base, OrmObject):
     name = Column(Text, unique=True)
     password = Column(Text)
     email = Column(Text)
+    maxbitrate = Column(Integer, default=0, nullable=False)
     scrobbling = Column(Boolean, default=True, nullable=False)
     roles = relation("Role", cascade="all, delete-orphan",
                       passive_deletes=True)
@@ -117,11 +119,12 @@ class User(Base, OrmObject):
 
 class Role(Base, OrmObject):
     __tablename__ = 'un_roles'
+    __table_args__ = (UniqueConstraint("user_id", "name"), {})
     
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
                      nullable=False)
-    name = Column(Text)
+    name = Column(Text, nullable=False)
     user = relation("User")
 
 

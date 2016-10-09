@@ -191,6 +191,18 @@ def year_t(year):
     except:
         raise MissingParam("Invalid type for param. '%s' is not a year" % year)
 
+def bitrate_t(value):
+    try:
+        i = int(value)
+    except:
+        raise MissingParam("Invalid type for param. '%s' is not a number" %
+                           value)
+    if i in [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320]:
+        return i
+    else:
+        raise MissingParam("Invalid value for param. '%s' is not allowed" %
+                           value)
+
 
 ### Utilities for wrangling data into xml form
 def fillCoverArt(session, row, elem, name):
