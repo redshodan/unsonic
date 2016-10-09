@@ -70,7 +70,6 @@ X search: deprecated, not going to impl
 - getInternetRadioStations:
 - getChatMessages:
 - addChatMessage:
-- updateUser:
 - deleteUser:
 - changePassword:
 - getBookmarks:
