@@ -33,7 +33,7 @@ def main(global_config, **settings):
     config.add_static_view('static', 'static', cache_max_age=3600,)
     config.add_route('home', '/', factory="unsonic.views.RouteContext")
     config.add_view('unsonic.views.ui.view', route_name='home',
-                    permission=models.Roles.USERS)
+                    permission=auth.Roles.USERS)
     config.scan()
 
     global NAME
@@ -52,7 +52,7 @@ def main(global_config, **settings):
         cmd.settings = settings
         config.add_route(cmd.name, "/rest/" + cmd.name,
                          factory="unsonic.views.rest.RouteContext")
-        config.add_view(cmd, route_name=cmd.name, permission=models.Roles.REST)
+        config.add_view(cmd, route_name=cmd.name, permission=auth.Roles.REST)
 
     # Log requests
     app = config.make_wsgi_app()
@@ -67,9 +67,12 @@ def doInit(args, settings):
 
 def doAddUser(args, settings):
     print("Adding user '%s'.." % args.username[0])
-    for role in [models.Roles.REST, models.Roles.USERS]:
-        if role not in args.roles:
-            args.roles.append(role)
+    if len(args.roles):
+        for role in [auth.Roles.REST, auth.Roles.USERS]:
+            if role not in args.roles:
+                args.roles.append(role)
+    else:
+        args.roles = auth.Roles.def_user_roles
     with Session() as session:
         ret = models.addUser(session, args.username[0], args.password[0],
                              args.roles)

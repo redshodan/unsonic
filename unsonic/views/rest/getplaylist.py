@@ -3,8 +3,7 @@ import xml.etree.ElementTree as ET
 from sqlalchemy.orm import subqueryload
 
 from . import Command, addCmd, fillPlayList, fillSong, playlist_t, MissingParam
-from ...models import (getUserByName, Session, PlayList, PlayListTrack,
-                       PlayListUser)
+from ...models import Session, PlayList, PlayListTrack, PlayListUser
 
 
 class GetPlayList(Command):

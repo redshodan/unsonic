@@ -2,8 +2,7 @@ import transaction, datetime
 import xml.etree.ElementTree as ET
 
 from . import Command, addCmd, playable_id_t, InternalError, MissingParam
-from ...models import (getUserByName, Session, PlayList, PlayListTrack, Track,
-                       rateItem)
+from ...models import Session, PlayList, PlayListTrack, Track, rateItem
 
 
 class Star(Command):

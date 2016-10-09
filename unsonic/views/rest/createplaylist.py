@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 
 from . import Command, addCmd, InternalError, MissingParam
-from ...models import getUserByName, Session, PlayList, PlayListTrack, Track
+from ...models import Session, PlayList, PlayListTrack, Track
 
 
 class CreatePlayList(Command):
