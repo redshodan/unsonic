@@ -52,12 +52,13 @@ class Roles(object):
     STREAM = "stream"
     JUKEBOX = "jukebox"
     SHARE = "share"
+    VIDEOCONVERSION = "videoconversion"
 
     # Role groups
     subsonic_roles = [ADMIN, SETTINGS, DOWNLOAD, PLAYLIST, COVERART, COMMENT,
-                      PODCAST, STREAM, JUKEBOX, SHARE]
+                      PODCAST, STREAM, JUKEBOX, SHARE, VIDEOCONVERSION]
     admin_roles = [ADMIN, USERS, REST, SETTINGS, DOWNLOAD, PLAYLIST, COVERART,
-                   COMMENT, PODCAST, STREAM, JUKEBOX, SHARE]
+                   COMMENT, PODCAST, STREAM, JUKEBOX, SHARE, VIDEOCONVERSION]
     def_user_roles = [USERS, REST, DOWNLOAD, PLAYLIST, COVERART, COMMENT,
                       PODCAST, STREAM, SHARE]
 
