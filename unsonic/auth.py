@@ -73,12 +73,11 @@ def forbidden_view(request):
 # Support the silly auth schemes that Subsonic has
 class SubsonicAuth(BasicAuthAuthenticationPolicy):
     def __init__(self, realm='Realm', debug=False):
-        super(SubsonicAuth, self).__init__(
-            self.authCheck, realm=realm, debug=debug)
+        super().__init__(self.authCheck, realm=realm, debug=debug)
 
     def unauthenticated_userid(self, request):
         if request.headers.get('Authorization'):
-            return super(SubsonicAuth, self).unauthenticated_userid(request)
+            return super().unauthenticated_userid(request)
         elif ("u" not in list(request.params.keys()) or
               ("p" not in list(request.params.keys()) and
                "t" not in list(request.params.keys()) and
@@ -89,7 +88,7 @@ class SubsonicAuth(BasicAuthAuthenticationPolicy):
 
     def callback(self, username, request):
         if request.headers.get('Authorization'):
-            return super(SubsonicAuth, self).callback(username, request)
+            return super().callback(username, request)
         elif ("u" not in list(request.params.keys()) or
               ("p" not in list(request.params.keys()) and
                "t" not in list(request.params.keys()) and
@@ -115,11 +114,11 @@ class SubsonicAuth(BasicAuthAuthenticationPolicy):
                 sum.update(req.params["s"].encode("utf-8"))
                 if sum.hexdigest() == req.params["t"]:
                     # Stash the user for easy access
-                    req.authed_user = user.export()
+                    req.authed_user = user
                     return req.authed_user.roles
             if user and password == user.password:
                 # Stash the user for easy access
-                req.authed_user = user.export()
+                req.authed_user = user
                 return req.authed_user.roles
 
 

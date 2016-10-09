@@ -324,3 +324,13 @@ def fillPlayList(session, row):
         playlist.append(auser)
 
     return playlist
+
+def fillUser(session, row):
+    user = ET.Element("user")
+    user.set("username", row.name)
+    user.set("email", row.email if row.email else "")
+    user.set("scrobblingEnabled", "true" if row.scrobbling else "false")
+    for role in Roles.subsonic_roles:
+        user.set("%sRole" % role,
+                 "true" if role in row.roles else "false")
+    return user
