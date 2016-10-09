@@ -22,6 +22,11 @@ jamstash
 
 API
 ===
+Exceptions
+----------
+* No LDAP auth
+* No simple hex encoded passwords
+
 General
 -------
 * pathing for responses is weird, has a dash. missing .mp3 ending.
@@ -65,7 +70,6 @@ X search: deprecated, not going to impl
 - getInternetRadioStations:
 - getChatMessages:
 - addChatMessage:
-- createUser:
 - updateUser:
 - deleteUser:
 - changePassword:
@@ -146,4 +150,7 @@ Partial
   resp: Needs folders
 
 - getUsers:
+  resp: Needs folders
+
+- createUser:
   resp: Needs folders
