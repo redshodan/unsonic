@@ -8,6 +8,7 @@ For dsub
 unsonic-db
 ==========
 
+* cache auth.User objects with db refresh checks
 * Add an export-playlists command
 
 
@@ -64,8 +65,6 @@ X search: deprecated, not going to impl
 - getInternetRadioStations:
 - getChatMessages:
 - addChatMessage:
-- getUser:
-- getUsers:
 - createUser:
 - updateUser:
 - deleteUser:
@@ -142,3 +141,9 @@ Partial
 
 - getCoverArt:
   params: missing size to convert image to
+
+- getUser:
+  resp: Needs folders
+
+- getUsers:
+  resp: Needs folders

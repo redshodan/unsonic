@@ -115,11 +115,6 @@ class User(Base, OrmObject):
             session.close()
 
 
-    def export(self):
-        return auth.User(self)
-
-
-
 class Role(Base, OrmObject):
     __tablename__ = 'un_roles'
     
@@ -358,14 +353,14 @@ def setUserPassword(session, uname, password):
 
 def getUserByName(session, username):
     try:
-        return session.query(User).filter(User.name == username).one()
+        return auth.User(session.query(User).filter(User.name == username).one())
     except NoResultFound:
         return None
 
 
 def getUserByID(session, id):
     try:
-        return session.query(User).filter(User.id == id).one()
+        return auth.User(session.query(User).filter(User.id == id).one())
     except NoResultFound:
         return None
 
