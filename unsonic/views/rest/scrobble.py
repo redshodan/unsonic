@@ -5,7 +5,7 @@ from sqlalchemy.orm import subqueryload
 from sqlalchemy.orm.exc import NoResultFound
 
 from . import Command, addCmd, InternalError, MissingParam, bool_t, track_t
-from ...models import getUserByName, Session, PlayCount, Track
+from ...models import Session, PlayCount, Track
 from ...models import Scrobble as DBScrobble
 
 

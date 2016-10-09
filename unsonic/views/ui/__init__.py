@@ -2,7 +2,7 @@ import os
 
 from pyramid.response import FileResponse
 
-from ...models import Roles
+from ...auth import Roles
 
 
 def view(req):

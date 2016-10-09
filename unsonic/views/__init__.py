@@ -4,7 +4,8 @@ from pyramid.view import view_config
 
 from sqlalchemy.exc import DBAPIError
 
-from ..models import Session, User, Roles
+from ..models import Session, User
+from ..auth import Roles
 
 
 class RouteContext(object):

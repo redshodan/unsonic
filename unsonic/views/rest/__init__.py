@@ -5,7 +5,8 @@ from pyramid.security import Allow, Authenticated, DENY_ALL
 
 from ...log import log
 from ...version import VERSION, PROTOCOL_VERSION, UNSONIC_PROTOCOL_VERSION
-from ...models import Session, Roles, ArtistRating, AlbumRating, TrackRating
+from ...models import Session, ArtistRating, AlbumRating, TrackRating
+from ...auth import Roles
 
 
 XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>'
@@ -18,6 +19,10 @@ class RouteContext(object):
     
     def __init__(self, request):
         pass
+
+
+class NoPerm(Exception):
+    pass
 
 
 class MissingParam(Exception):
@@ -62,6 +67,8 @@ class Command(object):
             return self.makeResp(status=(Command.E_NOT_FOUND, str(e)))
         except InternalError as e:
             return self.makeResp(status=(Command.E_GENERIC, str(e)))
+        except NoPerm as e:
+            return self.makeResp(status=(Command.E_PERM, str(e)))
 
     def handleReq(self, session=None):
         raise Exception("Command must implement handleReq()")
@@ -69,6 +76,7 @@ class Command(object):
     def makeBody(self, attrs, child, status):
         body = ET.Element("subsonic-response")
         attrs_ = {"status":"ok" if status is True else "failed",
+                  "xmlns":"http://subsonic.org/restapi",
                   "version":PROTOCOL_VERSION, "unsonic":UNSONIC_PROTOCOL_VERSION}
         attrs_.update(attrs)
         for key, value in attrs_.items():

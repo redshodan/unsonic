@@ -89,6 +89,8 @@ class User(Base, OrmObject):
     id = Column(Integer, primary_key=True)
     name = Column(Text, unique=True)
     password = Column(Text)
+    email = Column(Text)
+    scrobbling = Column(Boolean, default=True, nullable=False)
     roles = relation("Role", cascade="all, delete-orphan",
                       passive_deletes=True)
     playlists = relation("PlayList", cascade="all, delete-orphan",
@@ -97,7 +99,7 @@ class User(Base, OrmObject):
 
     @staticmethod
     def initTable(session, config):
-        addUser(session, "admin", None, [Roles.REST, Roles.USERS, Roles.ADMIN])
+        addUser(session, "admin", None, auth.Roles.admin_roles)
 
 
     @staticmethod
@@ -114,29 +116,8 @@ class User(Base, OrmObject):
 
 
     def export(self):
-        ret = Namespace()
-        ret.id = self.id
-        ret.name = self.name
-        ret.password = self.password
-        ret.roles = []
-        for role in self.roles:
-            ret.roles.append(role.name)
-        def isAdmin():
-            return Roles.ADMIN in ret.roles
-        ret.isAdmin = isAdmin
-        def isUser():
-            return Roles.USERS in ret.roles
-        ret.isUser = isUser
-        def isRest():
-            return Roles.REST in ret.roles
-        ret.isRest = isRest
-        return ret
+        return auth.User(self)
 
-
-class Roles(object):
-    ADMIN = "admin"
-    USERS = "users"
-    REST = "rest"
 
 
 class Role(Base, OrmObject):
@@ -148,6 +129,8 @@ class Role(Base, OrmObject):
     name = Column(Text)
     user = relation("User")
 
+
+## FIXME why this? do something with it
 # playlist_images = sql.Table("playlist_images", Base.metadata,
 #                             sql.Column("playlist_id", sql.Integer,
 #                                        sql.ForeignKey("un_playlist.id")),
@@ -509,6 +492,8 @@ def updatePseudoRatings(session, user_id=None, album_id=ALL, artist_id=ALL):
                 arrating.starred = starred
                 arrating.pseudo_starred = True
 
+
+from . import auth
 
 UN_TYPES = [DBInfo, User, Role, PlayList, PlayListUser, PlayListTrack,
             ArtistRating, AlbumRating, TrackRating, PlayCount, Scrobble]

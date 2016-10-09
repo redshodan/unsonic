@@ -11,6 +11,57 @@ from unsonic import models
 from unsonic.models import Session
 
 
+class User():
+    def __init__(self, db_user):
+        self.id = db_user.id
+        self.name = db_user.name
+        self.password = db_user.password
+        self.email = db_user.email
+        self.scrobbling = db_user.scrobbling
+        self.roles = []
+        for role in db_user.roles:
+            self.roles.append(role.name)
+
+
+    def isAdmin(self):
+        return Roles.ADMIN in self.roles
+
+
+    def isUser(self):
+        return Roles.USERS in self.roles
+
+
+    def isRest(self):
+        return Roles.REST in self.roles
+
+
+class Roles(object):
+    # Pyramind roles
+    ADMIN = "admin" # both pyramid and subsonic
+    USERS = "users"
+    REST = "rest"
+
+    # Subsonic roles, includes admin role
+    SETTINGS = "settings"
+    DOWNLOAD = "download"
+    UPLOAD = "upload"
+    PLAYLIST = "playlist"
+    COVERART = "coverart"
+    COMMENT = "comment"
+    PODCAST = "podcast"
+    STREAM = "stream"
+    JUKEBOX = "jukebox"
+    SHARE = "share"
+
+    # Role groups
+    subsonic_roles = [ADMIN, SETTINGS, DOWNLOAD, PLAYLIST, COVERART, COMMENT,
+                      PODCAST, STREAM, JUKEBOX, SHARE]
+    admin_roles = [ADMIN, USERS, REST, SETTINGS, DOWNLOAD, PLAYLIST, COVERART,
+                   COMMENT, PODCAST, STREAM, JUKEBOX, SHARE]
+    def_user_roles = [USERS, REST, DOWNLOAD, PLAYLIST, COVERART, COMMENT,
+                      PODCAST, STREAM, SHARE]
+
+
 # Causes auth challenges to be sent back
 @forbidden_view_config()
 def forbidden_view(request):
