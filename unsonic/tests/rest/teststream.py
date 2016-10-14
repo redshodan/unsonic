@@ -1,4 +1,4 @@
-import os, unittest, transaction
+import unittest
 
 from pyramid import testing
 

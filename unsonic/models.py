@@ -1,4 +1,4 @@
-import transaction, datetime, argparse
+import datetime, argparse
 from argparse import Namespace
 from contextlib import contextmanager
 
@@ -11,7 +11,6 @@ from sqlalchemy.exc import IntegrityError, InvalidRequestError
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.orm import scoped_session, sessionmaker, relation
 from sqlalchemy.orm.exc import NoResultFound
-from zope.sqlalchemy import ZopeTransactionExtension
 
 import mishmash.orm
 from mishmash.orm import (Base, Artist, Album, Meta, Track, Image,
