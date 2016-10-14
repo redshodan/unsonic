@@ -130,8 +130,6 @@ Partial
 
 - getRandomSongs:
   params: unimplemented params
-          fromYear
-          toYear
           genre
           musicFolderId
 

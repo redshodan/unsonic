@@ -1,7 +1,9 @@
-import os, types, json, xmltodict, datetime
+import os, types, json, xmltodict
 import xml.etree.ElementTree as ET
 
 from pyramid.security import Allow, Authenticated, DENY_ALL
+
+from eyed3.core import Date as Eyed3Date
 
 from ...log import log
 from ...version import VERSION, PROTOCOL_VERSION, UNSONIC_PROTOCOL_VERSION
@@ -186,8 +188,7 @@ def playlist_t(value):
 
 def year_t(year):
     try:
-        d = datetime.datetime(int(year), 1, 1)
-        return d
+        return Eyed3Date(int(year), 1, 1)
     except:
         raise MissingParam("Invalid type for param. '%s' is not a year" % year)
 
