@@ -248,7 +248,7 @@ def fillAlbum(session, row, name="album"):
         album.set("created", "".join(release))
     if row.artist and row.artist.name:
         album.set("artist", row.artist.name)
-    album.set("artistId", "al-%d" % row.id)
+        album.set("artistId", "ar-%d" % row.artist.id)
     return album
 
 def fillAlbumUser(session, row, user, name="album"):

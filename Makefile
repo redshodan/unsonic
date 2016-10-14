@@ -88,7 +88,7 @@ up:
 	-@cd external; for dir in `find -maxdepth 1 -mindepth 1 -type d`; do \
         (echo; cd $${dir}; hg up); done
 
-tests:
+tests: tests-clean
 	PYTHONPATH=external/mishmash $(PYTHON) setup.py test
 
 clean:
@@ -99,6 +99,9 @@ devel-clean:
 
 dist-clean: clean
 	rm -rf build unsonic.egg-info development.sqlite bin/unsonic bin/unsonic-db
+
+tests-clean:
+	rm -f build/testing.sqlite build/testing.sqlite.org
 
 .PHONY: devel db pyramid paste sqlalchemy psycopg2 run tests clean 
 .PHONY: dist-clean external
