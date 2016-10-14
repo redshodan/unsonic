@@ -2,7 +2,7 @@ import os
 
 from pyramid import testing
 
-from . import RestTestCase
+from . import RestTestCase, setUpModule
 from ... import mash
 from ...models import Session
 from ...views.rest.getcoverart import GetCoverArt

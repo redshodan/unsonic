@@ -1,6 +1,6 @@
 from pyramid import testing
 
-from . import RestTestCase
+from . import RestTestCase, setUpModule
 from ...models import Session
 from ...views.rest.getindexes import GetIndexes
 from ...views.rest import Command

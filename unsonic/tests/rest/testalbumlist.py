@@ -1,6 +1,8 @@
+import xml.etree.ElementTree as ET
+
 from pyramid import testing
 
-from . import RestTestCase
+from . import RestTestCase, setUpModule
 from ...models import Session
 from ...views.rest.getalbumlist import GetAlbumList
 from ...views.rest import Command
@@ -9,10 +11,11 @@ from ...views.rest import Command
 class TestAlbumList(RestTestCase):
     def validate(self, cmd, resp):
         sub_resp = self.checkResp(cmd.req, resp)
-        alist = sub_resp.find("albumList")
+        ET.dump(sub_resp)
+        alist = sub_resp.find("{http://subsonic.org/restapi}albumList")
         count = 0
         titles = []
-        for album in alist.iter("album"):
+        for album in alist.iter("{http://subsonic.org/restapi}album"):
             count += 1
             titles.append(album.get("title"))
             self.assertTrue(album.get("id").startswith("al-"))

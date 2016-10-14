@@ -2,7 +2,7 @@ import unittest
 
 from pyramid import testing
 
-from . import RestTestCase
+from . import RestTestCase, setUpModule
 from ...models import Session, Track
 from ...views.rest.stream import Stream
 from ...views.rest import Command

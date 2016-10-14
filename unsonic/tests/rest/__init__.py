@@ -1,14 +1,15 @@
-import os, unittest
+import os, shutil, unittest
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 from pyramid import testing
 
-from ...models import Session
-from ... import dbMain
+from ... import dbMain, models
 
 
 class RestTestCase(unittest.TestCase):
     def setUp(self):
+        shutil.copyfile("build/testing.sqlite.org", "build/testing.sqlite")
         self.config = testing.setUp()
 
     def tearDown(self):
@@ -17,6 +18,8 @@ class RestTestCase(unittest.TestCase):
     def buildCmd(self, klass, req=None):
         request = testing.DummyRequest()
         request.context = testing.DummyResource()
+        with models.Session() as session:
+            request.authed_user = models.getUserByName(session, "test")
         cmd = klass(request)
         cmd.settings = {"mishmash.paths":"Music: test/music"}
         return cmd
@@ -31,15 +34,14 @@ class RestTestCase(unittest.TestCase):
             self.assertEqual(error.get("code"), ok[0])
         return sub_resp
 
-    @classmethod
-    def setUpClass(klass):
-        try:
-            os.unlink("build/testing.sqlite")
-        except OSError as e:
-            if e.errno != 2:
-                raise
-        # try:
-        dbMain(["-c", "testing.ini", "init"])
-        dbMain(["-c", "testing.ini", "sync"])
-        # finally:
-        #     DBSession.remove()
+
+def setUpModule():
+    if Path("build/testing.sqlite.org").exists():
+        return
+    db = Path("build/testing.sqlite")
+    if db.exists():
+        db.unlink()
+    dbMain(["-c", "testing.ini", "init"])
+    dbMain(["-c", "testing.ini", "sync"])
+    dbMain(["-c", "testing.ini", "adduser", "test", "test"])
+    db.rename("build/testing.sqlite.org")
