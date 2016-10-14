@@ -1,5 +1,3 @@
-import unittest, transaction, datetime
-
 from pyramid import testing
 
 from . import RestTestCase

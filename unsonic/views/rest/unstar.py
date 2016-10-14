@@ -1,4 +1,3 @@
-import transaction
 import xml.etree.ElementTree as ET
 
 from . import Command, addCmd, playable_id_t, InternalError, MissingParam

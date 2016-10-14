@@ -1,4 +1,4 @@
-import os, unittest, transaction
+import os, unittest
 import xml.etree.ElementTree as ET
 
 from pyramid import testing

@@ -1,4 +1,4 @@
-import transaction, datetime
+import datetime
 import xml.etree.ElementTree as ET
 
 from sqlalchemy.orm import subqueryload
