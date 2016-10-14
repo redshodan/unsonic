@@ -1,6 +1,8 @@
 General
 =======
 * Proper server logging
+* setup docker image for unsonic
+* federation of unsonics. for showing playing now and other stuff
 
 For dsub
 ========
