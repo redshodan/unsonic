@@ -15,7 +15,9 @@ class TestStream(RestTestCase):
         resp = cmd()
         with Session() as session:
             row = session.query(Track).filter(Track.id == 1).all()[0]
-            streamed = open(row.path).read()
+            fp = open(row.path, "rb")
+            streamed = fp.read()
+            fp.close()
         self.assertEqual(len(resp.body), len(streamed))
         self.assertEqual(resp.body, streamed)
     

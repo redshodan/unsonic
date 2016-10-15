@@ -63,25 +63,21 @@ class GetMusicDirectory(Command):
             directory.set("name", artist_name)
         elif self.params["id"].startswith("al-"):
             album_id = int(self.params["id"][3:])
-            dir_parent = None
-            dir_name = None
+            album = session.query(Album).options(subqueryload("*")).filter(
+                Album.id == album_id).one_or_none()
+            if not album:
+                raise NotFound(self.params["id"])
+            directory.set("parent", "ar-%d" % album.artist_id)
+            directory.set("name", album.title)
+            directory.set("id", self.params["id"])
             song = None
             for row in session.query(Track).options(subqueryload("*")).filter(
                     Track.album_id == album_id).order_by(Track.track_num).all():
                 song = fillSongUser(session, row, self.req.authed_user,
                                     self.track_param)
                 directory.append(song)
-                if row.artist:
-                    dir_parent = "al-%d" % row.id
-                if row.album and row.album.title:
-                    dir_name = row.album.title
             if song is None:
                 raise NotFound(self.params["id"])
-            if dir_parent:
-                directory.set("parent", dir_parent)
-            if dir_name:
-                directory.set("name", dir_name)
-            directory.set("id", self.params["id"])
         elif self.params["id"].startswith("tr-"):
             track_id = int(self.params["id"][3:])
             row = session.query(Track).options(subqueryload("*")).\
