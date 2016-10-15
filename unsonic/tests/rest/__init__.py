@@ -30,7 +30,7 @@ class RestTestCase(unittest.TestCase):
             self.assertEqual(sub_resp.get("status"), "ok")
         else:
             self.assertEqual(sub_resp.get("status"), "failed")
-            error = sub_resp.find("error")
+            error = sub_resp.find("{http://subsonic.org/restapi}error")
             self.assertEqual(error.get("code"), ok[0])
         return sub_resp
 

@@ -11,10 +11,10 @@ from ...views.rest import Command
 class TestRandomSongs(RestTestCase):
     def validate(self, cmd, resp):
         sub_resp = self.checkResp(cmd.req, resp)
-        songs = sub_resp.find("randomSongs")
+        songs = sub_resp.find("{http://subsonic.org/restapi}randomSongs")
         count = 0
         titles = []
-        for song in songs.iter("song"):
+        for song in songs.iter("{http://subsonic.org/restapi}song"):
             count += 1
             titles.append(song.get("title"))
             self.assertTrue(song.get("id").startswith("tr-"))

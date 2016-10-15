@@ -15,9 +15,8 @@ class TestArtist(RestTestCase):
         cmd.req.params["id"] = aid
         resp = cmd()
         sub_resp = self.checkResp(cmd.req, resp)
-        artist = sub_resp.find("artist")
+        artist = sub_resp.find("{http://subsonic.org/restapi}artist")
         self.assertEqual(artist.get("id"), aid)
-        self.assertEqual(artist.get("coverArt"), aid)
 
     def testTwoAlbums(self):
         aid = "ar-6"
@@ -25,10 +24,9 @@ class TestArtist(RestTestCase):
         cmd.req.params["id"] = aid
         resp = cmd()
         sub_resp = self.checkResp(cmd.req, resp)
-        artist = sub_resp.find("artist")
+        artist = sub_resp.find("{http://subsonic.org/restapi}artist")
         self.assertEqual(artist.get("id"), aid)
-        self.assertEqual(artist.get("coverArt"), aid)
-        for album in artist.iter("album"):
+        for album in artist.iter("{http://subsonic.org/restapi}album"):
             self.assertTrue(album.get("id").startswith("al-"))
             self.assertTrue(int(album.get("id")[3:]) > 0)
             self.assertEqual(album.get("artist"), artist.get("name"))

@@ -11,7 +11,6 @@ from ...views.rest import Command
 class TestAlbumList(RestTestCase):
     def validate(self, cmd, resp):
         sub_resp = self.checkResp(cmd.req, resp)
-        ET.dump(sub_resp)
         alist = sub_resp.find("{http://subsonic.org/restapi}albumList")
         count = 0
         titles = []
@@ -21,7 +20,6 @@ class TestAlbumList(RestTestCase):
             self.assertTrue(album.get("id").startswith("al-"))
             self.assertTrue(len(album.get("title")) > 0)
             self.assertEqual(album.get("isDir"), "true")
-            self.assertEqual(album.get("coverArt"), album.get("id"))
         return count, titles
         
     def testRandom(self):

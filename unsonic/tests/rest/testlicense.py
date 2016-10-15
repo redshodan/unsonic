@@ -11,7 +11,7 @@ class TestLicense(RestTestCase):
         cmd = self.buildCmd(GetLicense)
         resp = cmd()
         sub_resp = self.checkResp(cmd.req, resp)
-        license = sub_resp.find("license")
+        license = sub_resp.find("{http://subsonic.org/restapi}license")
         self.assertTrue(len(license.get("date")) > 0)
         self.assertEqual(license.get("email"), "foo@bar.com")
         self.assertEqual(license.get("key"), "00000000000000000000000000000000")

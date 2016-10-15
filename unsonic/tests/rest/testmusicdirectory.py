@@ -1,4 +1,4 @@
-import unittest
+import xml.etree.ElementTree as ET
 
 from pyramid import testing
 
@@ -15,15 +15,14 @@ class TestMusicDirectory(RestTestCase):
         cmd.req.params["id"] = aid
         resp = cmd()
         sub_resp = self.checkResp(cmd.req, resp)
-        directory = sub_resp.find("directory")
+        directory = sub_resp.find("{http://subsonic.org/restapi}directory")
         self.assertEqual(directory.get("id"), aid)
         self.assertTrue(len(directory.get("name")) > 0)
         self.assertEqual(directory.get("parent"), "fl-Music")
-        for child in directory.iter("child"):
+        for child in directory.iter("{http://subsonic.org/restapi}child"):
             self.assertTrue(child.get("id").startswith("al-"))
             self.assertTrue(len(child.get("title")) > 0)
             self.assertTrue(len(child.get("artist")) > 0)
-            self.assertEqual(child.get("coverArt"), child.get("id"))
             self.assertEqual(child.get("isDir"), "true")
             self.assertEqual(child.get("parent"), directory.get("id"))
 
@@ -33,11 +32,13 @@ class TestMusicDirectory(RestTestCase):
         cmd.req.params["id"] = aid
         resp = cmd()
         sub_resp = self.checkResp(cmd.req, resp)
-        directory = sub_resp.find("directory")
+        directory = sub_resp.find("{http://subsonic.org/restapi}directory")
         self.assertEqual(directory.get("id"), aid)
         self.assertTrue(len(directory.get("name")) > 0)
         self.assertEqual(directory.get("parent"), "fl-Music")
-        self.assertEqual(directory.find("child"), None)
+        child = directory.find("{http://subsonic.org/restapi}child")
+        self.assertEqual(child.get("album"), "-")
+        self.assertTrue(child.get("id").startswith("tr-"))
 
     def testAlbum(self):
         aid = "al-1"
@@ -45,11 +46,11 @@ class TestMusicDirectory(RestTestCase):
         cmd.req.params["id"] = aid
         resp = cmd()
         sub_resp = self.checkResp(cmd.req, resp)
-        directory = sub_resp.find("directory")
+        directory = sub_resp.find("{http://subsonic.org/restapi}directory")
         self.assertEqual(directory.get("id"), aid)
         self.assertTrue(len(directory.get("name")) > 0)
         self.assertTrue(directory.get("parent").startswith("ar-"))
-        for child in directory.iter("child"):
+        for child in directory.iter("{http://subsonic.org/restapi}child"):
             self.assertTrue(child.get("id").startswith("tr-"))
             self.assertTrue(len(child.get("title")) > 0)
             self.assertTrue(len(child.get("artist")) > 0)
