@@ -49,6 +49,8 @@ General
 * pathing for responses is weird, has a dash. missing .mp3 ending.
 * Fit guest account concept into the subsonic API. Make it play well with
   sharing urls
+* Figure out the differences between path/id3 results. Maybe union them? Prolly
+  just return thing for the right kind of call
 
 Missing
 -------
@@ -63,7 +65,6 @@ Missing
 - getTopSongs: Returns top songs for the given artist, using data from last.fm.
 - getSongsByGenre:
 - getNowPlaying:
-- getStarred:
 - getStarred2: id3 version
 - search3:
 - updatePlaylist:
@@ -165,4 +166,7 @@ Partial
   resp: Needs folders
 
 - createUser:
+  resp: Needs folders
+
+- getStarred:
   resp: Needs folders
