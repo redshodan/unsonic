@@ -3,7 +3,8 @@ General
 * Proper server logging
 * setup docker image for unsonic
 * federation of unsonics. for showing playing now and other stuff
-
+* EC2/S3 support. Remote file storage for media files. Run in AWS. Pass back S3 URL for untranscoded stream.
+  
 For dsub
 ========
 
@@ -25,6 +26,11 @@ jamstash
 * Remove user/pass
 * Use templating to set url
 
+
+Tests
+=====
+* run every API test without required args. automate it from the
+  class.param_defs array.
 
 API
 ===

@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 from sqlalchemy.orm import subqueryload
 from sqlalchemy.sql.expression import func as dbfunc
 
-from . import Command, addCmd, fillAlbum, fillArtist, fillSong, year_t
+from . import Command, addCmd, fillAlbum, fillArtist, fillTrack, year_t
 from ...models import Session, Artist, Album, Track
 
 
@@ -40,7 +40,7 @@ class GetRandomSongs(Command):
             rows = (session.query(Track).options(subqueryload("*")).
                     order_by(dbfunc.random()).limit(self.params["size"]))
         for row in rows:
-            song = fillSong(session, row)
+            song = fillTrack(session, row)
             random_songs.append(song)
         return self.makeResp(child=random_songs)
 

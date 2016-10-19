@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 
 from sqlalchemy.orm import subqueryload
 
-from . import Command, addCmd, fillPlayList, fillSong, playlist_t, MissingParam
+from . import Command, addCmd, fillPlayList, fillTrack, playlist_t, MissingParam
 from ...models import Session, PlayList, PlayListTrack, PlayListUser
 
 
@@ -22,7 +22,7 @@ class GetPlayList(Command):
         
         playlist = fillPlayList(session, plrow)
         for pltrack in plrow.tracks:
-            entry = fillSong(session, pltrack.track, name="entry")
+            entry = fillTrack(session, pltrack.track, name="entry")
             playlist.append(entry)
 
         return self.makeResp(child=playlist)

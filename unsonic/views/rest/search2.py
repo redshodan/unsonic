@@ -2,7 +2,7 @@ import time
 import xml.etree.ElementTree as ET
 
 from . import (Command, addCmd, bool_t, positive_t, fillArtist, fillAlbum,
-               fillSong)
+               fillTrack)
 from ...models import Session, Artist, Album, Track
 
 
@@ -55,7 +55,7 @@ class Search2(Command):
                            filter(Track.title.ilike("%%%s%%" % query)). \
                            limit(tr_count). \
                            offset(tr_off):
-                track = fillSong(session, row)
+                track = fillTrack(session, row)
                 result.append(track)
         return self.makeResp(child=result)
 

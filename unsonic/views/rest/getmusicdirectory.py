@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 from sqlalchemy.orm import subqueryload
 
 from . import (Command, MissingParam, NotFound, addCmd, fillAlbumUser,
-               fillSongUser)
+               fillTrackUser)
 from ...models import Session, Artist, Album, Track
 from ... import mash
 
@@ -41,7 +41,7 @@ class GetMusicDirectory(Command):
             # Gather albums
             for row in session.query(Album).options(subqueryload("*")). \
                 filter(Album.artist_id == artist_id).all():
-                album = fillAlbumUser(session, row, self.req.authed_user,
+                album = fillAlbumUser(session, row, None, self.req.authed_user,
                                       self.album_param)
                 directory.append(album)
                 if row.artist and row.artist.name:
@@ -50,8 +50,8 @@ class GetMusicDirectory(Command):
             for row in session.query(Track).options(subqueryload("*")).\
                 filter(Track.album_id == None, Track.artist_id == artist_id).\
                 order_by(Track.track_num).all():
-                song = fillSongUser(session, row, self.req.authed_user,
-                                    self.track_param)
+                song = fillTrackUser(session, row, None, self.req.authed_user,
+                                     self.track_param)
                 directory.append(song)
             if not artist_name:
                 rows = session.query(Artist).options(subqueryload("*")).\
@@ -73,7 +73,7 @@ class GetMusicDirectory(Command):
             song = None
             for row in session.query(Track).options(subqueryload("*")).filter(
                     Track.album_id == album_id).order_by(Track.track_num).all():
-                song = fillSongUser(session, row, self.req.authed_user,
+                song = fillTrackUser(session, row, None, self.req.authed_user,
                                     self.track_param)
                 directory.append(song)
             if song is None:
@@ -84,7 +84,7 @@ class GetMusicDirectory(Command):
               filter(Track.id == track_id).one()
             if row is None:
                 raise NotFound(self.params["id"])
-            song = fillSongUser(session, row, self.req.authed_user,
+            song = fillTrackUser(session, row, None, self.req.authed_user,
                                 self.track_param)
             if row.album:
                 directory.set("parent", "al-%d" % row.album.id)

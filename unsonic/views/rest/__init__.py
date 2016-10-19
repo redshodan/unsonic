@@ -221,11 +221,15 @@ def fillArtist(session, row, name="artist"):
     fillCoverArt(session, row, artist, "ar")
     return artist
 
-def fillArtistUser(session, row, user, name="artist"):
-    artist = fillArtist(session, row, name=name)
-    rating = ArtistRating.get(session, row.id, user.id)
-    if rating and rating.starred:
-        artist.set("starred", rating.starred.isoformat())
+def fillArtistUser(session, artist_row, rating_row, user, name="artist"):
+    artist = fillArtist(session, artist_row, name=name)
+    if not rating_row:
+        rating_row = session.query(ArtistRating).\
+                         filter(ArtistRating.artist_id == artist_row.id,
+                                ArtistRating.user_id == user.id).\
+                         one_or_none()
+    if rating_row and rating_row.starred:
+        artist.set("starred", rating_row.starred.isoformat())
     return artist
 
 def fillAlbum(session, row, name="album"):
@@ -251,14 +255,17 @@ def fillAlbum(session, row, name="album"):
         album.set("artistId", "ar-%d" % row.artist.id)
     return album
 
-def fillAlbumUser(session, row, user, name="album"):
-    album = fillAlbum(session, row, name=name)
-    rating = AlbumRating.get(session, row.id, user.id)
-    if rating and rating.starred and not rating.pseudo_starred:
-        album.set("starred", rating.starred.isoformat())
+def fillAlbumUser(session, album_row, rating_row, user, name="album"):
+    album = fillAlbum(session, album_row, name=name)
+    if not rating_row:
+        rating_row = session.query(AlbumRating).\
+                         filter(AlbumRating.album_id == album_row.id,
+                                AlbumRating.user_id == user.id).one_or_none()
+    if rating_row and rating_row.starred and not rating_row.pseudo_starred:
+        album.set("starred", rating_row.starred.isoformat())
     return album
 
-def fillSong(session, row, name="song"):
+def fillTrack(session, row, name="song"):
     song = ET.Element(name)
     song.set("id", "tr-%d" % row.id)
     if row.album_id:
@@ -305,11 +312,14 @@ def fillSong(session, row, name="song"):
     song.set("isVideo", "false")
     return song
 
-def fillSongUser(session, row, user, name="song"):
-    song = fillSong(session, row, name=name)
-    rating = TrackRating.get(session, row.id, user.id)
-    if rating and rating.starred:
-        song.set("starred", rating.starred.isoformat())
+def fillTrackUser(session, song_row, rating_row, user, name="song"):
+    song = fillTrack(session, song_row, name=name)
+    if not rating_row:
+        rating_row = session.query(TrackRating).\
+                         filter(TrackRating.track_id == song_row.id,
+                                TrackRating.user_id == user.id).one_or_none()
+    if rating_row and rating_row.starred:
+        song.set("starred", rating_row.starred.isoformat())
     return song
 
 def fillPlayList(session, row):

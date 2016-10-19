@@ -4,7 +4,7 @@ from sqlalchemy.orm import subqueryload
 from sqlalchemy.sql.expression import func as dbfunc
 
 from . import (Command, MissingParam, addCmd, fillAlbum, fillAlbumUser,
-               fillArtist, fillSong)
+               fillArtist, fillTrack)
 from ...models import (Session, Artist, Album, AlbumRating, PlayCount, Track,
                        Scrobble)
 
@@ -24,7 +24,7 @@ class GetAlbumList(Command):
 
     def processRows(self, session, alist, result):
         for row in result:
-            album = fillAlbumUser(session, row, self.req.authed_user)
+            album = fillAlbumUser(session, row, None, self.req.authed_user)
             alist.append(album)
             if row.artist:
                 album.set("parent", "ar-%d" % row.artist.id)
