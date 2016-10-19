@@ -32,7 +32,7 @@ class GetIndexes(Command):
                 index = ET.Element("index")
                 indexes.append(index)
                 index.set("name", index_group)
-            artist = fillArtistUser(session, row, self.req.authed_user)
+            artist = fillArtistUser(session, row, None, self.req.authed_user)
             index.append(artist)
         for index in indexes:
             for artist in index:

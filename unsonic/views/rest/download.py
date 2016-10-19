@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 
 from . import (Command, MissingParam, NotFound, addCmd, fillAlbum, fillArtist,
-               fillSong)
+               fillTrack)
 from .stream import Stream
 from . import Command, addCmd, bool_t, track_t
 

@@ -197,17 +197,6 @@ class ArtistRating(Base, OrmObject):
     artist = relation("Artist")
     user = relation("User")
 
-    @staticmethod
-    def get(session, artist_id, user_id):
-        try:
-            return session.query(ArtistRating).\
-              filter(ArtistRating.artist_id == artist_id,
-                     ArtistRating.user_id == user_id).one()
-        except NoResultFound:
-            return None
-        finally:
-            session.close()
-
 Artist.rating = relation("ArtistRating")
     
 
@@ -225,17 +214,6 @@ class AlbumRating(Base, OrmObject):
     album = relation("Album")
     user = relation("User")
 
-    @staticmethod
-    def get(session, album_id, user_id):
-        try:
-            return session.query(AlbumRating).\
-              filter(AlbumRating.album_id == album_id,
-                     AlbumRating.user_id == user_id).one()
-        except NoResultFound:
-            return None
-        finally:
-            session.close()
-
 Album.rating = relation("AlbumRating")
 
 
@@ -250,17 +228,6 @@ class TrackRating(Base, OrmObject):
     starred = Column(DateTime, default=None, nullable=True)
     track = relation("Track")
     user = relation("User")
-
-    @staticmethod
-    def get(session, track_id, user_id):
-        try:
-            return session.query(TrackRating).\
-              filter(TrackRating.track_id == track_id,
-                     TrackRating.user_id == user_id).one()
-        except NoResultFound:
-            return None
-        finally:
-            session.close()
 
 Track.rating = relation("TrackRating")
 
@@ -372,19 +339,27 @@ def rateItem(session, user_id, item_id, rating=None, starred=None):
     artist_id = None
     album_id = None
     if item_id.startswith("ar-"):
-        row = ArtistRating.get(num, user_id)
+        row = session.query(ArtistRating).filter(
+            ArtistRating.artist_id == num,
+            ArtistRating.user_id == user_id).one_or_none()
         if row is None:
             row = ArtistRating(artist_id=num, user_id=user_id)
             session.add(row)
     elif item_id.startswith("al-"):
-        row = AlbumRating.get(num, user_id)
+        row = session.query(AlbumRating).filter(
+            AlbumRating.album_id == num,
+            AlbumRating.user_id == user_id).one_or_none()
         if row is None:
             row = AlbumRating(album_id=num, user_id=user_id)
             session.add(row)
             session.flush()
         artist_id = row.album.artist_id
     elif item_id.startswith("tr-"):
-        row = TrackRating.get(num, user_id)
+        print("TrackRating", num, user_id)
+        row = session.query(TrackRating).filter(
+            TrackRating.track_id == num,
+            TrackRating.user_id == user_id).one_or_none()
+        print("row", row)
         if row is None:
             row = TrackRating(track_id=num, user_id=user_id)
             session.add(row)
@@ -397,10 +372,13 @@ def rateItem(session, user_id, item_id, rating=None, starred=None):
         else:
             row.rating = rating
             row.pseudo_rating = False
+    print(row)
     if isinstance(starred, datetime.datetime):
+        print("starred", starred)
         row.starred = starred
         row.pseudo_starred = False
     elif starred is True:
+        print("starred", starred)
         row.starred = None
         row.pseudo_starred = True
     session.flush()
@@ -420,7 +398,9 @@ def updatePseudoRatings(session, user_id=None, album_id=ALL, artist_id=ALL):
 
     if albums:
         for album in albums:
-            alrating = AlbumRating.get(album.id, user_id)
+            alrating = session.query(AlbumRating).filter(
+                AlbumRating.album_id == ablum.id,
+                AlbumRating.user_id == user_id).one_or_none()
             if alrating is None:
                 alrating = AlbumRating(album_id=album.id, user_id=user_id)
                 session.add(alrating)
@@ -430,7 +410,9 @@ def updatePseudoRatings(session, user_id=None, album_id=ALL, artist_id=ALL):
             count = 0
             starred = None
             for track in tracks:
-                trating = TrackRating.get(track.id, user_id)
+                trating = session.query(TrackRating).filter(
+                    TrackRating.track_id == track.id,
+                    TrackRating.user_id == user_id).one_or_none()
                 if trating:
                     if trating.rating is not None:
                         pseudo += trating.rating
@@ -457,7 +439,9 @@ def updatePseudoRatings(session, user_id=None, album_id=ALL, artist_id=ALL):
 
     if artists:
         for artist in artists:
-            arrating = ArtistRating.get(artist.id, user_id)
+            arrating = session.query(ArtistRating).filter(
+                    ArtistRating.artist_id == artist.id,
+                    ArtistRating.user_id == user_id).one_or_none()
             if arrating is None:
                 arrating = ArtistRating(user_id=user_id, artist_id=artist.id)
                 session.add(arrating)
@@ -470,7 +454,9 @@ def updatePseudoRatings(session, user_id=None, album_id=ALL, artist_id=ALL):
             count = 0
             starred = None
             for album in albums:
-                alrating = AlbumRating.get(album.id, user_id)
+                alrating = session.query(AlbumRating).filter(
+                    AlbumRating.album_id == album.id,
+                    AlbumRating.user_id == user_id).one_or_none()
                 if alrating:
                     if alrating.rating is not None:
                         pseudo += alrating.rating
