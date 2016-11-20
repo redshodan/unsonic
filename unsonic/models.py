@@ -96,7 +96,7 @@ class User(Base, OrmObject):
                       passive_deletes=True)
     playlists = relation("PlayList", cascade="all, delete-orphan",
                          passive_deletes=True)
-
+    avatar = Column(Integer, ForeignKey("images.id", ondelete='CASCADE'))
 
     @staticmethod
     def initTable(session, config):

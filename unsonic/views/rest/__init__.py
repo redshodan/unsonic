@@ -120,12 +120,31 @@ class Command(object):
         log.debug("Response(%s): %s" % (self.name, resp.body.decode("utf-8")))
         return resp
 
+
+    def makeBinaryResp(self, binary, mimetype, md5=None):
+        resp = self.req.response
+        resp.content_type = mimetype
+        if md5:
+            resp.content_md5 = md5
+        resp.body = binary
+        return resp
+
+
     def parseParams(self):
+        mparams = self.req.params.mixed()
         for name, values in self.param_defs.items():
-            if name in self.req.params:
-                val = self.req.params[name]
+            if name in mparams:
+                val = mparams[name]
                 if "type" in values:
-                    val = values["type"](val)
+                    if "multi" in values:
+                        if not isinstance(val, list):
+                            val = [val]
+                        lval = []
+                        for v in val:
+                            lval.append(values["type"](v))
+                        val = lval
+                    else:
+                        val = values["type"](val)
                 self.params[name] = val
                 if "values" in values and val not in values["values"]:
                     raise MissingParam("Invalid type for param: %s" % name)
