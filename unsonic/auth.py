@@ -21,6 +21,7 @@ class User():
         self.roles = []
         for role in db_user.roles:
             self.roles.append(role.name)
+        self.avatar = db_user.avatar
 
 
     def isAdmin(self):
