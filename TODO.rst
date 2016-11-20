@@ -72,7 +72,6 @@ Missing
 - hls:
 - getCaptions:
 - getLyrics:
-- getAvatar:
 - getShares:
 - createShares:
 - updateShare:
