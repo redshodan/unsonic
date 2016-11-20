@@ -169,4 +169,4 @@ Partial
   resp: Needs folders
 
 - getStarred:
-  resp: Needs folders
+  resp: Needs musicFolderId
