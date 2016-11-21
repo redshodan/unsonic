@@ -152,7 +152,10 @@ class Command(object):
                 if "default" in values:
                     self.params[name] = values["default"]
                 else:
-                    self.params[name] = None
+                    if "multi" in values:
+                        self.params[name] = []
+                    else:
+                        self.params[name] = None
                 if "required" in values and values["required"]:
                     raise MissingParam(name)
 
