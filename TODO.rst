@@ -88,8 +88,6 @@ Missing
 - downloadPodcastEpisode:
 - jukeboxControl:
 - getInternetRadioStations:
-- getChatMessages:
-- addChatMessage:
 - getBookmarks:
 - createBookmark:
 - deleteBookmark:
