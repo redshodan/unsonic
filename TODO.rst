@@ -43,6 +43,8 @@ Exceptions
   a guest.
 * 'changePassword' username param is not required, will default to your own
   username if not supplied.
+* savePlayQueue: id is not required, means delete the playqueue and don't create
+  one in its place
 
 General
 -------
@@ -90,8 +92,6 @@ Missing
 - getBookmarks:
 - createBookmark:
 - deleteBookmark:
-- getPlayQueue:
-- savePlayQueue:
 
 
 Partial

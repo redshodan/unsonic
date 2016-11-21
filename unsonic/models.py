@@ -85,15 +85,24 @@ class DBInfo(Base, OrmObject):
 
 class User(Base, OrmObject):
     __tablename__ = 'un_users'
-    
+
+    # Columns    
     id = Column(Integer, primary_key=True)
     name = Column(Text, unique=True)
     password = Column(Text)
     email = Column(Text)
     maxbitrate = Column(Integer, default=0, nullable=False)
     scrobbling = Column(Boolean, default=True, nullable=False)
+    playqueue_cur = Column(Integer, ForeignKey("tracks.id"))
+    playqueue_pos = Column(Integer, default=0, nullable=False)
+    playqueue_mtime = Column(sqlalchemy.DateTime())
+    playqueue_mby = Column(Text)
+
+    # Roles
     roles = relation("Role", cascade="all, delete-orphan",
                       passive_deletes=True)
+    playqueue = relation("PlayQueue", cascade="all, delete-orphan",
+                         passive_deletes=True)
     playlists = relation("PlayList", cascade="all, delete-orphan",
                          passive_deletes=True)
     avatar = Column(Integer, ForeignKey("images.id", ondelete='CASCADE'))
@@ -125,6 +134,17 @@ class Role(Base, OrmObject):
                      nullable=False)
     name = Column(Text, nullable=False)
     user = relation("User")
+
+
+class PlayQueue(Base, OrmObject):
+    __tablename__ = "un_playqueues"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
+                     nullable=False)
+    track_id = Column(Integer, ForeignKey("tracks.id"), nullable=False)
+    user = relation("User")
+    track = relation("Track")
 
 
 ## FIXME why this? do something with it
@@ -478,5 +498,5 @@ def updatePseudoRatings(session, user_id=None, album_id=ALL, artist_id=ALL):
 
 from . import auth
 
-UN_TYPES = [DBInfo, User, Role, PlayList, PlayListUser, PlayListTrack,
+UN_TYPES = [DBInfo, User, Role, PlayQueue, PlayList, PlayListUser, PlayListTrack,
             ArtistRating, AlbumRating, TrackRating, PlayCount, Scrobble]
