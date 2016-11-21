@@ -39,10 +39,11 @@ Exceptions
 * No LDAP auth
 * No simple hex encoded passwords
 * 'search' is deprecated, not going to implement
-* You can change your own password without being an admin, as long as you're not
-  a guest.
-* 'changePassword' username param is not required, will default to your own
-  username if not supplied.
+* addChatMessage/getChatMessage not stubbed out cause its silly and a very poor API
+* changePassword:
+  * You can change your own password without being an admin, as long as you're not
+    a guest.
+  * username param is not required, will default to your own username if not supplied.
 * savePlayQueue: id is not required, means delete the playqueue and don't create
   one in its place
 
