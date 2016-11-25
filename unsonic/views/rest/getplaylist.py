@@ -15,10 +15,11 @@ class GetPlayList(Command):
     def handleReq(self, session):
         playlists = ET.Element("playlist")
         plrow = session.query(PlayList).options(subqueryload("*")). \
-                    filter(PlayList.id == self.params["id"]).all()
-        if not len(plrow):
+                    filter(PlayList.id == self.params["id"]). \
+                    filter(PlayList.user_id == self.req.authed_user.id). \
+                    one_or_none()
+        if not plrow:
             raise MissingParam("Invalid playlist id: %s" % self.params["id"])
-        plrow = plrow[0]
         
         playlist = fillPlayList(session, plrow)
         for pltrack in plrow.tracks:

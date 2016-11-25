@@ -54,6 +54,7 @@ General
   sharing urls
 * Figure out the differences between path/id3 results. Maybe union them? Prolly
   just return thing for the right kind of call
+* Older calls were never updated for newer param frameworks.
 
 Missing
 -------
@@ -71,7 +72,6 @@ Missing
 - getStarred2: id3 version
 - search3:
 - updatePlaylist:
-- deletePlaylist:
 - hls:
 - getCaptions:
 - getLyrics:

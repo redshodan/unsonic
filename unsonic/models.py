@@ -3,8 +3,8 @@ from argparse import Namespace
 from contextlib import contextmanager
 
 import sqlalchemy
-from sqlalchemy import (engine_from_config, Column, Integer, Text, ForeignKey,
-                        String, DateTime, event, Index, Boolean,
+from sqlalchemy import (engine_from_config, Table, Column, Integer, Text,
+                        ForeignKey, String, DateTime, event, Index, Boolean,
                         UniqueConstraint)
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
@@ -147,14 +147,13 @@ class PlayQueue(Base, OrmObject):
     track = relation("Track")
 
 
-## FIXME why this? do something with it
-# playlist_images = sql.Table("playlist_images", Base.metadata,
-#                             sql.Column("playlist_id", sql.Integer,
-#                                        sql.ForeignKey("un_playlist.id")),
-#                             sql.Column("img_id", sql.Integer,
-#                                        sql.ForeignKey("images.id")))
-# '''Pivot table 'album_images' for mapping an album ID to a value in the
-# `images` table.'''
+playlist_images = Table("playlist_images", Base.metadata,
+                        Column("playlist_id", Integer,
+                               ForeignKey("un_playlists.id")),
+                        Column("img_id", Integer,
+                               ForeignKey("images.id")))
+'''Pivot table 'playlist_images' for mapping a playlist ID to a value in the
+`images` table.'''
 
 class PlayList(Base, OrmObject):
     __tablename__ = 'un_playlists'
@@ -172,7 +171,7 @@ class PlayList(Base, OrmObject):
     tracks = relation("PlayListTrack", cascade="all, delete-orphan",
                       passive_deletes=True)
     owner = relation("User")
-    # images = relation("Image", secondary=playlist_images, cascade="all")
+    images = relation("Image", secondary=playlist_images, cascade="all")
     '''one-to-many playlist images.'''
 
 
