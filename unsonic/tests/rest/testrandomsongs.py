@@ -30,8 +30,7 @@ class TestRandomSongs(RestTestCase):
         self.assertEqual(count, 10)
         
     def testSized(self):
-        cmd = self.buildCmd(GetRandomSongs)
-        cmd.req.params["size"] = "2"
+        cmd = self.buildCmd(GetRandomSongs, {"size": "2"})
         resp = cmd()
         count, titles = self.validate(cmd, resp)
         self.assertEqual(count, 2)

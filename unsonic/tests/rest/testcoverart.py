@@ -11,8 +11,7 @@ from ...views.rest import Command
 
 class TestCoverArt(RestTestCase):
     def testBasic(self):
-        cmd = self.buildCmd(GetCoverArt)
-        cmd.req.params["id"] = "al-1"
+        cmd = self.buildCmd(GetCoverArt, {"id": "al-1"})
         resp = cmd()
         path = os.path.join(list(mash.getPaths(cmd.settings).values())[0],
                             "artist1/ar1al1/cover-back.png")

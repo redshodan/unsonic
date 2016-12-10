@@ -11,8 +11,7 @@ from ...views.rest import Command
 class TestMusicDirectory(RestTestCase):
     def testArtistOneAlbum(self):
         aid = "ar-4"
-        cmd = self.buildCmd(GetMusicDirectory)
-        cmd.req.params["id"] = aid
+        cmd = self.buildCmd(GetMusicDirectory, {"id": aid})
         resp = cmd()
         sub_resp = self.checkResp(cmd.req, resp)
         directory = sub_resp.find("{http://subsonic.org/restapi}directory")
@@ -28,8 +27,7 @@ class TestMusicDirectory(RestTestCase):
 
     def testArtistNoAlbums(self):
         aid = "ar-2"
-        cmd = self.buildCmd(GetMusicDirectory)
-        cmd.req.params["id"] = aid
+        cmd = self.buildCmd(GetMusicDirectory, {"id": aid})
         resp = cmd()
         sub_resp = self.checkResp(cmd.req, resp)
         directory = sub_resp.find("{http://subsonic.org/restapi}directory")
@@ -42,8 +40,7 @@ class TestMusicDirectory(RestTestCase):
 
     def testAlbum(self):
         aid = "al-1"
-        cmd = self.buildCmd(GetMusicDirectory)
-        cmd.req.params["id"] = aid
+        cmd = self.buildCmd(GetMusicDirectory, {"id": aid})
         resp = cmd()
         sub_resp = self.checkResp(cmd.req, resp)
         directory = sub_resp.find("{http://subsonic.org/restapi}directory")
@@ -60,20 +57,17 @@ class TestMusicDirectory(RestTestCase):
             self.assertEqual(child.get("parent"), directory.get("id"))
 
     def testArtistNotFound(self):
-        cmd = self.buildCmd(GetMusicDirectory)
-        cmd.req.params["id"] = "ar-1000000000000"
+        cmd = self.buildCmd(GetMusicDirectory, {"id": "ar-1000000000000"})
         resp = cmd()
         self.checkResp(cmd.req, resp, Command.E_NOT_FOUND)
 
     def testAlbumNotFound(self):
-        cmd = self.buildCmd(GetMusicDirectory)
-        cmd.req.params["id"] = "al-1000000000000"
+        cmd = self.buildCmd(GetMusicDirectory, {"id": "ar-1000000000000"})
         resp = cmd()
         self.checkResp(cmd.req, resp, Command.E_NOT_FOUND)
             
     def testBadID(self):
-        cmd = self.buildCmd(GetMusicDirectory)
-        cmd.req.params["id"] = "foobar"
+        cmd = self.buildCmd(GetMusicDirectory, {"id": "foobar"})
         resp = cmd()
         self.checkResp(cmd.req, resp, Command.E_MISSING_PARAM)
 

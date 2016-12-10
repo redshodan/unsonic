@@ -10,8 +10,7 @@ from ...views.rest import Command
 
 class TestStream(RestTestCase):
     def testBasic(self):
-        cmd = self.buildCmd(Stream)
-        cmd.req.params["id"] = "tr-1"
+        cmd = self.buildCmd(Stream, {"id": "tr-1"})
         resp = cmd()
         with Session() as session:
             row = session.query(Track).filter(Track.id == 1).all()[0]

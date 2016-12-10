@@ -23,45 +23,36 @@ class TestAlbumList(RestTestCase):
         return count, titles
         
     def testRandom(self):
-        cmd = self.buildCmd(GetAlbumList)
-        cmd.req.params["type"] = "random"
+        cmd = self.buildCmd(GetAlbumList, {"type": "random"})
         resp = cmd()
         count1, titles1 = self.validate(cmd, resp)
         
     def testSized(self):
-        cmd = self.buildCmd(GetAlbumList)
-        cmd.req.params["type"] = "random"
-        cmd.req.params["size"] = "2"
+        cmd = self.buildCmd(GetAlbumList, {"type": "random", "size": "2"})
         resp = cmd()
         count, titles = self.validate(cmd, resp)
         self.assertEqual(count, 2)
 
     def testOffset(self):
-        cmd = self.buildCmd(GetAlbumList)
-        cmd.req.params["type"] = "random"
-        cmd.req.params["size"] = "3"
-        cmd.req.params["offset"] = "1"
+        cmd = self.buildCmd(GetAlbumList, {"type": "random", "size": "3",
+                                           "offset": "1"})
         resp = cmd()
         count, titles = self.validate(cmd, resp)
         self.assertEqual(count, 2)
         
     def testOffset2(self):
-        cmd = self.buildCmd(GetAlbumList)
-        cmd.req.params["type"] = "random"
-        cmd.req.params["size"] = "3"
-        cmd.req.params["offset"] = "2"
+        cmd = self.buildCmd(GetAlbumList, {"type": "random", "size": "3",
+                                           "offset": "2"})
         resp = cmd()
         count, titles = self.validate(cmd, resp)
         self.assertEqual(count, 1)
 
     def testNewest(self):
-        cmd = self.buildCmd(GetAlbumList)
-        cmd.req.params["type"] = "newest"
+        cmd = self.buildCmd(GetAlbumList, {"type": "newest"})
         resp = cmd()
         count1, titles1 = self.validate(cmd, resp)
             
-        cmd = self.buildCmd(GetAlbumList)
-        cmd.req.params["type"] = "newest"
+        cmd = self.buildCmd(GetAlbumList, {"type": "newest"})
         resp = cmd()
         count2, titles2 = self.validate(cmd, resp)
             
