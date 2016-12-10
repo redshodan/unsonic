@@ -2,6 +2,7 @@ import os, shutil, unittest
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+from webob.multidict import MultiDict, NestedMultiDict
 from pyramid import testing
 
 from ... import dbMain, models
@@ -15,9 +16,13 @@ class RestTestCase(unittest.TestCase):
     def tearDown(self):
         testing.tearDown()
 
-    def buildCmd(self, klass, req=None):
+    def buildCmd(self, klass, params={}):
         request = testing.DummyRequest()
         request.context = testing.DummyResource()
+        md = MultiDict()
+        for key, val in params.items():
+            md.add(key, val)
+        request.params = NestedMultiDict(md)
         with models.Session() as session:
             request.authed_user = models.getUserByName(session, "test")
         cmd = klass(request)

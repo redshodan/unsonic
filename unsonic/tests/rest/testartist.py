@@ -11,8 +11,7 @@ from ...views.rest import Command
 class TestArtist(RestTestCase):
     def testNoAlbums(self):
         aid = "ar-1"
-        cmd = self.buildCmd(GetArtist)
-        cmd.req.params["id"] = aid
+        cmd = self.buildCmd(GetArtist, {"id": aid})
         resp = cmd()
         sub_resp = self.checkResp(cmd.req, resp)
         artist = sub_resp.find("{http://subsonic.org/restapi}artist")
@@ -20,8 +19,7 @@ class TestArtist(RestTestCase):
 
     def testTwoAlbums(self):
         aid = "ar-6"
-        cmd = self.buildCmd(GetArtist)
-        cmd.req.params["id"] = aid
+        cmd = self.buildCmd(GetArtist, {"id": aid})
         resp = cmd()
         sub_resp = self.checkResp(cmd.req, resp)
         artist = sub_resp.find("{http://subsonic.org/restapi}artist")
@@ -34,14 +32,12 @@ class TestArtist(RestTestCase):
             self.assertTrue(int(album.get("duration")) >= 0)
 
     def testNotFound(self):
-        cmd = self.buildCmd(GetArtist)
-        cmd.req.params["id"] = "ar-1000000000000"
+        cmd = self.buildCmd(GetArtist, {"id": "ar-1000000000000"})
         resp = cmd()
         self.checkResp(cmd.req, resp, Command.E_NOT_FOUND)
 
     def testBadID(self):
-        cmd = self.buildCmd(GetArtist)
-        cmd.req.params["id"] = "foobar"
+        cmd = self.buildCmd(GetArtist, {"id": "foobar"})
         resp = cmd()
         self.checkResp(cmd.req, resp, Command.E_MISSING_PARAM)
 

@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 
 from . import (Command, addCmd, InternalError, MissingParam, track_t,
-               bool_t, positive_t)
+               bool_t, positive_t, playlist_t)
 from ...models import Session, PlayList, PlayListTrack, Track
 
 
@@ -42,4 +42,4 @@ class UpdatePlayList(Command):
         return self.makeResp()
 
 
-addCmd(CreatePlayList)
+addCmd(UpdatePlayList)
