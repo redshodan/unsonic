@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 
 from sqlalchemy.orm import subqueryload
 
-from . import Command, addCmd, fillPlayList, InternalError
+from . import Command, addCmd, fillPlayList, InternalError, NoPerm
 from ...models import Session, PlayList, PlayListTrack, PlayListUser
 
 
@@ -13,18 +13,18 @@ class GetPlayLists(Command):
 
     
     def handleReq(self, session):
-        username = self.params["username"]
-        if username:
-            other_user = getUser(username)
-            if not other_user:
-                raise MissingParam("Invalid username")
+        if (not self.params["username"] or
+            self.req.authed_user.name == self.params["username"]):
+            db_user = self.req.authed_user
+        elif self.req.authed_user.isAdmin():
+            db_user = getUserByName(session, self.params["username"])
         else:
-            other_user = None
+            raise NoPerm("Can not view another user's playlists unless you "
+                         "are an admin")
 
         playlists = ET.Element("playlists")
         for plrow in session.query(PlayList).options(subqueryload("*")). \
-                         filter(PlayList.user_id ==
-                                self.req.authed_user.id).all():
+                             filter(PlayList.user_id == db_user.id).all():
             playlist = fillPlayList(session, plrow)
             playlists.append(playlist)
 
