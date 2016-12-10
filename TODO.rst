@@ -141,12 +141,6 @@ Partial
 - search2:
   params: musicFolderId
 
-- getPlayLists:
-  resp: missing allowedUser
-
-- getPlayList:
-  resp: missing allowedUser
-
 - createPlaylist:
   resp: Since 1.14.0 the newly created/updated playlist is returned. In earlier versions an empty <subsonic-response> element is returned.
 
