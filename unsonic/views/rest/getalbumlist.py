@@ -1,7 +1,10 @@
 import xml.etree.ElementTree as ET
 
+from sqlalchemy import and_
 from sqlalchemy.orm import subqueryload
 from sqlalchemy.sql.expression import func as dbfunc
+
+from eyed3.core import Date as Eyed3Date
 
 from . import (Command, MissingParam, addCmd, fillAlbum, fillAlbumUser,
                fillArtist, fillTrack)
@@ -14,10 +17,13 @@ class GetAlbumList(Command):
     param_defs = {
         "size": {"default": 10, "type": int},
         "offset": {"default": 0, "type": int},
+        "fromYear": {"type": int},
+        "toYear": {"type": int},
+        "genre": {},
         "type": {"required": True,
                  "values": ["alphabeticalByName", "alphabeticalByArtist",
                             "frequent", "highest", "newest", "random",
-                            "recent", "starred",]},
+                            "recent", "starred", "byYear", "byGenre",]},
         }
     dbsess = True
 
@@ -134,6 +140,29 @@ class GetAlbumList(Command):
                              offset(offset). \
                              limit(limit)
                 self.processRows(session, alist, artist.albums)
+        elif self.params["type"] == "byYear":
+            if self.params["fromYear"] > self.params["toYear"]:
+                desc = True
+                to_year = Eyed3Date(year=self.params["fromYear"], month=12,
+                                      day=31)
+                from_year = Eyed3Date(year=self.params["toYear"], month=1, day=1)
+            else:
+                desc = False
+                from_year = Eyed3Date(year=self.params["fromYear"], month=1,
+                                      day=1)
+                to_year = Eyed3Date(year=self.params["toYear"], month=12, day=31)
+            results = []
+            for date_row in [Album.original_release_date, Album.release_date,
+                             Album.recording_date]:
+                res = session.query(Album). \
+                          options(subqueryload("*")). \
+                          filter(and_(date_row >= from_year,
+                                      date_row <= to_year)). \
+                          offset(offset). \
+                          limit(limit)
+                results.extend(res.all())
+            results.sort(key=lambda x: x.getBestDate(), reverse=desc)
+            self.processRows(session, alist, results)
         else:
             # FIXME: Implement the rest once play tracking is done
             raise MissingParam("Unsupported type")

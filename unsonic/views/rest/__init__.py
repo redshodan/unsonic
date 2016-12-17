@@ -264,14 +264,8 @@ def fillAlbum(session, row, name="album"):
     if row.artist:
         album.set("parent", "ar-%s" % row.artist.id)
     fillCoverArt(session, row, album, "al")
-    if row.release_date:
-        release = []
-        for c in row.release_date:
-            if c.isdigit():
-                release.append(c)
-            else:
-                break
-        album.set("created", "".join(release))
+    if row.getBestDate():
+        album.set("created", str(row.getBestDate()))
     if row.artist and row.artist.name:
         album.set("artist", row.artist.name)
         album.set("artistId", "ar-%d" % row.artist.id)
@@ -306,14 +300,8 @@ def fillTrack(session, row, name="song"):
     song.set("artist", artist_name)
     if row.track_num:
         song.set("track", str(row.track_num))
-    if row.album and row.album.release_date:
-        year = []
-        for c in row.album.release_date:
-            if c.isdigit():
-                year.append(c)
-            else:
-                break
-        song.set("year", "".join(year))
+    if row.album and row.album.getBestDate():
+        song.set("year", row.album.getBestDate().year)
     # if row.genre_id is not None:
     #     song.set("genre", row.genre.name)
     if row.album is not None:
