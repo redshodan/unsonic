@@ -70,7 +70,6 @@ Missing
 - getSongsByGenre:
 - getNowPlaying:
 - getStarred2: id3 version
-- search3:
 - hls:
 - getCaptions:
 - getLyrics:
@@ -124,9 +123,7 @@ Partial
   - missing covertArt
 
 - getAlbumList:
-  params: type is missing byYear, byGenre
-          fromYear
-          toYear
+  params: type is missing byGenre
           genre
           musicFolderId
   resp:
@@ -138,6 +135,9 @@ Partial
           musicFolderId
 
 - search2:
+  params: musicFolderId
+
+- search3:
   params: musicFolderId
 
 - stream:
