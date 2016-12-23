@@ -1,10 +1,5 @@
-import time
-import xml.etree.ElementTree as ET
-
 from . search2 import Search2
-from . import (Command, addCmd, bool_t, positive_t, fillArtist, fillAlbum,
-               fillTrack)
-from ...models import Session, Artist, Album, Track
+from . import addCmd
 
 
 class Search3(Search2):
