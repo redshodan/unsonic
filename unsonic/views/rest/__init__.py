@@ -301,7 +301,7 @@ def fillTrack(session, row, name="song"):
     if row.track_num:
         song.set("track", str(row.track_num))
     if row.album and row.album.getBestDate():
-        song.set("year", row.album.getBestDate().year)
+        song.set("year", str(row.album.getBestDate().year))
     # if row.genre_id is not None:
     #     song.set("genre", row.genre.name)
     if row.album is not None:
