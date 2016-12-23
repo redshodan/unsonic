@@ -402,7 +402,7 @@ def rateItem(session, user_id, item_id, rating=None, starred=None):
         row.pseudo_starred = True
     session.flush()
     if artist_id or album_id:
-        updatePseudoRatings(user_id=user_id, album_id=album_id,
+        updatePseudoRatings(session=session, user_id=user_id, album_id=album_id,
                             artist_id=artist_id)
 
 

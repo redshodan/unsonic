@@ -69,7 +69,6 @@ Missing
 - getTopSongs: Returns top songs for the given artist, using data from last.fm.
 - getSongsByGenre:
 - getNowPlaying:
-- getStarred2: id3 version
 - hls:
 - getCaptions:
 - getLyrics:

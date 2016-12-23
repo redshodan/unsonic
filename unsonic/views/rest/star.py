@@ -9,7 +9,7 @@ class Star(Command):
     name = "star.view"
     param_defs = {
         "id": {"type":playable_id_t},
-        "ablumId": {"type":playable_id_t},
+        "albumId": {"type":playable_id_t},
         "artistId": {"type":playable_id_t},
         }
     dbsess = True
