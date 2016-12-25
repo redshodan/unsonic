@@ -101,19 +101,6 @@ Partial
     <shortcut id="11" name="Audio books"/>
     <shortcut id="10" name="Podcasts"/>
 
-- getGenres: No genre table to query against, maybe was part of mishmash before?
-  <subsonic-response xmlns="http://subsonic.org/restapi" status="ok" version="1.10.2">
-    <genres>
-      <genre songCount="28" albumCount="6">Electronic</genre>
-      <genre songCount="6" albumCount="2">Hard Rock</genre>
-      <genre songCount="8" albumCount="2">R&B</genre>
-      <genre songCount="22" albumCount="2">Blues</genre>
-      <genre songCount="2" albumCount="2">Podcast</genre>
-      <genre songCount="11" albumCount="1">Brit Pop</genre>
-      <genre songCount="14" albumCount="1">Live</genre>
-    </genres>
-  </subsonic-response>
-
 - getArtists:
   params: musicFolderId
   resp:
@@ -121,6 +108,10 @@ Partial
     <artists ignoredArticles="The El La Los Las Le Les">
   - missing covertArt
 
+- getArtist:
+  resp:
+  - handle playCount for album
+    
 - getAlbumList:
   params: type is missing byGenre
           genre

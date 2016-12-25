@@ -18,4 +18,3 @@ class TestIndexes(RestTestCase):
                 self.assertTrue(artist.get("id").startswith("ar-"))
                 self.assertTrue(len(artist.get("name")) > 0)
                 self.assertEqual(artist.get("name")[0].upper(), index_name)
-                self.assertTrue(int(artist.get("albumCount")) >= 0)

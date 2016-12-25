@@ -14,6 +14,8 @@ class GetArtists(Command):
     
     def handleReq(self, session):
         artists = ET.Element("artists")
+        # TODO: find the actual ignored articles
+        artists.set("ignoredArticles", "")
         index_group = None
         for row in session.query(Artist).options(subqueryload("*")). \
           order_by(Artist.sort_name).all():

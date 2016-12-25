@@ -22,7 +22,8 @@ class UpdatePlayList(Command):
         plist = session.query(PlayList).filter(
             PlayList.id == self.params["playlistId"]).one_or_none()
         if plist is None:
-            raise MissingParam("Invalid playlistId: pl-%s" % sid)
+            raise MissingParam("Invalid playlistId: pl-%s" %
+                               self.params["playlistId"])
 
         if self.params["name"]:
             plist.name = self.params["name"]
@@ -55,6 +56,8 @@ class UpdatePlayList(Command):
                                     playlist_id = plist.id)
             session.add(pltrack)
 
+        plist.changed = plist.changed.now()
+        
         return self.makeResp()
 
 

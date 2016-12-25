@@ -19,10 +19,11 @@ class GetIndexes(Command):
         # TODO: handle params
         indexes = ET.Element("indexes")
         index_group = None
-        for row in session.query(Meta):
-            indexes.set("lastModified",
-                        str(int(row.last_sync.timestamp() * 1000)))
-            break
+        row = session.query(Meta).one_or_none()
+        indexes.set("lastModified",
+                    str(int(row.last_sync.timestamp() * 1000)))
+        # TODO: find the actual ignored articles
+        indexes.set("ignoredArticles", "")
         rows = session.query(Artist).options(subqueryload("*")).\
             options(subqueryload("*")).order_by(Artist.sort_name).all()
         for row in rows:
@@ -38,10 +39,12 @@ class GetIndexes(Command):
             for artist in index:
                 count = 0
                 artist_id = int(artist.get("id")[3:])
-                for album in session.query(Album).options(subqueryload("*")).\
-                    filter(Album.artist_id == artist_id).all():
-                    count = count + 1
-                artist.set("albumCount", str(count))
+                # TODO: albumCount is not in the XSD for this non-ID3 call.
+                #       Why did I add it?
+                # for album in session.query(Album).options(subqueryload("*")).\
+                #     filter(Album.artist_id == artist_id).all():
+                #     count = count + 1
+                # artist.set("albumCount", str(count))
         return self.makeResp(child=indexes)
 
 
