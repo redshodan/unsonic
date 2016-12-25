@@ -1,3 +1,5 @@
+import time
+from datetime import datetime
 import xml.etree.ElementTree as ET
 
 from . import Command, addCmd
@@ -11,8 +13,8 @@ class GetLicense(Command):
         license = ET.Element("license")
         license.set("valid", "true")
         license.set("email", "foo@bar.com")
-        license.set("key", "0" * 32)
-        license.set("date", "2013-07-21T21:08:04")
+        now = datetime.fromtimestamp(time.time() + 31536000)
+        license.set("licenseExpires", now.isoformat())
         return self.makeResp(child=license)
         
         

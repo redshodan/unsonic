@@ -1,13 +1,16 @@
 import os, types, json, xmltodict
+from datetime import datetime
 import xml.etree.ElementTree as ET
 
 from pyramid.security import Allow, Authenticated, DENY_ALL
+
+from sqlalchemy.orm import subqueryload
 
 from eyed3.core import Date as Eyed3Date
 
 from ...log import log
 from ...version import VERSION, PROTOCOL_VERSION, UNSONIC_PROTOCOL_VERSION
-from ...models import Session, ArtistRating, AlbumRating, TrackRating
+from ...models import Session, ArtistRating, AlbumRating, TrackRating, Track
 from ...auth import Roles
 
 
@@ -227,6 +230,18 @@ def bitrate_t(value):
                            value)
 
 
+def strDate(d):
+    if isinstance(d, Eyed3Date):
+        return datetime(d.year if d.year else 0,
+                        d.month if d.month else 0,
+                        d.day if d.day else 0,
+                        d.hour if d.hour else 0,
+                        d.minute if d.minute else 0,
+                        d.second if d.second else 0).isoformat()
+    else:
+        return d.isoformat()
+
+
 ### Utilities for wrangling data into xml form
 def fillCoverArt(session, row, elem, name):
     if row.images is not None and len(row.images) > 0:
@@ -265,7 +280,7 @@ def fillAlbum(session, row, name="album"):
         album.set("parent", "ar-%s" % row.artist.id)
     fillCoverArt(session, row, album, "al")
     if row.getBestDate():
-        album.set("created", str(row.getBestDate()))
+        album.set("created", strDate(row.getBestDate()))
     if row.artist and row.artist.name:
         album.set("artist", row.artist.name)
         album.set("artistId", "ar-%d" % row.artist.id)
@@ -279,6 +294,34 @@ def fillAlbumUser(session, album_row, rating_row, user, name="album"):
                                 AlbumRating.user_id == user.id).one_or_none()
     if rating_row and rating_row.starred and not rating_row.pseudo_starred:
         album.set("starred", rating_row.starred.isoformat())
+    return album
+
+def fillAlbumID3(session, row, user, append_tracks):
+    album = ET.Element("album")
+    album.set("id", "al-%d" % row.id)
+    album.set("name", row.title)
+    fillCoverArt(session, row, album, "al")
+    if row.getBestDate():
+        album.set("created", strDate(row.getBestDate()))
+    if row.artist and row.artist.name:
+        album.set("artist", row.artist.name)
+        album.set("artistId", "ar-%d" % row.artist.id)
+    if row.getBestDate():
+        album.set("year", str(row.getBestDate().year))
+    # TODO: what if more than one tag/genre? What to prefer?
+    if len(row.tags):
+        album.set("genre", row.tags[0].name)
+    track_count = 0
+    duration = 0
+    for row in session.query(Track).options(subqueryload("*")).filter(
+            Track.album_id == row.id).all():
+        track_count += 1
+        duration = duration + row.time_secs
+        if append_tracks:
+            track = fillTrackUser(session, row, None, user)
+            album.append(track)
+    album.set("songCount", str(track_count))
+    album.set("duration", str(duration))
     return album
 
 def fillTrack(session, row, name="song"):
@@ -302,8 +345,9 @@ def fillTrack(session, row, name="song"):
         song.set("track", str(row.track_num))
     if row.album and row.album.getBestDate():
         song.set("year", str(row.album.getBestDate().year))
-    # if row.genre_id is not None:
-    #     song.set("genre", row.genre.name)
+    # TODO: what if more than one tag/genre? What to prefer?
+    if len(row.tags):
+        song.set("genre", row.tags[0].name)
     if row.album is not None:
         fillCoverArt(session, row.album, song, "al")
     song.set("size", str(row.size_bytes))
@@ -332,6 +376,10 @@ def fillTrackUser(session, song_row, rating_row, user, name="song"):
         song.set("starred", rating_row.starred.isoformat())
     return song
 
+def fillTrackID3(session, row, user):
+    track = ET.Element("song")
+    return track
+
 def fillPlayList(session, row):
     playlist = ET.Element("playlist")
     playlist.set("id", "pl-%d" % row.id)
@@ -340,6 +388,7 @@ def fillPlayList(session, row):
     playlist.set("owner", row.owner.name)
     playlist.set("public", "true" if row.public else "false")
     playlist.set("created", row.created.isoformat())
+    playlist.set("changed", row.changed.isoformat())
     # FIXME: Join/walk the artist/album/track for art
     fillCoverArt(session, row, playlist, "pl")
 

@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 from sqlalchemy.orm import subqueryload
 from sqlalchemy.orm.exc import NoResultFound
 
-from . import (Command, addCmd, InternalError, MissingParam, NoPerm,
+from . import (Command, addCmd, InternalError, MissingParam, NoPerm, strDate,
                positive_t, track_t, fillTrackUser)
 from ...models import User, PlayQueue
 
@@ -22,10 +22,10 @@ class GetPlayQueue(Command):
         playq = ET.Element("playQueue")
         playq.set("username", user.name)
         if user.playqueue_cur:
-            playq.set("current", user.playqueue_cur)
+            playq.set("current", str(user.playqueue_cur))
         if user.playqueue_pos:
-            playq.set("position", user.playqueue_pos)
-        playq.set("changed", str(user.playqueue_mtime))
+            playq.set("position", str(user.playqueue_pos))
+        playq.set("changed", strDate(user.playqueue_mtime))
         playq.set("changedBy", user.playqueue_mby)
 
         for pq in user.playqueue:

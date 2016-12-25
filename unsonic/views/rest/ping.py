@@ -6,7 +6,7 @@ class Ping(Command):
     param_defs = {}
 
     def handleReq(self):
-        return self.makeResp({"name":"unsonic"})
+        return self.makeResp()
 
 
 addCmd(Ping)

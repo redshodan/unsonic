@@ -47,17 +47,17 @@ class Roles(object):
     DOWNLOAD = "download"
     UPLOAD = "upload"
     PLAYLIST = "playlist"
-    COVERART = "coverart"
+    COVERART = "coverArt"
     COMMENT = "comment"
     PODCAST = "podcast"
     STREAM = "stream"
     JUKEBOX = "jukebox"
     SHARE = "share"
-    VIDEOCONVERSION = "videoconversion"
+    VIDEOCONVERSION = "videoConversion"
 
     # Role groups
-    subsonic_roles = [ADMIN, SETTINGS, DOWNLOAD, PLAYLIST, COVERART, COMMENT,
-                      PODCAST, STREAM, JUKEBOX, SHARE, VIDEOCONVERSION]
+    subsonic_roles = [ADMIN, SETTINGS, DOWNLOAD, UPLOAD, PLAYLIST, COVERART,
+                      COMMENT, PODCAST, STREAM, JUKEBOX, SHARE, VIDEOCONVERSION]
     admin_roles = [ADMIN, USERS, REST, SETTINGS, DOWNLOAD, PLAYLIST, COVERART,
                    COMMENT, PODCAST, STREAM, JUKEBOX, SHARE, VIDEOCONVERSION]
     def_user_roles = [USERS, REST, DOWNLOAD, PLAYLIST, COVERART, COMMENT,

@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+
+import sys, os, tempfile
+
+
+root = "http://0.0.0.0:6543/rest"
+auth = "u=test&t=c06db68e819be6ec3d26c6038d8e8d1f&s=12345"
+
+action = sys.argv[1]
+outfile = tempfile.NamedTemporaryFile()
+
+cmd = "wget --quiet -O %s '%s/%s.view?%s" % (outfile.name, root, action, auth)
+
+for arg in sys.argv[2:]:
+    cmd += "&" + arg
+cmd += "'"
+
+print(cmd)
+os.system(cmd)
+os.system("xmllint --format --schema xsd/unsonic-subsonic-api.xsd %s" %
+          outfile.name)

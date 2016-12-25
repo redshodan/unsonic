@@ -27,6 +27,14 @@ class GetAlbumList(Command):
         }
     dbsess = True
 
+    def __init__(self, req):
+        super().__init__(req)
+        self.setParams()
+
+
+    def setParams(self, list_param="albumList"):
+        self.list_param = list_param
+
 
     def processRows(self, session, alist, result):
         for row in result:
@@ -41,7 +49,7 @@ class GetAlbumList(Command):
 
 
     def handleReq(self, session):
-        alist = ET.Element("albumList")
+        alist = ET.Element(self.list_param)
         size = self.params["size"]
         offset = self.params["offset"]
         limit = offset + size

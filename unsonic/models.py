@@ -13,8 +13,8 @@ from sqlalchemy.orm import scoped_session, sessionmaker, relation
 from sqlalchemy.orm.exc import NoResultFound
 
 import mishmash.orm
-from mishmash.orm import (Base, Artist, Album, Meta, Track, Image,
-                          artist_images, album_images)
+from mishmash.orm import (Base, Artist, Album, Meta, Track, Image, Tag,
+                          artist_images, album_images, track_tags)
 from mishmash.orm import TYPES as MASH_TYPES
 from mishmash.database import init as dbinit
 
@@ -165,6 +165,8 @@ class PlayList(Base, OrmObject):
     comment = Column(Text)
     public = Column(Integer, default=0)
     created = sqlalchemy.Column(sqlalchemy.DateTime(), nullable=False,
+                         default=datetime.datetime.now)
+    changed = sqlalchemy.Column(sqlalchemy.DateTime(), nullable=False,
                          default=datetime.datetime.now)
     users = relation("PlayListUser", cascade="all, delete-orphan",
                      passive_deletes=True)

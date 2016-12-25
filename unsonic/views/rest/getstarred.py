@@ -15,13 +15,8 @@ class GetStarred(Command):
     dbsess = True
 
 
-    def __init__(self, req):
-        super().__init__(req)
-        self.starred = "starred"
-
-
     def handleReq(self, session):
-        starred = ET.Element(self.starred)
+        starred = ET.Element("starred")
         
         # Artists
         for row in session.query(ArtistRating).options(subqueryload("*")). \
