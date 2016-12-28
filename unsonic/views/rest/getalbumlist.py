@@ -44,8 +44,6 @@ class GetAlbumList(Command):
                 album.set("parent", "ar-%d" % row.artist.id)
             else:
                 album.set("parent", "UNKNOWN")
-            album.set("title", album.get("name"))
-            album.set("isDir", "true")
 
 
     def handleReq(self, session):

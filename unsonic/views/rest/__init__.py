@@ -272,15 +272,14 @@ def fillArtistUser(session, artist_row, rating_row, user, name="artist"):
 def fillAlbum(session, row, name="album"):
     album = ET.Element(name)
     album.set("id", "al-%d" % row.id)
-    album.set("name", row.title)
     album.set("album", row.title)
     album.set("title", row.title)
     album.set("isDir", "true")
     if row.artist:
         album.set("parent", "ar-%s" % row.artist.id)
     fillCoverArt(session, row, album, "al")
-    if row.getBestDate():
-        album.set("created", strDate(row.getBestDate()))
+    if row.date_added:
+        album.set("created", strDate(row.date_added))
     if row.artist and row.artist.name:
         album.set("artist", row.artist.name)
         album.set("artistId", "ar-%d" % row.artist.id)
@@ -301,8 +300,8 @@ def fillAlbumID3(session, row, user, append_tracks):
     album.set("id", "al-%d" % row.id)
     album.set("name", row.title)
     fillCoverArt(session, row, album, "al")
-    if row.getBestDate():
-        album.set("created", strDate(row.getBestDate()))
+    if row.date_added:
+        album.set("created", strDate(row.date_added))
     if row.artist and row.artist.name:
         album.set("artist", row.artist.name)
         album.set("artistId", "ar-%d" % row.artist.id)
