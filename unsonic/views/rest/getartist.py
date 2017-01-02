@@ -23,9 +23,11 @@ class GetArtist(Command):
         for row in session.query(Album).options(subqueryload("*")).filter(
                 Album.artist_id == self.params["id"]).all():
             album_count += 1
-            album = fillAlbumID3(session, row, self.req.authed_user)
+            album = fillAlbumID3(session, row, self.req.authed_user, False)
             artist.append(album)
         for album in artist:
+            if album.tag != "album":
+                continue
             song_count = 0
             duration = 0
             for row in session.query(Track).options(subqueryload("*")).filter(

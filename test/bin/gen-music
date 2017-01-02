@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import os, sys
-from collections import ChainMap
 
 
 TTS = "pico2wave -w %s '%s'"
@@ -38,8 +37,8 @@ TRACKS = \
     [{ARTIST: "artist 3"},
         [{TITLE: "single 1"}, {TITLE:"single 2"}]],
 
-    # Artist 3, no album, two singles
-    [{ARTIST: "artist 3"},
+    # Artist single-only, no album, two singles
+    [{ARTIST: "artist singles-only"},
         [{TITLE: "single 1"}, {TITLE:"single 2"}]],
 
     # Collection 1, 3 artists
@@ -49,7 +48,7 @@ TRACKS = \
          {ARTIST: "artist 3", TITLE: "song 3"}]],
 
     # Collection 2, 5 artists
-    [{ALBUM: "collection 1"},
+    [{ALBUM: "collection 2"},
         [{ARTIST: "artist 1", TITLE: "song 1"},
          {ARTIST: "artist 2", TITLE: "song 2"},
          {ARTIST: "artist 3", TITLE: "song 3"},

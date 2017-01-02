@@ -18,7 +18,7 @@ class TestArtist(RestTestCase):
         self.assertEqual(artist.get("id"), aid)
 
     def testTwoAlbums(self):
-        aid = "ar-6"
+        aid = "ar-2"
         cmd = self.buildCmd(GetArtist, {"id": aid})
         resp = cmd()
         sub_resp = self.checkResp(cmd.req, resp)
