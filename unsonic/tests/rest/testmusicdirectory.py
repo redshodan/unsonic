@@ -39,7 +39,7 @@ class TestMusicDirectory(RestTestCase):
         self.assertTrue(child.get("id").startswith("tr-"))
 
     def testAlbum(self):
-        aid = "al-1"
+        aid = "al-3"
         cmd = self.buildCmd(GetMusicDirectory, {"id": aid})
         resp = cmd()
         sub_resp = self.checkResp(cmd.req, resp)

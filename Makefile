@@ -89,7 +89,7 @@ up:
         (echo; cd $${dir}; hg up); done
 
 tests: tests-clean
-	PYTHONPATH=external/mishmash $(PYTHON) setup.py test
+	PYTHONPATH=external/mishmash $(PYTHON) setup.py test $(FTF)
 
 clean:
 	find unsonic external -name '*.pyc' | xargs rm -f
