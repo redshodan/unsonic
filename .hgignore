@@ -1,5 +1,5 @@
 ^bin/unsonic$
-^bin/unsonic-db$
+^bin/unsonic-server$
 ^build/.*$
 .*\.pyc$
 ^unsonic.egg-info/.*$

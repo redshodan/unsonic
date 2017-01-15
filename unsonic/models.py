@@ -1,4 +1,4 @@
-import datetime, argparse
+import os, datetime, argparse
 from argparse import Namespace
 from contextlib import contextmanager
 
@@ -288,10 +288,18 @@ Track.scrobbles = relation("Scrobble")
 
 ### Utility functions
 def init(settings, webapp):
-    from . import mash
     global db_url, db_engine, session_maker
+    settings["sqlalchemy.url"] = web.CONFIG.get("mishmash", "sqlalchemy.url")
+    settings["sqlalchemy.convert_unicode"] = \
+        web.CONFIG.get("mishmash", "sqlalchemy.convert_unicode")
+    settings["sqlalchemy.encoding"] = web.CONFIG.get("mishmash",
+                                                     "sqlalchemy.encoding")
     db_url = settings["sqlalchemy.url"]
-    db_engine, session_maker = dbinit(mash.mashConfig(settings))
+    config = Namespace()
+    config.db_url = db_url
+    config.various_artists_name = web.CONFIG.get("mishmash",
+                                                 "various_artists_name")
+    db_engine, session_maker = dbinit(config)
 
 
 def load():
@@ -299,6 +307,24 @@ def load():
         for table in UN_TYPES:
             table.loadTable(session)
 
+
+def asdict(value):
+    ret = {}
+    for line in [x.strip() for x in value.splitlines()]:
+        if len(line):
+            key, val = line.split(":")
+            ret[key.strip()] = val.strip()
+    return ret            
+
+
+def getMashPaths(settings):
+    paths = asdict(web.CONFIG.get("mishmash", "paths"))
+    for key in list(paths.keys()):
+        paths[key] = os.path.expandvars(os.path.expanduser(paths[key]))
+    return paths
+
+
+# Table utilities
 
 def addUser(session, username, password, roles):
     try:
@@ -491,7 +517,8 @@ def updatePseudoRatings(session, user_id=None, album_id=ALL, artist_id=ALL):
                 arrating.pseudo_starred = True
 
 
-from . import auth
+from . import auth, web
+
 
 UN_TYPES = [DBInfo, User, Role, PlayQueue, PlayList, PlayListUser, PlayListTrack,
             ArtistRating, AlbumRating, TrackRating, PlayCount, Scrobble]

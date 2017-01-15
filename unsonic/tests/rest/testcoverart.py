@@ -3,8 +3,7 @@ import os
 from pyramid import testing
 
 from . import RestTestCase, setUpModule
-from ... import mash
-from ...models import Session
+from ...models import Session, getMashPaths
 from ...views.rest.getcoverart import GetCoverArt
 from ...views.rest import Command
 
@@ -13,7 +12,7 @@ class TestCoverArt(RestTestCase):
     def testBasic(self):
         cmd = self.buildCmd(GetCoverArt, {"id": "al-1"})
         resp = cmd()
-        path = os.path.join(list(mash.getPaths(cmd.settings).values())[0],
+        path = os.path.join(list(getMashPaths(cmd.settings).values())[0],
                             "artist 1/artist.png")
         fp = open(path, "rb")
         art = fp.read()

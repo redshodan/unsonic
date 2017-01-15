@@ -4,7 +4,6 @@ from . import (Command, MissingParam, NotFound, addCmd, fillAlbum, fillArtist,
                fillTrack)
 from .getmusicdirectory import GetMusicDirectory
 from ...models import Session, Artist, Album, Track
-from ... import mash
 
 
 class GetSong(GetMusicDirectory):

@@ -5,7 +5,6 @@ from sqlalchemy.orm import subqueryload
 from . import (Command, MissingParam, NotFound, addCmd, album_t, fillAlbumID3,
                fillTrackUser)
 from ...models import Session, Artist, Album, Track
-from ... import mash
 
 
 class GetAlbum(Command):

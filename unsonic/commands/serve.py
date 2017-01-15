@@ -1,14 +1,6 @@
-import os, sys, time, tempfile
-
-# from pkg_resources import load_entry_point
+import os, argparse
 
 from mishmash.commands import command
-
-
-__requires__ = 'pyramid>=1.4.3'
-
-
-from pyramid.scripts.pserve import PServeCommand
 
 
 @command.register
@@ -18,40 +10,22 @@ class Serve(command.Command):
     def __init__(self, subparsers=None):
         super().__init__("Run the unsonic web interface using the Pyramid "
                          "pserve script.", subparsers)
-        self.parser.add_argument("--reload",
+        self.parser.add_argument("--reload", action="store_true",
                                  help="Use auto-restart file monitor")
+        self.parser.add_argument("pserve_args", nargs=argparse.REMAINDER,
+                                 help="Pyramid pserve arguments")
 
 
     def _run(self, args=None):
         args = args or self.args
 
-        wait = 3
-        while True:
-            try:
-                with tempfile.NamedTemporaryFile(mode="w", prefix=".cfg_",
-                                                 dir=os.getcwd()) as config_file:
-                    self.config.write(config_file)
-                    config_file.flush()
-                    argv = ["unsonic", config_file.name]
-                    pserve = PServeCommand(argv)
-                    sys.exit(pserve.run())
-                break
-            except IndentationError as e:
-                if args.reload:
-                    print("Failed to (re)start unsonic:", e)
-                    print("Restarting in %d seconds..." % wait)
-                else:
-                    raise
-            except SyntaxError as e:
-                if args.reload:
-                    print("Failed to (re)start unsonic:", e)
-                    print("Restarting in %d seconds..." % wait)
-                else:
-                    raise
-            except ImportError as e:
-                if args.reload:
-                    print("Failed to (re)start unsonic:", e)
-                    print("Restarting in %d seconds..." % wait)
-                else:
-                    raise
-            time.sleep(wait)
+        # unsonic-server is needed to keep the cmdline args for pserve for its
+        # reload option with hupper, otherwise pserve/hupper gets confused.
+        path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../",
+                                            "bin/unsonic-server"))
+        argv = [path]
+        if args.reload:
+            argv.append("--reload")
+        argv.extend(args.pserve_args)
+        argv.append(str(self.config.filename))
+        os.execv(path, argv)
