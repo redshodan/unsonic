@@ -1,33 +1,33 @@
-Immediate
-=========
+For Initial Release
+===================
 * mishmash Command take a subparser description.
-* Maybe chain the unsonic commands under an unsonic parent command.
 * add argparse.parse_known_args() option to mishmash for pass-through args to pserve
+* Proper server logging
+* setup docker image for unsonic
+* Get alembic rocking for schema versioning or some other schema up/down-grade
+  path. Check with Travis on mishmash supporting the same.
+
 
 General
 =======
-* Proper server logging
-* setup docker image for unsonic
 * federation of unsonics. for showing playing now and other stuff
 * EC2/S3 support. Remote file storage for media files. Run in AWS. Pass back S3 URL for untranscoded stream.
-  
+
+
 For dsub
 ========
-
 * getPodcasts.view -- At least fake it up with empty data
 * getChatMessages -- At least fake it up with empty data
 
 
 unsonic-db
 ==========
-
 * cache auth.User objects with db refresh checks. Update cache on deleteUser call.
 * Add an export-playlists command
 
 
 jamstash
 ========
-
 * Implement json
 * Remove user/pass
 * Use templating to set url
@@ -37,6 +37,7 @@ Tests
 =====
 * run every API test without required args. automate it from the
   class.param_defs array.
+
 
 API
 ===
@@ -53,14 +54,13 @@ Exceptions
 * savePlayQueue: id is not required, means delete the playqueue and don't create
   one in its place
 
+
 General
 -------
-* pathing for responses is weird, has a dash. missing .mp3 ending.
 * Fit guest account concept into the subsonic API. Make it play well with
   sharing urls
-* Figure out the differences between path/id3 results. Maybe union them? Prolly
-  just return thing for the right kind of call
 * Older calls were never updated for newer param frameworks.
+
 
 Missing
 -------
