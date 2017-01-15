@@ -8,13 +8,13 @@ PY_LIB=$(VLIB)/python*/site-packages
 
 all: venv bins external devel
 
-bins: bin/unsonic bin/unsonic-db
+bins: bin/unsonic bin/unsonic-server
 
 bin/unsonic: bin/unsonic.in
 	sed "s?/usr/bin/env python?${PYTHON}?" $< > $@
 	chmod +x $@
 
-bin/unsonic-db: bin/unsonic-db.in
+bin/unsonic-server: bin/unsonic-server.in
 	sed "s?/usr/bin/env python?${PYTHON}?" $< > $@
 	chmod +x $@
 
@@ -45,12 +45,12 @@ $(PY_LIB)/unsonic.egg-link:
 db: devel-db
 devel-db: build/development.sqlite
 build/development.sqlite:
-	bin/unsonic-db -c development.ini sync test/music
-	bin/unsonic-db -c development.ini adduser test test
+	bin/unsonic -c development.ini sync test/music
+	bin/unsonic -c development.ini adduser test test
 
 run: devel-run
 devel-run: bin/unsonic build/development.sqlite
-	bin/unsonic development.ini --reload
+	bin/unsonic -c development.ini serve --reload
 
 tests: tests-clean
 	PYTHONPATH=external/mishmash $(PYTHON) setup.py test $(FTF)
@@ -62,7 +62,7 @@ devel-clean:
 	rm build/development.sqlite
 
 dist-clean: clean
-	rm -rf build unsonic.egg-info development.sqlite bin/unsonic bin/unsonic-db
+	rm -rf build unsonic.egg-info development.sqlite bin/unsonic
 
 tests-clean:
 	rm -f build/testing.sqlite build/testing.sqlite.org

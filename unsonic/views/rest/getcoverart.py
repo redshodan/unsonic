@@ -7,7 +7,6 @@ from pyramid.exceptions import NotFound
 
 from . import Command, addCmd, MissingParam
 from ...models import Session, Artist, Album, Track, Image
-from ... import mash
 
 
 class GetCoverArt(Command):

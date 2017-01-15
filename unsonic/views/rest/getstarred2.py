@@ -6,7 +6,6 @@ from . import (Command, MissingParam, NotFound, addCmd, fillArtistUser,
                fillAlbumID3, fillTrackUser)
 from ...models import (Session, Artist, Album, Track, ArtistRating, AlbumRating,
                        TrackRating)
-from ... import mash
 
 
 class GetStarred2(Command):

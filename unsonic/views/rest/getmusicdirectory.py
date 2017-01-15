@@ -4,8 +4,7 @@ from sqlalchemy.orm import subqueryload
 
 from . import (Command, MissingParam, NotFound, addCmd, fillAlbumUser,
                fillTrackUser)
-from ...models import Session, Artist, Album, Track
-from ... import mash
+from ...models import Session, Artist, Album, Track, getMashPaths
 
 
 class GetMusicDirectory(Command):
@@ -35,7 +34,7 @@ class GetMusicDirectory(Command):
             # FIXME: Do we care about the top level directory hierarchy?
             directory.set(
                 "parent",
-                "fl-%s" % list(mash.getPaths(self.settings).keys())[0])
+                "fl-%s" % list(getMashPaths(self.settings).keys())[0])
             directory.set("id", self.params["id"])
             artist_name = None
             # Gather albums

@@ -2,6 +2,7 @@ Immediate
 =========
 * mishmash Command take a subparser description.
 * Maybe chain the unsonic commands under an unsonic parent command.
+* add argparse.parse_known_args() option to mishmash for pass-through args to pserve
 
 General
 =======
