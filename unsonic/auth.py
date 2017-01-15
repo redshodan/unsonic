@@ -125,7 +125,7 @@ class SubsonicAuth(BasicAuthAuthenticationPolicy):
 
 
 def init(global_config, config):
-    authn_policy = SubsonicAuth(realm=unsonic.NAME)
+    authn_policy = SubsonicAuth(realm=unsonic.web.NAME)
     authz_policy = ACLAuthorizationPolicy()
     config.set_authentication_policy(authn_policy)
     config.set_authorization_policy(authz_policy)

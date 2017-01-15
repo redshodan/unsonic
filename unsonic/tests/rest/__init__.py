@@ -5,7 +5,8 @@ from pathlib import Path
 from webob.multidict import MultiDict, NestedMultiDict
 from pyramid import testing
 
-from ... import dbMain, models
+# from ... import dbMain, models
+from ... import models
 
 
 XMLLINT_TEST = \
