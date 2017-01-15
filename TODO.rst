@@ -1,3 +1,8 @@
+Immediate
+=========
+* mishmash Command take a subparser description.
+* Maybe chain the unsonic commands under an unsonic parent command.
+
 General
 =======
 * Proper server logging

@@ -30,7 +30,9 @@ dbinfo = Namespace()
 
 @sqlalchemy.event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
-    if db_url.startswith("sqlite://"):
+    # FIXME
+    # if db_url.startswith("sqlite://"):
+    if True:
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
         cursor.close()
@@ -147,7 +149,7 @@ class PlayQueue(Base, OrmObject):
     track = relation("Track")
 
 
-playlist_images = Table("playlist_images", Base.metadata,
+playlist_images = Table("un_playlist_images", Base.metadata,
                         Column("playlist_id", Integer,
                                ForeignKey("un_playlists.id")),
                         Column("img_id", Integer,
@@ -296,14 +298,6 @@ def load():
     with Session() as session:
         for table in UN_TYPES:
             table.loadTable(session)
-
-
-def initDB(settings):
-    from . import mash
-    Base.metadata.create_all()
-    with Session() as session:
-        for table in UN_TYPES:
-            table.initTable(session, mash.mashConfig(settings))
 
 
 def addUser(session, username, password, roles):
@@ -501,3 +495,7 @@ from . import auth
 
 UN_TYPES = [DBInfo, User, Role, PlayQueue, PlayList, PlayListUser, PlayListTrack,
             ArtistRating, AlbumRating, TrackRating, PlayCount, Scrobble]
+
+# insinuate self into mishmash's table lists so schema is setup correctly
+mishmash.orm.TYPES.extend(UN_TYPES)
+mishmash.orm.TABLES.extend([T.__table__ for T in UN_TYPES])

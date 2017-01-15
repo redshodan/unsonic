@@ -3,3 +3,5 @@
 ^build/.*$
 .*\.pyc$
 ^unsonic.egg-info/.*$
+^external/mishmash/.*$
+^.cfg_.*$
