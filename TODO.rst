@@ -1,11 +1,16 @@
 For Initial Release
 ===================
+* fix up setup.py
+* get %(here)s working in config for mishmash like it does in pyramid.
 * mishmash Command take a subparser description.
 * add argparse.parse_known_args() option to mishmash for pass-through args to pserve
-* Proper server logging
-* setup docker image for unsonic
+
 * Get alembic rocking for schema versioning or some other schema up/down-grade
   path. Check with Travis on mishmash supporting the same.
+* Proper server logging
+* setup docker image for unsonic
+* Get travis-ci working
+* Get unsonic into pypi
 
 
 General
