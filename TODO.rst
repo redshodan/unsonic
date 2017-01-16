@@ -1,6 +1,7 @@
 For Initial Release
 ===================
 * fix up setup.py
+* use setup.py to make the script front ends
 * get %(here)s working in config for mishmash like it does in pyramid.
 * mishmash Command take a subparser description.
 * add argparse.parse_known_args() option to mishmash for pass-through args to pserve
