@@ -24,9 +24,12 @@ requires = [
 
 setup(name='unsonic',
       version='0.0',
-      description='unsonic, the un-music server',
+      description='Unsonic, the un-music server',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
+        "Intended Audience :: End Users/Desktop",
+        "Operating System :: POSIX",
+        "Natural Language :: English",
         "Programming Language :: Python",
         "Framework :: Pyramid",
         "Topic :: Internet :: WWW/HTTP",
@@ -35,12 +38,15 @@ setup(name='unsonic',
       author='Chris Newton',
       author_email='redshodan@gmail.com',
       url='https://bitbucket.org/redshodan/unsonic',
-      keywords='web wsgi bfg pylons pyramid',
+      keywords=["unsonic", "mishmash", "eyed3", "web", "wsgi", "bfg",
+                "pylons", "pyramid"],
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
+      platforms=["Any"],
       test_suite='unsonic',
       install_requires=requires,
+      license="GPLv2",
       entry_points="""\
       [paste.app_factory]
       main = unsonic:main
