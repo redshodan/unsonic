@@ -11,7 +11,7 @@ For Initial Release
 * Proper server logging
 * setup docker image for unsonic
 * Get travis-ci working
-* Get unsonic into pypi
+* Get unsonic into pypi (registered, work out dist package contents)
 
 
 General

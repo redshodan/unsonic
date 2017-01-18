@@ -5,3 +5,4 @@
 ^unsonic.egg-info/.*$
 ^external/mishmash/.*$
 ^.cfg_.*$
+^dist/.*$
