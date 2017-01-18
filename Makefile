@@ -62,7 +62,7 @@ devel-clean:
 	rm build/development.sqlite
 
 dist-clean: clean
-	rm -rf build unsonic.egg-info development.sqlite bin/unsonic
+	rm -rf build unsonic.egg-info development.sqlite bin/unsonic bin/unsonic-server
 
 tests-clean:
 	rm -f build/testing.sqlite build/testing.sqlite.org
