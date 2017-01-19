@@ -1,0 +1,13 @@
+bin/unsonic
+bin/unsonic-server
+build
+build/.*
+.*\.pyc
+*/__pycache__
+*/*/__pycache__
+*/*/*/__pycache__
+unsonic.egg-info
+unsonic.egg-info/.*
+external/mishmash
+.cfg_.*
+dist/.*

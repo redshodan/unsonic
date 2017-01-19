@@ -1,8 +1,0 @@
-^bin/unsonic$
-^bin/unsonic-server$
-^build/.*$
-.*\.pyc$
-^unsonic.egg-info/.*$
-^external/mishmash/.*$
-^.cfg_.*$
-^dist/.*$
