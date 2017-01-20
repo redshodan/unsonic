@@ -7,7 +7,9 @@ python:
 # command to install dependencies
 install:
   - git clone 'https://github.com/nicfit/mishmash.git' mishmash
-  - cd mishmash; python setup.py install
+  - cd mishmash
+  - python setup.py install
+  - cd ..
   - pip install -r requirements.txt
   - pip install .
 
