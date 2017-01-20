@@ -6,21 +6,15 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.rst')).read()
 
-requires = [
-    'pyramid',
-    'SQLAlchemy',
-    'transaction',
-    'pyramid',
-    'pyramid_tm',
-    'pyramid_debugtoolbar',
-    'zope.sqlalchemy',
-    'waitress',
-    'pastedeploy',
-    'paste',
-    'psycopg2',
-    'xmltodict',
-    # 'mishmash',
-    ]
+
+def requirements(filename):
+    if os.path.exists(filename):
+        return [l for l in open(filename).read().splitlines()
+                    if not l.startswith("#")]
+    else:
+        return ""
+
+
 
 setup(name='unsonic',
       version='0.0',
@@ -45,7 +39,7 @@ setup(name='unsonic',
       zip_safe=False,
       platforms=["Any"],
       test_suite='unsonic',
-      install_requires=requires,
+      install_requires=requirements("requirements.txt"),
       license="GPLv2",
       entry_points="""\
       [paste.app_factory]

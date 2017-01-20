@@ -1,0 +1,12 @@
+pyramid
+SQLAlchemy
+transaction
+pyramid_tm
+pyramid_debugtoolbar
+zope.sqlalchemy
+waitress
+pastedeploy
+paste
+psycopg2
+xmltodict
+#mishmash
