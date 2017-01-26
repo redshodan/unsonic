@@ -1,20 +1,26 @@
 import argparse
 
+from nicfit import command
 import mishmash.config
-from mishmash.commands import command
+from mishmash.core import Command
 
 from .. import models, auth
 from ..models import User
 
 
 @command.register
-class Password(command.Command):
+class Password(Command):
     NAME = "password"
+    HELP = "Change a users password."
+
 
     def __init__(self, subparsers=None):
-        super().__init__("Change a users password.", subparsers)
-        self.parser.add_argument("username", nargs=1, help="Username")
-        self.parser.add_argument("password", nargs=1, help="Password")
+        super().__init__(subparsers)
+
+
+    def _initArgParser(self, parser):
+        parser.add_argument("username", nargs=1, help="Username")
+        parser.add_argument("password", nargs=1, help="Password")
 
 
     def _run(self, args=None):

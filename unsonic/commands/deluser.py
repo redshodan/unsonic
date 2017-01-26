@@ -1,19 +1,24 @@
 import argparse
 
+from nicfit import command
 import mishmash.config
-from mishmash.commands import command
+from mishmash.core import Command
 
 from .. import models, auth
 from ..models import User
 
 
 @command.register
-class DelUser(command.Command):
+class DelUser(Command):
     NAME = "deluser"
+    HELP = "Delete a user from the database."
 
     def __init__(self, subparsers=None):
-        super().__init__("Delete a user from the database.", subparsers)
-        self.parser.add_argument("username", nargs=1, help="Username")
+        super().__init__(subparsers)
+
+
+    def _initArgParser(self, parser):
+        parser.add_argument("username", nargs=1, help="Username")
 
 
     def _run(self, args=None):

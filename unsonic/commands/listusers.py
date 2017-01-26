@@ -1,18 +1,21 @@
 import argparse
 
+from nicfit import command
 import mishmash.config
-from mishmash.commands import command
+from mishmash.core import Command
 
 from .. import models, auth
 from ..models import User
 
 
 @command.register
-class ListUsers(command.Command):
+class ListUsers(Command):
     NAME = "listusers"
+    HELP = "List users in the database"
+
 
     def __init__(self, subparsers=None):
-        super().__init__("List users in the database", subparsers)
+        super().__init__(subparsers)
 
 
     def _run(self, args=None):

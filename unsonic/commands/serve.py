@@ -1,19 +1,24 @@
 import os, argparse
 
-from mishmash.commands import command
+from nicfit import command
+from mishmash.core import Command
 
 
 @command.register
-class Serve(command.Command):
+class Serve(Command):
     NAME = "serve"
+    HELP = "Run the unsonic web interface using the Pyramid pserve script."
+
 
     def __init__(self, subparsers=None):
-        super().__init__("Run the unsonic web interface using the Pyramid "
-                         "pserve script.", subparsers)
-        self.parser.add_argument("--reload", action="store_true",
-                                 help="Use auto-restart file monitor")
-        self.parser.add_argument("pserve_args", nargs=argparse.REMAINDER,
-                                 help="Pyramid pserve arguments")
+        super().__init__(subparsers)
+
+
+    def _initArgParser(self, parser):
+        parser.add_argument("--reload", action="store_true",
+                            help="Use auto-restart file monitor")
+        parser.add_argument("pserve_args", nargs=argparse.REMAINDER,
+                            help="Pyramid pserve arguments")
 
 
     def _run(self, args=None):
