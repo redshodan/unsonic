@@ -2,6 +2,7 @@ Unsonic, the ultimate un-Subsonic music server.
 
 Status
 ======
+
 PyPi
 ----
 .. image:: https://img.shields.io/pypi/v/unsonic.svg
@@ -16,6 +17,7 @@ PyPi
 .. image:: https://img.shields.io/pypi/pyversions/unsonic.svg
    :target: https://pypi.python.org/pypi/unsonic/
    :alt: Supported Python versions
+
 Builds
 ------
 .. image:: https://travis-ci.org/redshodan/unsonic.svg?branch=master
