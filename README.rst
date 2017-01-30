@@ -2,21 +2,25 @@ Unsonic, the ultimate un-Subsonic music server.
 
 Status
 ======
+PyPi
+----
 .. image:: https://img.shields.io/pypi/v/unsonic.svg
    :target: https://pypi.python.org/pypi/unsonic/
    :alt: Latest Version
 .. image:: https://img.shields.io/pypi/status/unsonic.svg
    :target: https://pypi.python.org/pypi/unsonic/
    :alt: Project Status
-.. image:: https://travis-ci.org/redshodan/unsonic.svg?branch=master
-   :target: https://travis-ci.org/redshodan/unsonic
-   :alt: Build Status
 .. image:: https://img.shields.io/pypi/l/unsonic.svg
    :target: https://pypi.python.org/pypi/unsonic/
    :alt: License
 .. image:: https://img.shields.io/pypi/pyversions/unsonic.svg
    :target: https://pypi.python.org/pypi/unsonic/
    :alt: Supported Python versions
+Builds
+------
+.. image:: https://travis-ci.org/redshodan/unsonic.svg?branch=master
+   :target: https://travis-ci.org/redshodan/unsonic
+   :alt: Build Status
 .. image:: https://coveralls.io/repos/github/redshodan/unsonic/badge.svg?branch=master
    :target: https://coveralls.io/github/redshodan/unsonic?branch=master
    :alt: Coverage Status
