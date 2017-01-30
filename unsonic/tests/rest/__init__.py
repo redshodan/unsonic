@@ -5,8 +5,8 @@ from pathlib import Path
 from webob.multidict import MultiDict, NestedMultiDict
 from pyramid import testing
 
-# from ... import dbMain, models
-from ... import models
+from ... import models, web
+from .. import setUpModule as base_setUpModule
 
 
 XMLLINT_TEST = \
@@ -20,9 +20,16 @@ class RestTestCase(unittest.TestCase):
     def setUp(self):
         shutil.copyfile("build/testing.sqlite.org", "build/testing.sqlite")
         self.config = testing.setUp()
-
+        self.settings = self.config.get_settings()
+        here = "/".join(os.path.dirname(__file__).split("/")[:-3])
+        global_settings = {"__file__": os.path.join(here, "testing.ini"),
+                           "here": here}
+        web.init(global_settings, self.settings)
+        super().setUp()
+    
     def tearDown(self):
         testing.tearDown()
+        super().tearDown()
 
     def buildCmd(self, klass, params={}):
         request = testing.DummyRequest()
@@ -61,11 +68,6 @@ class RestTestCase(unittest.TestCase):
 
 
 def setUpModule():
-    if Path("build/testing.sqlite.org").exists():
-        return
-
-    print("\nSetting up test database...")
-
     # Check for xmllint
     p = subprocess.Popen(["xmllint", "--format", "--schema",
                           "xsd/unsonic-subsonic-api.xsd", "-"],
@@ -76,13 +78,4 @@ def setUpModule():
         raise Exception("xmllint is required for the tests: " +
                         out.decode("utf-8"))
 
-    # Build a fresh mishmash db
-    db = Path("build/testing.sqlite")
-    if db.exists():
-        db.unlink()
-    dbMain(["-c", "testing.ini", "init"])
-    dbMain(["-c", "testing.ini", "sync"])
-    dbMain(["-c", "testing.ini", "adduser", "test", "test"])
-    db.rename("build/testing.sqlite.org")
-    
-    print("Test setup complete\n")
+    base_setUpModule()

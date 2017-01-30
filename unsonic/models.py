@@ -287,7 +287,7 @@ Track.scrobbles = relation("Scrobble")
 
 
 ### Utility functions
-def init(settings, webapp):
+def init(settings, webapp=False):
     global db_url, db_engine, session_maker
     settings["sqlalchemy.url"] = web.CONFIG.get("mishmash", "sqlalchemy.url")
     settings["sqlalchemy.convert_unicode"] = \

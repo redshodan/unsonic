@@ -7,6 +7,13 @@ README = open(os.path.join(here, 'README.rst')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.rst')).read()
 
 
+tests_require = [
+    'WebTest >= 1.3.1',  # py3 compat
+    'pytest',
+    'pytest-cov',
+]
+
+
 def requirements(filename):
     if os.path.exists(filename):
         return [l for l in open(filename).read().splitlines()
@@ -15,10 +22,9 @@ def requirements(filename):
         return ""
 
 
-
 setup(name='unsonic',
       version='0.0',
-      description='Unsonic, the un-music server',
+      description='Unsonic, the un-Subsonic music server',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
         "Intended Audience :: End Users/Desktop",
@@ -37,6 +43,7 @@ setup(name='unsonic',
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
+      extras_require={'testing': tests_require},
       platforms=["Any"],
       test_suite='unsonic',
       install_requires=requirements("requirements.txt"),

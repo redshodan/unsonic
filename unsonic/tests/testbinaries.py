@@ -2,7 +2,6 @@ import os, unittest
 
 from pyramid import testing
 
-# from .. import dbMain
 from ..models import Session, Base, User, Role
 
 

@@ -9,7 +9,7 @@ from pyramid.response import FileResponse
 from pyramid.view import view_config, forbidden_view_config
 
 import unsonic
-from . import log
+from . import log, models, auth
 from .views import rest, ui
 
 
@@ -19,12 +19,8 @@ CONFIG = None
 SETTINGS = None
 
 
-def main(global_config, **settings):
-    """ This function returns a Pyramid WSGI application."""
+def init(global_config, settings):
     global CONFIG_FILE, CONFIG, SETTINGS
-    from . import models, auth
-
-    # log.setupMash()
 
     # Stash the global config bits
     CONFIG_FILE = global_config["__file__"]
@@ -36,6 +32,12 @@ def main(global_config, **settings):
     # Setup models
     models.init(settings, True)
     models.load()
+
+
+def main(global_config, **settings):
+    """ This function returns a Pyramid WSGI application."""
+    # log.setupMash()
+    init(global_config, settings)
     
     # Pyramid framework
     config = Configurator(settings=settings)
