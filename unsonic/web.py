@@ -1,6 +1,5 @@
 import logging
 import logging.config
-from configparser import ConfigParser
 
 from paste.translogger import TransLogger
 from pyramid.config import Configurator
@@ -9,7 +8,7 @@ from pyramid.response import FileResponse
 from pyramid.view import view_config, forbidden_view_config
 
 import unsonic
-from . import log, models, auth
+from . import log, models, auth, HereConfig
 from .views import rest, ui
 
 
@@ -26,8 +25,8 @@ def init(global_config, settings):
     CONFIG_FILE = global_config["__file__"]
     unsonic.HERE = global_config["here"]
     SETTINGS = settings
-    CONFIG = ConfigParser()
-    CONFIG.read(CONFIG_FILE)
+    CONFIG = HereConfig(CONFIG_FILE)
+    CONFIG.read()
     
     # Setup models
     models.init(settings, True)

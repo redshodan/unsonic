@@ -1,6 +1,11 @@
+import os
+
+import unsonic
 import unsonic.commands
 from nicfit import Command
-import mishmash, mishmash.__main__
+
+import mishmash
+import mishmash.__main__
 
 
 def buildApp():
