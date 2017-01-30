@@ -1,7 +1,5 @@
 bin/unsonic
 bin/unsonic-server
-build
-build/.*
 .*\.pyc
 */__pycache__
 */*/__pycache__
