@@ -12,6 +12,7 @@ For Initial Release
 * Get travis-ci working: Some way to report on func test results, not just exit
   code
 * Get coveralls.io working
+* Investigate this: https://github.com/IcecaveStudios/woodhouse
 * Get unsonic into pypi (registered, work out dist package contents)
 * Check into pytest vs setup.py test. Pyramid likes pytest
 
