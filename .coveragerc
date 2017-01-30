@@ -1,0 +1,3 @@
+[run]
+source = unsonic
+omit = unsonic/test*

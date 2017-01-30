@@ -2,6 +2,7 @@ TOPDIR:=$(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 VBIN=$(TOPDIR)/build/venv/bin
 VLIB=$(TOPDIR)/build/venv/lib
 PYTHON=$(VBIN)/python
+PYTEST=$(VBIN)/pytest
 PIP=$(VBIN)/pip
 PY_LIB=$(VLIB)/python*/site-packages
 

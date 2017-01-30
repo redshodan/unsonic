@@ -10,3 +10,7 @@ external/mishmash
 .cfg_.*
 dist
 dist/.*
+.cache
+.cache/.*
+.eggs
+.eggs/.*

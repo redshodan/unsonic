@@ -11,6 +11,7 @@ tests_require = [
     'WebTest >= 1.3.1',  # py3 compat
     'pytest',
     'pytest-cov',
+    'pytest-runner',
 ]
 
 
@@ -47,6 +48,8 @@ setup(name='unsonic',
       platforms=["Any"],
       test_suite='unsonic',
       install_requires=requirements("requirements.txt"),
+      setup_requires=['pytest-runner'],
+      tests_require=tests_require,
       license="GPLv2",
       entry_points="""\
       [paste.app_factory]
