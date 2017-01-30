@@ -17,8 +17,8 @@ Status
 .. image:: https://img.shields.io/pypi/pyversions/unsonic.svg
    :target: https://pypi.python.org/pypi/unsonic/
    :alt: Supported Python versions
-.. image:: https://coveralls.io/repos/redshodan/unsonic/badge.svg
-   :target: https://coveralls.io/r/redshodan/unsonic
+.. image:: https://coveralls.io/repos/github/redshodan/unsonic/badge.svg?branch=master
+   :target: https://coveralls.io/github/redshodan/unsonic?branch=master
    :alt: Coverage Status
 
 Installation

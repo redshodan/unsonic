@@ -38,14 +38,14 @@ class TestAlbumList(RestTestCase):
                                            "offset": "1"})
         resp = cmd()
         count, titles = self.validate(cmd, resp)
-        self.assertEqual(count, 2)
+        self.assertEqual(count, 4)
         
     def testOffset2(self):
         cmd = self.buildCmd(GetAlbumList, {"type": "random", "size": "3",
                                            "offset": "2"})
         resp = cmd()
         count, titles = self.validate(cmd, resp)
-        self.assertEqual(count, 1)
+        self.assertEqual(count, 5)
 
     def testNewest(self):
         cmd = self.buildCmd(GetAlbumList, {"type": "newest"})
