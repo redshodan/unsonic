@@ -4,7 +4,7 @@ Status
 ======
 
 PyPi
-----
+++++
 .. image:: https://img.shields.io/pypi/v/unsonic.svg
    :target: https://pypi.python.org/pypi/unsonic/
    :alt: Latest Version
@@ -19,7 +19,7 @@ PyPi
    :alt: Supported Python versions
 
 Builds
-------
+++++++
 .. image:: https://travis-ci.org/redshodan/unsonic.svg?branch=master
    :target: https://travis-ci.org/redshodan/unsonic
    :alt: Build Status
