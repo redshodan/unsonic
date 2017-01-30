@@ -2,7 +2,6 @@ For Initial Release
 ===================
 * fix up setup.py
 * use setup.py to make the script front ends
-* get %(here)s working in config for mishmash like it does in pyramid.
 * mishmash Command take a subparser description.
 * add argparse.parse_known_args() option to mishmash for pass-through args to pserve
 
@@ -10,8 +9,11 @@ For Initial Release
   path. Check with Travis on mishmash supporting the same.
 * Proper server logging
 * setup docker image for unsonic
-* Get travis-ci working
+* Get travis-ci working: Some way to report on func test results, not just exit
+  code
+* Get coveralls.io working
 * Get unsonic into pypi (registered, work out dist package contents)
+* Check into pytest vs setup.py test. Pyramid likes pytest
 
 
 General

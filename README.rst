@@ -43,6 +43,10 @@ Release build
   * make release-db
   * make release-run
 
+Tests
+-----
+  * make tests
+
 Manual Installation
 +++++++++++++++++++
 
@@ -55,6 +59,10 @@ Running
   * ./bin/unsonic -c <config.ini> sync
   * ./bin/unsonic -c <config.ini> adduser name pass
   * ./bin/unsonic -c <config.ini> serve [--reload]
+
+Manual testing
+--------------
+  * ./test/bin/tester getArtists
 
 Adjusting the configuration
 ===========================

@@ -20,7 +20,6 @@ bin/unsonic-server: bin/unsonic-server.in
 
 venv: build/venv/bin/python
 build/venv/bin/python:
-	[ ! -d build ] && mkdir build
 	virtualenv -p python3 build/venv
 
 external: mishmash-build
