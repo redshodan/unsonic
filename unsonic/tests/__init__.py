@@ -1,26 +1,26 @@
-import unittest
+import os, shutil, unittest
 from pathlib import Path
 
 from pyramid import testing
 
-from .. import __main__
+from .. import __main__, web
 from ..models import Session
 
 
 class TestCase(unittest.TestCase):
     def setUp(self):
+        shutil.copyfile("build/testing.sqlite.org", "build/testing.sqlite")
         self.config = testing.setUp()
-        from sqlalchemy import create_engine
-        engine = create_engine('sqlite://')
-        from ..models import Base
-        # DBSession.configure(bind=engine)
-        Base.metadata.create_all(engine)
-        self.session = Session()
+        self.settings = self.config.get_settings()
+        here = "/".join(os.path.dirname(__file__).split("/")[:-2])
+        global_settings = {"__file__": os.path.join(here, "testing.ini"),
+                           "here": here}
+        web.init(global_settings, self.settings)
+        super().setUp()
+
 
     def tearDown(self):
-        self.session.remove()
-        self.session.close()
-        testing.tearDown()
+        super().tearDown()
 
 
 def setUpModule():

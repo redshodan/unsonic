@@ -1,6 +1,5 @@
 For Initial Release
 ===================
-* use setup.py to make the script front ends
 * mishmash Command take a subparser description.
 * add argparse.parse_known_args() option to mishmash for pass-through args to pserve
 

@@ -14,10 +14,6 @@ class ListUsers(Command):
     HELP = "List users in the database"
 
 
-    def __init__(self, subparsers=None):
-        super().__init__(subparsers)
-
-
     def _run(self, args=None):
         args = args or self.args
 

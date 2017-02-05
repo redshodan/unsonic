@@ -354,16 +354,22 @@ def listUsers(session):
 
 
 def setUserPassword(session, uname, password):
-    user = getUserByName(session, uname)
+    user = getUserByName(session, uname, False)
     if not user:
         return False
+    session.add(user)
     user.password = password
     session.flush()
+    return True
 
 
-def getUserByName(session, username):
+def getUserByName(session, username, wrap=True):
     try:
-        return auth.User(session.query(User).filter(User.name == username).one())
+        urow = session.query(User).filter(User.name == username).one()
+        if wrap:
+            return auth.User(urow)
+        else:
+            return urow
     except NoResultFound:
         return None
 

@@ -50,9 +50,9 @@ setup(name='unsonic',
       setup_requires=['pytest-runner'],
       tests_require=tests_require,
       license="GPLv2",
-      entry_points="""\
-      [paste.app_factory]
-      main = unsonic:main
-      [console_scripts]
-      """,
+      entry_points={
+          'paste.app_factory': ["main = unsonic:main"],
+          'console_scripts': ['unsonic = unsonic.__main__:main',
+                              'unsonic-server = unsonic:webServe'],
+      },
       )

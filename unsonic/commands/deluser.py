@@ -13,9 +13,6 @@ class DelUser(Command):
     NAME = "deluser"
     HELP = "Delete a user from the database."
 
-    def __init__(self, subparsers=None):
-        super().__init__(subparsers)
-
 
     def _initArgParser(self, parser):
         parser.add_argument("username", nargs=1, help="Username")

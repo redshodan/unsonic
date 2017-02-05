@@ -14,10 +14,6 @@ class Password(Command):
     HELP = "Change a users password."
 
 
-    def __init__(self, subparsers=None):
-        super().__init__(subparsers)
-
-
     def _initArgParser(self, parser):
         parser.add_argument("username", nargs=1, help="Username")
         parser.add_argument("password", nargs=1, help="Password")

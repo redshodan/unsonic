@@ -8,8 +8,9 @@ from pyramid.response import FileResponse
 from pyramid.view import view_config, forbidden_view_config
 
 import unsonic
-from . import log, models, auth, HereConfig
+from . import log, models, auth
 from .views import rest, ui
+from .config import HereConfig
 
 
 NAME = "Unsonic"
@@ -67,3 +68,41 @@ def main(global_config, **settings):
     # Log requests
     app = config.make_wsgi_app()
     return TransLogger(app, setup_console_handler=False)
+
+
+# Wrapper around the pserve script to catch syntax and import errors
+def webServe():
+    __requires__ = 'pyramid>=1.4.3'
+    import sys, time
+    from pkg_resources import load_entry_point
+
+    if "--reload" in sys.argv:
+        reload = True
+    else:
+        reload = False
+
+    wait = 3
+    while True:
+        try:
+            sys.exit(load_entry_point('pyramid>=1.4.3', 'console_scripts',
+                                      'pserve')())
+            break
+        except IndentationError as e:
+            if reload:
+                print("Failed to (re)start unsonic:", e)
+                print("Restarting in %d seconds..." % wait)
+            else:
+                raise
+        except SyntaxError as e:
+            if reload:
+                print("Failed to (re)start unsonic:", e)
+                print("Restarting in %d seconds..." % wait)
+            else:
+                raise
+        except ImportError as e:
+            if reload:
+                print("Failed to (re)start unsonic:", e)
+                print("Restarting in %d seconds..." % wait)
+            else:
+                raise
+        time.sleep(wait)

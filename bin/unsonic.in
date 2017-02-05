@@ -19,8 +19,8 @@
 
 import os, sys
 
-if ((sys.version_info[0] < 3) and (sys.version_info[1] < 4)):
-    print("unsonic requires Python version 3.4 or higher.")
+if ((sys.version_info[0] < 3) and (sys.version_info[1] < 5)):
+    print("unsonic requires Python version 3.5 or higher.")
     sys.exit(-1)
     
 ### FIXME: Do this right once we have a setup.py and install etc.
@@ -28,8 +28,7 @@ if os.path.islink(__file__):
     path = os.path.dirname(os.readlink(__file__))
 else:
     path = os.path.dirname(__file__)
-sys.path[0:0] = [os.path.abspath(os.path.join(path, "..")),
-                 os.path.abspath(os.path.join(path, "../external/mishmash"))]
+sys.path[0:0] = [os.path.abspath(os.path.join(path, ".."))]
 
 
 if __name__ == "__main__":

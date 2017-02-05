@@ -14,10 +14,6 @@ class AddUser(Command):
     HELP = "Add a user to the database."
 
 
-    def __init__(self, subparsers):
-        super().__init__(subparsers)
-
-
     def _initArgParser(self, parser):
         parser.add_argument("username", nargs=1, help="Username")
         parser.add_argument("password", nargs=1, help="Password")

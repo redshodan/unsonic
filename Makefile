@@ -25,14 +25,17 @@ build/venv/bin/python:
 
 external: mishmash-build
 
-mishmash-build: external/mishmash eyed3
+mishmash-build: external/mishmash mishmash.egg
 
 external/mishmash:
 	cd external; git clone 'https://github.com/nicfit/mishmash.git' mishmash
 
-eyed3: $(PY_LIB)/eyed3
-$(PY_LIB)/eyed3:
+mishmash.egg: $(PY_LIB)/MishMash*.egg/mishmash
+ $(PY_LIB)/MishMash*.egg/mishmash:
 	cd external/mishmash; $(PYTHON) setup.py install
+
+$(PYTEST): requirements-test.txt
+	$(PIP) install -r requirements-test.txt
 
 devel: $(PY_LIB)/unsonic.egg-link
 
@@ -52,8 +55,8 @@ run: devel-run
 devel-run: bin/unsonic build/development.sqlite
 	bin/unsonic -c development.ini serve --reload
 
-tests: tests-clean
-	PYTHONPATH=external/mishmash $(PYTHON) setup.py test $(FTF)
+tests: $(PYTEST) tests-clean
+	$(PYTHON) setup.py test $(FTF)
 
 clean:
 	find unsonic external -name '*.pyc' | xargs rm -f
