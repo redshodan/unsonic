@@ -9,6 +9,7 @@ from ..models import Session
 
 class TestCase(unittest.TestCase):
     def setUp(self):
+        setUpModule()
         shutil.copyfile("build/testing.sqlite.org", "build/testing.sqlite")
         self.config = testing.setUp()
         self.settings = self.config.get_settings()
@@ -17,10 +18,6 @@ class TestCase(unittest.TestCase):
                            "here": here}
         web.init(global_settings, self.settings)
         super().setUp()
-
-
-    def tearDown(self):
-        super().tearDown()
 
 
 def setUpModule():
