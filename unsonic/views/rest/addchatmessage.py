@@ -8,7 +8,7 @@ from . import (Command, addCmd, InternalError, MissingParam, NoPerm)
 
 class AddChatMessage(Command):
     name = "addChatMessage.view"
-    param_defs = {"since": {}}
+    param_defs = {"message": {}}
     dbsess = True
 
 

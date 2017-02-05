@@ -31,7 +31,7 @@ class RestTestCase(unittest.TestCase):
         testing.tearDown()
         super().tearDown()
 
-    def buildCmd(self, klass, params={}):
+    def buildCmd(self, klass, params={}, username="test"):
         request = testing.DummyRequest()
         request.context = testing.DummyResource()
         md = MultiDict()
@@ -39,7 +39,7 @@ class RestTestCase(unittest.TestCase):
             md.add(key, val)
         request.params = NestedMultiDict(md)
         with models.Session() as session:
-            request.authed_user = models.getUserByName(session, "test")
+            request.authed_user = models.getUserByName(session, username)
         cmd = klass(request)
         cmd.settings = {"mishmash.paths":"Music: test/music"}
         return cmd
