@@ -1,7 +1,3 @@
-import unittest
-
-from pyramid import testing
-
 from . import RestTestCase
 from ...models import Session, User
 from ...views.rest.changepassword import ChangePassword
@@ -51,4 +47,3 @@ class TestChangePassword(RestTestCase):
             self.assertEqual(row.password, None)
             row = session.query(User).filter(User.name == "test").one_or_none()
             self.assertEqual(row.password, "newpass")
-            

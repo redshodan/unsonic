@@ -2,6 +2,7 @@ For Initial Release
 ===================
 * mishmash Command take a subparser description.
 * add argparse.parse_known_args() option to mishmash for pass-through args to pserve
+* musicFolderId's
 
 * Get alembic rocking for schema versioning or some other schema up/down-grade
   path. Check with Travis on mishmash supporting the same.

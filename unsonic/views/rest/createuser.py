@@ -29,7 +29,7 @@ class CreateUser(Command):
         "podcastRole": {"type": bool_t},
         "shareRole": {"type": bool_t},
         "videoConversionRole": {"type": bool_t},
-        # "musicFolderI": {}, # TODO
+        # "musicFolderId": {}, # TODO
         }
     dbsess = True
     role_names = {"adminRole": Roles.ADMIN, "settingsRole": Roles.SETTINGS,
