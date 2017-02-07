@@ -29,6 +29,7 @@ mishmash: external/mishmash mishmash.egg
 
 mishmash-update:
 	cd external/mishmash; git fetch
+	cd external/mishmash; $(PIP) install -U -r requirements/default.txt
 	cd external/mishmash; $(PYTHON) setup.py install
 
 external/mishmash:
@@ -36,6 +37,7 @@ external/mishmash:
 
 mishmash.egg: $(PY_LIB)/MishMash*.egg/mishmash
 $(PY_LIB)/MishMash*.egg/mishmash:
+	cd external/mishmash; $(PIP) install -U -r requirements/default.txt
 	cd external/mishmash; $(PYTHON) setup.py install
 
 $(PYTEST): requirements-test.txt
@@ -74,5 +76,5 @@ dist-clean: clean
 tests-clean:
 	rm -f build/testing.sqlite build/testing.sqlite.org
 
-.PHONY: devel db pyramid paste sqlalchemy psycopg2 run tests clean mishmash
+.PHONY: devel db pyramid paste sqlalchemy psycopg2 run tests clean mishmash mishmash.egg
 .PHONY: dist-clean external
