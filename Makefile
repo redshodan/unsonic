@@ -23,15 +23,19 @@ venv: build/venv/bin/python
 build/venv/bin/python:
 	virtualenv -p python3 build/venv
 
-external: mishmash-build
+external: mishmash
 
-mishmash-build: external/mishmash mishmash.egg
+mishmash: external/mishmash mishmash.egg
+
+mishmash-update:
+	cd external/mishmash; git fetch
+	cd external/mishmash; $(PYTHON) setup.py install
 
 external/mishmash:
 	cd external; git clone 'https://github.com/nicfit/mishmash.git' mishmash
 
 mishmash.egg: $(PY_LIB)/MishMash*.egg/mishmash
- $(PY_LIB)/MishMash*.egg/mishmash:
+$(PY_LIB)/MishMash*.egg/mishmash:
 	cd external/mishmash; $(PYTHON) setup.py install
 
 $(PYTEST): requirements-test.txt
@@ -70,5 +74,5 @@ dist-clean: clean
 tests-clean:
 	rm -f build/testing.sqlite build/testing.sqlite.org
 
-.PHONY: devel db pyramid paste sqlalchemy psycopg2 run tests clean 
+.PHONY: devel db pyramid paste sqlalchemy psycopg2 run tests clean mishmash
 .PHONY: dist-clean external
