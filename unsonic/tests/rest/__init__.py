@@ -1,6 +1,8 @@
-import os, shutil, unittest, subprocess
+import os
+import shutil
+import unittest
+import subprocess
 import xml.etree.ElementTree as ET
-from pathlib import Path
 
 from webob.multidict import MultiDict, NestedMultiDict
 from pyramid import testing
@@ -18,6 +20,7 @@ XMLLINT_TEST = \
 
 class RestTestCase(unittest.TestCase):
     def setUp(self):
+        setUpModule()
         shutil.copyfile("build/testing.sqlite.org", "build/testing.sqlite")
         self.config = testing.setUp()
         self.settings = self.config.get_settings()
@@ -26,7 +29,7 @@ class RestTestCase(unittest.TestCase):
                            "here": here}
         web.init(global_settings, self.settings)
         super().setUp()
-    
+
     def tearDown(self):
         testing.tearDown()
         super().tearDown()
@@ -41,7 +44,7 @@ class RestTestCase(unittest.TestCase):
         with models.Session() as session:
             request.authed_user = models.getUserByName(session, username)
         cmd = klass(request)
-        cmd.settings = {"mishmash.paths":"Music: test/music"}
+        cmd.settings = {"mishmash.paths": "Music: test/music"}
         return cmd
 
     def checkResp(self, req, resp, ok=True):

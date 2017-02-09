@@ -1,9 +1,4 @@
-import xml.etree.ElementTree as ET
-
-from sqlalchemy.orm import subqueryload
-from sqlalchemy.orm.exc import NoResultFound
-
-from . import (Command, addCmd, InternalError, MissingParam, NoPerm)
+from . import Command, addCmd
 
 
 class AddChatMessage(Command):

@@ -16,6 +16,6 @@ class GetLicense(Command):
         now = datetime.fromtimestamp(time.time() + 31536000)
         license.set("licenseExpires", now.isoformat())
         return self.makeResp(child=license)
-        
-        
+
+
 addCmd(GetLicense)

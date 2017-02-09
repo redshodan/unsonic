@@ -1,9 +1,4 @@
-import unittest
-
-from pyramid import testing
-
-from . import RestTestCase, setUpModule
-from ...models import Session
+from . import RestTestCase
 from ...views.rest.getartist import GetArtist
 from ...views.rest import Command
 
@@ -16,6 +11,7 @@ class TestArtist(RestTestCase):
         sub_resp = self.checkResp(cmd.req, resp)
         artist = sub_resp.find("{http://subsonic.org/restapi}artist")
         self.assertEqual(artist.get("id"), aid)
+
 
     def testTwoAlbums(self):
         aid = "ar-2"
@@ -31,18 +27,20 @@ class TestArtist(RestTestCase):
             self.assertTrue(int(album.get("songCount")) > 0)
             self.assertTrue(int(album.get("duration")) >= 0)
 
+
     def testNotFound(self):
         cmd = self.buildCmd(GetArtist, {"id": "ar-1000000000000"})
         resp = cmd()
         self.checkResp(cmd.req, resp, Command.E_NOT_FOUND)
+
 
     def testBadID(self):
         cmd = self.buildCmd(GetArtist, {"id": "foobar"})
         resp = cmd()
         self.checkResp(cmd.req, resp, Command.E_MISSING_PARAM)
 
+
     def testNoID(self):
         cmd = self.buildCmd(GetArtist)
         resp = cmd()
         self.checkResp(cmd.req, resp, Command.E_MISSING_PARAM)
-        

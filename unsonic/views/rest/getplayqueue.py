@@ -1,11 +1,7 @@
 import xml.etree.ElementTree as ET
 
-from sqlalchemy.orm import subqueryload
-from sqlalchemy.orm.exc import NoResultFound
-
-from . import (Command, addCmd, InternalError, MissingParam, NoPerm, strDate,
-               positive_t, track_t, fillTrackUser)
-from ...models import User, PlayQueue
+from . import (Command, addCmd, strDate, fillTrackUser)
+from ...models import User
 
 
 class GetPlayQueue(Command):
@@ -15,7 +11,7 @@ class GetPlayQueue(Command):
 
 
     def handleReq(self, session):
-        user = (session.query(User).\
+        user = (session.query(User).
                 filter(User.name == self.req.authed_user.name).one_or_none())
         if not user.playqueue_mtime:
             return self.makeResp()

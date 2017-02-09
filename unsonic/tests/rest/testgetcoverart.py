@@ -1,9 +1,7 @@
 import os
 
-from pyramid import testing
-
-from . import RestTestCase, setUpModule
-from ...models import Session, getMashPaths
+from . import RestTestCase
+from ...models import getMashPaths
 from ...views.rest.getcoverart import GetCoverArt
 from ...views.rest import Command
 
@@ -19,7 +17,8 @@ class TestCoverArt(RestTestCase):
         fp.close()
         self.assertEqual(len(resp.body), len(art))
         self.assertEqual(resp.body, art)
-    
+
+
     def testNoID(self):
         cmd = self.buildCmd(GetCoverArt)
         resp = cmd()

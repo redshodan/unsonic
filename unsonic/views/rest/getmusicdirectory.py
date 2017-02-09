@@ -4,7 +4,7 @@ from sqlalchemy.orm import subqueryload
 
 from . import (Command, MissingParam, NotFound, addCmd, fillAlbumUser,
                fillTrackUser)
-from ...models import Session, Artist, Album, Track, getMashPaths
+from ...models import Artist, Album, Track, getMashPaths
 
 
 class GetMusicDirectory(Command):
@@ -38,8 +38,8 @@ class GetMusicDirectory(Command):
             directory.set("id", self.params["id"])
             artist_name = None
             # Gather albums
-            for row in session.query(Album).options(subqueryload("*")). \
-                filter(Album.artist_id == artist_id).all():
+            for row in session.query(Album).options(subqueryload("*")).\
+                    filter(Album.artist_id == artist_id).all():
                 album = fillAlbumUser(session, row, None, self.req.authed_user,
                                       self.album_param)
                 directory.append(album)
@@ -47,14 +47,15 @@ class GetMusicDirectory(Command):
                     artist_name = row.artist.name
             # Gather tracks with no album
             for row in session.query(Track).options(subqueryload("*")).\
-                filter(Track.album_id == None, Track.artist_id == artist_id).\
-                order_by(Track.track_num).all():
+                    filter(Track.album_id is None,
+                           Track.artist_id == artist_id).\
+                    order_by(Track.track_num).all():
                 song = fillTrackUser(session, row, None, self.req.authed_user,
                                      self.track_param)
                 directory.append(song)
             if not artist_name:
                 rows = session.query(Artist).options(subqueryload("*")).\
-                  filter(Artist.id == artist_id).all()
+                    filter(Artist.id == artist_id).all()
                 if len(rows) == 1:
                     artist_name = rows[0].name
             if not artist_name:
@@ -73,7 +74,7 @@ class GetMusicDirectory(Command):
             for row in session.query(Track).options(subqueryload("*")).filter(
                     Track.album_id == album_id).order_by(Track.track_num).all():
                 song = fillTrackUser(session, row, None, self.req.authed_user,
-                                    self.track_param)
+                                     self.track_param)
                 directory.append(song)
             if song is None:
                 raise NotFound(self.params["id"])
@@ -84,7 +85,7 @@ class GetMusicDirectory(Command):
             if row is None:
                 raise NotFound(self.params["id"])
             song = fillTrackUser(session, row, None, self.req.authed_user,
-                                self.track_param)
+                                 self.track_param)
             if row.album:
                 directory.set("parent", "al-%d" % row.album.id)
                 directory.set("name", row.album.title)

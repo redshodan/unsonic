@@ -1,9 +1,7 @@
-import xml.etree.ElementTree as ET
-
 from sqlalchemy.orm import subqueryload
 
 from . import Command, NotFound, addCmd, artist_t, fillAlbumID3, fillArtistUser
-from ...models import Session, Artist, Album, Track
+from ...models import Artist, Album, Track
 
 
 class GetArtist(Command):

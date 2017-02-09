@@ -1,9 +1,7 @@
-import time
 import xml.etree.ElementTree as ET
 
-from . import (Command, addCmd, bool_t, positive_t, fillArtist, fillAlbum,
-               fillTrack)
-from ...models import Session, Artist, Album, Track
+from . import Command, addCmd, positive_t, fillArtist, fillAlbum, fillTrack
+from ...models import Artist, Album, Track
 
 
 class Search2(Command):
@@ -19,7 +17,7 @@ class Search2(Command):
         }
     dbsess = True
 
-    
+
     def handleReq(self, session):
         query = self.params["query"]
         ar_count = self.params["artistCount"]

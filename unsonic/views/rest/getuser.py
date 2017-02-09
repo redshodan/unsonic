@@ -1,11 +1,5 @@
-import xml.etree.ElementTree as ET
-
-from sqlalchemy.orm import subqueryload
-from sqlalchemy.orm.exc import NoResultFound
-
-from . import Command, addCmd, InternalError, MissingParam, NoPerm, fillUser
+from . import Command, addCmd, NoPerm, fillUser
 from ...models import getUserByName
-from ...auth import Roles
 
 
 class GetUser(Command):
@@ -15,7 +9,7 @@ class GetUser(Command):
         }
     dbsess = True
 
-    
+
     def handleReq(self, session):
         if self.req.authed_user.name == self.params["username"]:
             db_user = self.req.authed_user

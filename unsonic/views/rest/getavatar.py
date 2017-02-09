@@ -1,11 +1,5 @@
-import xml.etree.ElementTree as ET
-
-from sqlalchemy.orm import subqueryload
-from sqlalchemy.orm.exc import NoResultFound
-
-from . import Command, addCmd, InternalError, MissingParam, NoPerm, fillUser
-from ...models import User, Image
-from ...auth import Roles
+from . import Command, addCmd
+from ...models import Image, getUserByName
 
 
 class GetAvatar(Command):

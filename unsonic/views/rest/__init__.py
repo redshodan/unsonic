@@ -1,4 +1,6 @@
-import os, types, json, xmltodict
+import os
+import json
+import xmltodict
 from datetime import datetime
 import xml.etree.ElementTree as ET
 
@@ -9,7 +11,7 @@ from sqlalchemy.orm import subqueryload
 from eyed3.core import Date as Eyed3Date
 
 from ...log import log
-from ...version import VERSION, PROTOCOL_VERSION, UNSONIC_PROTOCOL_VERSION
+from ...version import PROTOCOL_VERSION, UNSONIC_PROTOCOL_VERSION
 from ...models import Session, ArtistRating, AlbumRating, TrackRating, Track
 from ...auth import Roles
 
@@ -20,8 +22,8 @@ commands = {}
 
 
 class RouteContext(object):
-    __acl__ = [ (Allow, Authenticated, Roles.REST), DENY_ALL ]
-    
+    __acl__ = [(Allow, Authenticated, Roles.REST), DENY_ALL]
+
     def __init__(self, request):
         pass
 
@@ -53,10 +55,12 @@ class Command(object):
     E_PERM = ("50", "Permission denied for this operation")
     # 60, trial period over, intentionally skipped, cause screw that noise.
     E_NOT_FOUND = ("70", "Requsted data not found")
-    
+
+
     def __init__(self, req):
         self.req = req
         self.params = {}
+
 
     def __call__(self):
         try:
@@ -75,14 +79,17 @@ class Command(object):
         except NoPerm as e:
             return self.makeResp(status=(Command.E_PERM, str(e)))
 
+
     def handleReq(self, session=None):
         raise Exception("Command must implement handleReq()")
-        
+
+
     def makeBody(self, attrs, child, status):
         body = ET.Element("subsonic-response")
-        attrs_ = {"status":"ok" if status is True else "failed",
-                  "xmlns":"http://subsonic.org/restapi",
-                  "version":PROTOCOL_VERSION, "unsonic":UNSONIC_PROTOCOL_VERSION}
+        attrs_ = {"status": "ok" if status is True else "failed",
+                  "xmlns": "http://subsonic.org/restapi",
+                  "version": PROTOCOL_VERSION,
+                  "unsonic": UNSONIC_PROTOCOL_VERSION}
         attrs_.update(attrs)
         for key, value in attrs_.items():
             body.set(key, value)
@@ -167,7 +174,7 @@ def addCmd(cmd):
     commands[cmd.name] = cmd
 
 
-### Param type check functions
+# Param type check functions
 def bool_t(value):
     if value in ["True", "true"]:
         return True
@@ -176,13 +183,15 @@ def bool_t(value):
     else:
         raise MissingParam("Invalid type")
 
+
 def positive_t(value):
     val = int(value)
     if val < 0:
         raise MissingParam("Invalid number, can not be negative")
     else:
         return val
-        
+
+
 def playable_id_t(value):
     for prefix in ["ar-", "al-", "tr-"]:
         if value.startswith(prefix):
@@ -191,31 +200,37 @@ def playable_id_t(value):
         raise MissingParam("Invalid id")
     return value
 
+
 def artist_t(value):
     if not value.startswith("ar-"):
         raise MissingParam("Invalid id")
     return int(value[3:])
+
 
 def album_t(value):
     if not value.startswith("al-"):
         raise MissingParam("Invalid id")
     return int(value[3:])
 
+
 def track_t(value):
     if not value.startswith("tr-"):
         raise MissingParam("Invalid id")
     return int(value[3:])
+
 
 def playlist_t(value):
     if not value.startswith("pl-"):
         raise MissingParam("Invalid id")
     return int(value[3:])
 
+
 def year_t(year):
     try:
         return Eyed3Date(int(year), 1, 1)
     except:
         raise MissingParam("Invalid type for param. '%s' is not a year" % year)
+
 
 def bitrate_t(value):
     try:
@@ -242,7 +257,7 @@ def strDate(d):
         return d.isoformat()
 
 
-### Utilities for wrangling data into xml form
+# Utilities for wrangling data into xml form
 def fillCoverArt(session, row, elem, name):
     if row.images is not None and len(row.images) > 0:
         elem.set("coverArt", "%s-%d" % (name, row.images[0].id))
@@ -251,12 +266,14 @@ def fillCoverArt(session, row, elem, name):
             sub.text = "%s-%d" % (name, art.id)
             elem.append(sub)
 
+
 def fillArtist(session, row, name="artist"):
     artist = ET.Element(name)
     artist.set("id", "ar-%d" % row.id)
     artist.set("name", row.name)
     fillCoverArt(session, row, artist, "ar")
     return artist
+
 
 def fillArtistUser(session, artist_row, rating_row, user, name="artist"):
     artist = fillArtist(session, artist_row, name=name)
@@ -268,6 +285,7 @@ def fillArtistUser(session, artist_row, rating_row, user, name="artist"):
     if rating_row and rating_row.starred:
         artist.set("starred", rating_row.starred.isoformat())
     return artist
+
 
 def fillAlbum(session, row, name="album"):
     album = ET.Element(name)
@@ -285,6 +303,7 @@ def fillAlbum(session, row, name="album"):
         album.set("artistId", "ar-%d" % row.artist.id)
     return album
 
+
 def fillAlbumUser(session, album_row, rating_row, user, name="album"):
     album = fillAlbum(session, album_row, name=name)
     if not rating_row:
@@ -294,6 +313,7 @@ def fillAlbumUser(session, album_row, rating_row, user, name="album"):
     if rating_row and rating_row.starred and not rating_row.pseudo_starred:
         album.set("starred", rating_row.starred.isoformat())
     return album
+
 
 def fillAlbumID3(session, row, user, append_tracks):
     album = ET.Element("album")
@@ -322,6 +342,7 @@ def fillAlbumID3(session, row, user, append_tracks):
     album.set("songCount", str(track_count))
     album.set("duration", str(duration))
     return album
+
 
 def fillTrack(session, row, name="song"):
     song = ET.Element(name)
@@ -365,6 +386,7 @@ def fillTrack(session, row, name="song"):
     song.set("isVideo", "false")
     return song
 
+
 def fillTrackUser(session, song_row, rating_row, user, name="song"):
     song = fillTrack(session, song_row, name=name)
     if not rating_row:
@@ -375,9 +397,11 @@ def fillTrackUser(session, song_row, rating_row, user, name="song"):
         song.set("starred", rating_row.starred.isoformat())
     return song
 
+
 def fillTrackID3(session, row, user):
     track = ET.Element("song")
     return track
+
 
 def fillPlayList(session, row):
     playlist = ET.Element("playlist")
@@ -398,13 +422,14 @@ def fillPlayList(session, row):
         duration += trow.track.time_secs
         playlist.set("songCount", str(count))
         playlist.set("duration", str(duration))
-            
+
     for urow in row.users:
         auser = ET.Element("allowedUser")
         auser.text = urow.user.name
         playlist.append(auser)
 
     return playlist
+
 
 def fillUser(session, row):
     user = ET.Element("user")

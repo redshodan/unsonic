@@ -1,8 +1,4 @@
-import unittest
-
-from pyramid import testing
-
-from . import RestTestCase, setUpModule
+from . import RestTestCase
 from ...models import Session, Track
 from ...views.rest.stream import Stream
 from ...views.rest import Command
@@ -19,7 +15,7 @@ class TestStream(RestTestCase):
             fp.close()
         self.assertEqual(len(resp.body), len(streamed))
         self.assertEqual(resp.body, streamed)
-    
+
     def testNoID(self):
         cmd = self.buildCmd(Stream)
         resp = cmd()

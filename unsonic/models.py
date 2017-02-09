@@ -1,24 +1,23 @@
-import os, datetime, argparse
+import os
+import datetime
 from argparse import Namespace
 from contextlib import contextmanager
 
 import sqlalchemy
-from sqlalchemy import (engine_from_config, Table, Column, Integer, Text,
-                        ForeignKey, String, DateTime, event, Index, Boolean,
-                        UniqueConstraint)
+from sqlalchemy import (Table, Column, Integer, Text, ForeignKey, String,
+                        DateTime, Index, Boolean, UniqueConstraint)
 from sqlalchemy.engine import Engine
-from sqlalchemy.exc import IntegrityError, InvalidRequestError
-from sqlalchemy.ext.declarative import declarative_base, declared_attr
-from sqlalchemy.orm import scoped_session, sessionmaker, relation
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import relation
 from sqlalchemy.orm.exc import NoResultFound
 
 import mishmash.orm
-from mishmash.orm import (Base, Artist, Album, Meta, Track, Image, Tag,
-                          artist_images, album_images, track_tags)
-from mishmash.orm import TYPES as MASH_TYPES
+from mishmash.orm import Base, Artist, Album, Meta, Track   # noqa: F401
+from mishmash.orm import Image, Tag, artist_images          # noqa: F401
+from mishmash.orm import album_images, track_tags           # noqa: F401
 from mishmash.database import init as dbinit
 
-from .moduleref import ModuleRef
 from .version import DB_VERSION
 
 
@@ -26,6 +25,7 @@ db_url = None
 db_engine = None
 session_maker = None
 dbinfo = Namespace()
+ALL = object()
 
 
 @sqlalchemy.event.listens_for(Engine, "connect")
@@ -55,7 +55,7 @@ def Session():
         session.close()
 
 
-### DB models
+# DB models
 class OrmObject(mishmash.orm.OrmObject):
     @staticmethod
     def loadTable(session):
@@ -88,7 +88,7 @@ class DBInfo(Base, OrmObject):
 class User(Base, OrmObject):
     __tablename__ = 'un_users'
 
-    # Columns    
+    # Columns
     id = Column(Integer, primary_key=True)
     name = Column(Text, unique=True)
     password = Column(Text)
@@ -130,7 +130,7 @@ class User(Base, OrmObject):
 class Role(Base, OrmObject):
     __tablename__ = 'un_roles'
     __table_args__ = (UniqueConstraint("user_id", "name"), {})
-    
+
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
                      nullable=False)
@@ -157,9 +157,10 @@ playlist_images = Table("un_playlist_images", Base.metadata,
 '''Pivot table 'playlist_images' for mapping a playlist ID to a value in the
 `images` table.'''
 
+
 class PlayList(Base, OrmObject):
     __tablename__ = 'un_playlists'
-        
+
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
                       nullable=False)
@@ -167,9 +168,9 @@ class PlayList(Base, OrmObject):
     comment = Column(Text)
     public = Column(Integer, default=0)
     created = sqlalchemy.Column(sqlalchemy.DateTime(), nullable=False,
-                         default=datetime.datetime.now)
+                                default=datetime.datetime.now)
     changed = sqlalchemy.Column(sqlalchemy.DateTime(), nullable=False,
-                         default=datetime.datetime.now)
+                                default=datetime.datetime.now)
     users = relation("PlayListUser", cascade="all, delete-orphan",
                      passive_deletes=True)
     tracks = relation("PlayListTrack", cascade="all, delete-orphan",
@@ -202,6 +203,7 @@ class PlayListTrack(Base, OrmObject):
     track = relation("Track")
     playlist = relation("PlayList")
 
+
 # Modify the Track to include a relation to PlayListTrack
 Track.playlist = relation("PlayListTrack")
 
@@ -220,12 +222,13 @@ class ArtistRating(Base, OrmObject):
     artist = relation("Artist")
     user = relation("User")
 
+
 Artist.rating = relation("ArtistRating")
-    
+
 
 class AlbumRating(Base, OrmObject):
     __tablename__ = "un_albumratings"
-        
+
     album_id = Column(Integer, ForeignKey("albums.id"), nullable=False,
                       primary_key=True)
     user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False,
@@ -237,12 +240,13 @@ class AlbumRating(Base, OrmObject):
     album = relation("Album")
     user = relation("User")
 
+
 Album.rating = relation("AlbumRating")
 
 
 class TrackRating(Base, OrmObject):
     __tablename__ = "un_trackratings"
-    
+
     track_id = Column(Integer, ForeignKey("tracks.id"), nullable=False,
                       primary_key=True)
     user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False,
@@ -251,6 +255,7 @@ class TrackRating(Base, OrmObject):
     starred = Column(DateTime, default=None, nullable=True)
     track = relation("Track")
     user = relation("User")
+
 
 Track.rating = relation("TrackRating")
 
@@ -265,13 +270,14 @@ class PlayCount(Base, OrmObject):
     count = Column(Integer, nullable=False)
     track = relation("Track")
     user = relation("User")
-    
+
+
 Track.play_count = relation("PlayCount")
 
 
 class Scrobble(Base, OrmObject):
     __tablename__ = "un_scrobbles"
-    
+
     id = Column(Integer, primary_key=True)
     track_id = Column(Integer, ForeignKey("tracks.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False)
@@ -283,10 +289,11 @@ class Scrobble(Base, OrmObject):
     def __table_args__(cls):
         return (Index("scrobble_user_index", "user_id"), )
 
+
 Track.scrobbles = relation("Scrobble")
 
 
-### Utility functions
+# Utility functions
 def init(settings, webapp=False):
     global db_url, db_engine, session_maker
     settings["sqlalchemy.url"] = web.CONFIG.get("mishmash", "sqlalchemy.url")
@@ -314,7 +321,7 @@ def asdict(value):
         if len(line):
             key, val = line.split(":")
             ret[key.strip()] = val.strip()
-    return ret            
+    return ret
 
 
 def getMashPaths(settings):
@@ -434,7 +441,6 @@ def rateItem(session, user_id, item_id, rating=None, starred=None):
                             artist_id=artist_id)
 
 
-ALL = object()
 def updatePseudoRatings(session, user_id=None, album_id=ALL, artist_id=ALL):
     # Update albums first
     albums = None
@@ -446,7 +452,7 @@ def updatePseudoRatings(session, user_id=None, album_id=ALL, artist_id=ALL):
     if albums:
         for album in albums:
             alrating = session.query(AlbumRating).filter(
-                AlbumRating.album_id == ablum.id,
+                AlbumRating.album_id == album.id,
                 AlbumRating.user_id == user_id).one_or_none()
             if alrating is None:
                 alrating = AlbumRating(album_id=album.id, user_id=user_id)
@@ -511,7 +517,7 @@ def updatePseudoRatings(session, user_id=None, album_id=ALL, artist_id=ALL):
                         if starred is None or starred > alrating.starred:
                             # Extract the oldest starred date
                             starred = alrating.starred
-                    
+
                 # Down rank for unrated albums
                 count += 1
             if count:
@@ -523,11 +529,12 @@ def updatePseudoRatings(session, user_id=None, album_id=ALL, artist_id=ALL):
                 arrating.pseudo_starred = True
 
 
-from . import auth, web
+from . import auth, web   # noqa: E402
 
 
-UN_TYPES = [DBInfo, User, Role, PlayQueue, PlayList, PlayListUser, PlayListTrack,
-            ArtistRating, AlbumRating, TrackRating, PlayCount, Scrobble]
+UN_TYPES = [DBInfo, User, Role, PlayQueue, PlayList, PlayListUser,
+            PlayListTrack, ArtistRating, AlbumRating, TrackRating,
+            PlayCount, Scrobble]
 
 # insinuate self into mishmash's table lists so schema is setup correctly
 mishmash.orm.TYPES.extend(UN_TYPES)

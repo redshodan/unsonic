@@ -4,6 +4,7 @@ VLIB=$(TOPDIR)/build/venv/lib
 PYTHON=$(VBIN)/python
 PYTEST=$(VBIN)/pytest
 PIP=$(VBIN)/pip
+FLAKE8=$(VBIN)/flake8
 PY_LIB=$(VLIB)/python*/site-packages
 
 
@@ -60,6 +61,9 @@ build/development.sqlite:
 run: devel-run
 devel-run: bin/unsonic build/development.sqlite
 	bin/unsonic -c development.ini serve --reload
+
+check:
+	$(FLAKE8)
 
 tests: $(PYTEST) tests-clean
 	$(PYTHON) setup.py test $(FTF)

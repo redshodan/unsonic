@@ -6,10 +6,8 @@ from sqlalchemy.sql.expression import func as dbfunc
 
 from eyed3.core import Date as Eyed3Date
 
-from . import (Command, MissingParam, addCmd, fillAlbum, fillAlbumUser,
-               fillArtist, fillTrack)
-from ...models import (Session, Artist, Album, AlbumRating, PlayCount, Track,
-                       Scrobble)
+from . import Command, MissingParam, addCmd, fillAlbumUser
+from ...models import Artist, Album, AlbumRating, PlayCount, Track, Scrobble
 
 
 class GetAlbumList(Command):
@@ -23,7 +21,7 @@ class GetAlbumList(Command):
         "type": {"required": True,
                  "values": ["alphabeticalByName", "alphabeticalByArtist",
                             "frequent", "highest", "newest", "random",
-                            "recent", "starred", "byYear", "byGenre",]},
+                            "recent", "starred", "byYear", "byGenre"]},
         }
     dbsess = True
 
@@ -67,9 +65,9 @@ class GetAlbumList(Command):
             self.processRows(session, alist, result)
         elif self.params["type"] == "highest":
             result = session.query(AlbumRating). \
-                        options(subqueryload("*")). \
-                        filter(AlbumRating.user_id ==
-                               self.req.authed_user.id). \
+                         options(subqueryload("*")). \
+                         filter(AlbumRating.user_id ==
+                                self.req.authed_user.id). \
                          order_by(AlbumRating.rating). \
                          offset(offset). \
                          limit(limit)

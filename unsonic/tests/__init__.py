@@ -1,10 +1,11 @@
-import os, shutil, unittest
+import os
+import shutil
+import unittest
 from pathlib import Path
 
 from pyramid import testing
 
 from .. import __main__, web
-from ..models import Session
 
 
 class TestCase(unittest.TestCase):

@@ -1,3 +1,5 @@
+# flake8: noqa: F401
+
 # This needs to be very early in the import sequence so the monkeypatch
 # works right.
 from . import config

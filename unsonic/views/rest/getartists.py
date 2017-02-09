@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 from sqlalchemy.orm import subqueryload
 
 from . import Command, addCmd, fillArtist
-from ...models import Session, Artist, Album
+from ...models import Artist, Album
 
 
 class GetArtists(Command):
@@ -11,7 +11,7 @@ class GetArtists(Command):
     param_defs = {"musicFolderId": {}}
     dbsess = True
 
-    
+
     def handleReq(self, session):
         artists = ET.Element("artists")
         # TODO: find the actual ignored articles

@@ -1,8 +1,8 @@
-import os, sys, argparse, hashlib
+import hashlib
 
 from pyramid.authentication import BasicAuthAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
-from pyramid.httpexceptions import HTTPForbidden, HTTPUnauthorized
+from pyramid.httpexceptions import HTTPUnauthorized
 from pyramid.security import forget
 from pyramid.view import forbidden_view_config
 
@@ -38,7 +38,8 @@ class User():
 
 class Roles(object):
     # Pyramind roles
-    ADMIN = "admin" # both pyramid and subsonic
+    #   ADMIN is for both pyramid and subsonic
+    ADMIN = "admin"
     USERS = "users"
     REST = "rest"
 
@@ -110,7 +111,7 @@ class SubsonicAuth(BasicAuthAuthenticationPolicy):
             if not user or user and not user.password:
                 return
             if ("t" in list(req.params.keys()) and
-                "s" in list(req.params.keys())):
+                  "s" in list(req.params.keys())):
                 sum = hashlib.md5()
                 sum.update(user.password.encode("utf-8"))
                 sum.update(req.params["s"].encode("utf-8"))

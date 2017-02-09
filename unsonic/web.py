@@ -1,16 +1,17 @@
-import logging
-import logging.config
+import sys
+import time
+from pkg_resources import load_entry_point
 
 from paste.translogger import TransLogger
 from pyramid.config import Configurator
-from pyramid.paster import get_appsettings, setup_logging
-from pyramid.response import FileResponse
-from pyramid.view import view_config, forbidden_view_config
 
 import unsonic
-from . import log, models, auth
+from . import models, auth
 from .views import rest, ui
 from .config import HereConfig
+
+
+__requires__ = 'pyramid>=1.4.3'
 
 
 NAME = "Unsonic"
@@ -28,17 +29,17 @@ def init(global_config, settings):
     SETTINGS = settings
     CONFIG = HereConfig(CONFIG_FILE)
     CONFIG.read()
-    
+
     # Setup models
     models.init(settings, True)
     models.load()
 
 
 def main(global_config, **settings):
-    """ This function returns a Pyramid WSGI application."""
+    """This function returns a Pyramid WSGI application."""
     # log.setupMash()
     init(global_config, settings)
-    
+
     # Pyramid framework
     config = Configurator(settings=settings)
     config.add_static_view('static', 'static', cache_max_age=3600,)
@@ -72,10 +73,6 @@ def main(global_config, **settings):
 
 # Wrapper around the pserve script to catch syntax and import errors
 def webServe():
-    __requires__ = 'pyramid>=1.4.3'
-    import sys, time
-    from pkg_resources import load_entry_point
-
     if "--reload" in sys.argv:
         reload = True
     else:

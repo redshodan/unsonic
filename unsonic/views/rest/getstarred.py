@@ -2,10 +2,8 @@ import xml.etree.ElementTree as ET
 
 from sqlalchemy.orm import subqueryload
 
-from . import (Command, MissingParam, NotFound, addCmd, fillArtistUser,
-               fillAlbumUser, fillTrackUser)
-from ...models import (Session, Artist, Album, Track, ArtistRating, AlbumRating,
-                       TrackRating)
+from . import Command, addCmd, fillArtistUser, fillAlbumUser, fillTrackUser
+from ...models import ArtistRating, AlbumRating, TrackRating
 
 
 class GetStarred(Command):
@@ -16,7 +14,7 @@ class GetStarred(Command):
 
     def handleReq(self, session):
         starred = ET.Element("starred")
-        
+
         # Artists
         for row in session.query(ArtistRating).options(subqueryload("*")). \
                        filter(ArtistRating.starred is not None).all():
@@ -35,7 +33,7 @@ class GetStarred(Command):
                        filter(TrackRating.starred is not None).all():
             album = fillTrackUser(session, row.track, row, self.req.authed_user)
             starred.append(album)
-            
+
         return self.makeResp(child=starred)
 
 

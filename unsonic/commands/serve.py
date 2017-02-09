@@ -1,4 +1,7 @@
-import os, sys, argparse, shutil
+import os
+import sys
+import argparse
+import shutil
 
 from nicfit import command
 from mishmash.core import Command

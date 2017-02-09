@@ -1,12 +1,10 @@
-import os.path
-
 from sqlalchemy.orm import subqueryload
 
 from pyramid.response import Response
 from pyramid.exceptions import NotFound
 
 from . import Command, addCmd, MissingParam
-from ...models import Session, Artist, Album, Track, Image
+from ...models import Image
 
 
 class GetCoverArt(Command):
@@ -21,10 +19,9 @@ class GetCoverArt(Command):
             num = int(id[3:])
         except:
             raise MissingParam("Invalid id: %s" % id)
-        row = None
         if id.startswith("ar-") or id.startswith("al-"):
             image = session.query(Image).options(subqueryload("*")).\
-              filter_by(id=num).all()
+                filter_by(id=num).all()
 
         if len(image) == 1:
             return Response(content_type=image[0].mime_type,

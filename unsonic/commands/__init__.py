@@ -1,3 +1,5 @@
+# flake8: noqa: F401
+
 import mishmash.commands
 
 from .adduser import AddUser

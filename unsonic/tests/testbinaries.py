@@ -1,10 +1,7 @@
-import os, unittest
-
-from pyramid import testing
-
 from .. import __main__
-from ..models import Session, Base, User, Role
+from ..models import Session, User
 from . import TestCase
+
 
 class TestBinaries(TestCase):
     def testAddUser(self):
@@ -37,7 +34,7 @@ class TestBinaries(TestCase):
             self.assertTrue("role1" in roles)
             self.assertTrue("role2" in roles)
 
-            
+
     def testDelUser(self):
         ret = __main__.main(["-c", "testing.ini", "adduser", "sue", "pass",
                             "role1", "role2"])

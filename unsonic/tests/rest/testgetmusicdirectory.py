@@ -1,16 +1,11 @@
 import unittest
-import xml.etree.ElementTree as ET
 
-from pyramid import testing
-
-from . import RestTestCase, setUpModule
-from ...models import Session
+from . import RestTestCase
 from ...views.rest.getmusicdirectory import GetMusicDirectory
 from ...views.rest import Command
 
 
 class TestMusicDirectory(RestTestCase):
-    @unittest.skip("Find better way to map db items")
     def testArtistOneAlbum(self):
         aid = "ar-4"
         cmd = self.buildCmd(GetMusicDirectory, {"id": aid})
@@ -69,7 +64,7 @@ class TestMusicDirectory(RestTestCase):
         cmd = self.buildCmd(GetMusicDirectory, {"id": "ar-1000000000000"})
         resp = cmd()
         self.checkResp(cmd.req, resp, Command.E_NOT_FOUND)
-            
+
     def testBadID(self):
         cmd = self.buildCmd(GetMusicDirectory, {"id": "foobar"})
         resp = cmd()

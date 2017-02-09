@@ -1,7 +1,7 @@
 from pyramid.response import FileResponse
 
 from . import Command, addCmd, bool_t, track_t
-from ...models import Session, Track
+from ...models import Track
 
 
 class Stream(Command):

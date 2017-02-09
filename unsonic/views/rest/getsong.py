@@ -1,9 +1,5 @@
-import xml.etree.ElementTree as ET
-
-from . import (Command, MissingParam, NotFound, addCmd, fillAlbum, fillArtist,
-               fillTrack)
+from . import addCmd
 from .getmusicdirectory import GetMusicDirectory
-from ...models import Session, Artist, Album, Track
 
 
 class GetSong(GetMusicDirectory):
@@ -12,5 +8,6 @@ class GetSong(GetMusicDirectory):
     def __init__(self, req):
         super(GetSong, self).__init__(req)
         self.setParams(dir_param="song", album_param="song", track_param="song")
+
 
 addCmd(GetSong)

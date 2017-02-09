@@ -1,24 +1,23 @@
 import datetime
-import xml.etree.ElementTree as ET
 
 from sqlalchemy.orm import subqueryload
 from sqlalchemy.orm.exc import NoResultFound
 
-from . import Command, addCmd, InternalError, MissingParam, bool_t, track_t
-from ...models import Session, PlayCount, Track
+from . import Command, addCmd, bool_t, track_t, NotFound
+from ...models import PlayCount, Track, dbinfo
 from ...models import Scrobble as DBScrobble
 
 
 class Scrobble(Command):
     name = "scrobble.view"
     param_defs = {
-        "id": {"required": True, "type":track_t},
+        "id": {"required": True, "type": track_t},
         "time": {},
-        "submission": {"default":bool_t},
+        "submission": {"default": bool_t},
         }
     dbsess = True
 
-    
+
     def handleReq(self, session):
         if not self.params["submission"]:
             # User is listening, not scrobbling yet
@@ -30,7 +29,7 @@ class Scrobble(Command):
                     Track.id == self.params["id"]).one()
             except NoResultFound:
                 raise NotFound("Track not found")
-            
+
             # Inc play count
             try:
                 pcount = session.query(PlayCount). \

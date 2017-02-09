@@ -1,9 +1,7 @@
 import xml.etree.ElementTree as ET
 
-from sqlalchemy.orm import subqueryload
-
 from . import Command, addCmd
-from ...models import Session, Tag, track_tags
+from ...models import Tag
 
 
 class GetGenres(Command):
@@ -11,7 +9,7 @@ class GetGenres(Command):
     param_defs = {}
     dbsess = True
 
-    
+
     def handleReq(self, session):
         genres = ET.Element("genres")
         for row in session.query(Tag).order_by(Tag.name).all():

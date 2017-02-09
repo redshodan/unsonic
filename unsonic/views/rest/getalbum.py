@@ -1,10 +1,7 @@
-import xml.etree.ElementTree as ET
-
 from sqlalchemy.orm import subqueryload
 
-from . import (Command, MissingParam, NotFound, addCmd, album_t, fillAlbumID3,
-               fillTrackUser)
-from ...models import Session, Artist, Album, Track
+from . import (Command, NotFound, addCmd, album_t, fillAlbumID3)
+from ...models import Album
 
 
 class GetAlbum(Command):
@@ -22,5 +19,5 @@ class GetAlbum(Command):
             raise NotFound(self.req.params["id"])
         return self.makeResp(child=album)
 
-        
+
 addCmd(GetAlbum)

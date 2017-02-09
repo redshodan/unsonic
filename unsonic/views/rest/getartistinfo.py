@@ -1,12 +1,15 @@
 import xml.etree.ElementTree as ET
 
-from sqlalchemy.orm import subqueryload
-
-from . import (Command, MissingParam, NotFound, addCmd, playable_id_t)
-from ...models import Session, Artist, Album, Track
+from . import Command, addCmd, playable_id_t
 
 
-bacon_ipsum = "Bacon ipsum dolor amet biltong sausage ribeye pancetta salami pork chop. Short loin sirloin burgdoggen, turducken kielbasa corned beef landjaeger chicken short ribs capicola. Drumstick turkey jerky, cow shankle flank pork loin ball tip. Meatball shoulder landjaeger jerky. Bresaola prosciutto alcatra venison, meatloaf pork belly ball tip tail cupim porchetta. Chuck alcatra leberkas tail flank. Kevin chicken strip steak meatball ground round cow."
+bacon_ipsum = (
+"Bacon ipsum dolor amet biltong sausage ribeye pancetta salami pork chop. Short "
+"loin sirloin burgdoggen, turducken kielbasa corned beef landjaeger chicken "
+"short ribs capicola. Drumstick turkey jerky, cow shankle flank pork loin ball "
+"tip. Meatball shoulder landjaeger jerky. Bresaola prosciutto alcatra venison, "
+"meatloaf pork belly ball tip tail cupim porchetta. Chuck alcatra leberkas tail "
+"flank. Kevin chicken strip steak meatball ground round cow.")
 
 
 class GetArtistInfo(Command):
@@ -34,8 +37,8 @@ class GetArtistInfo(Command):
             url = ET.Element(name)
             url.text = "https://foo.com/foo"
             ainfo.append(url)
-        
+
         return self.makeResp(child=ainfo)
 
-        
+
 addCmd(GetArtistInfo)

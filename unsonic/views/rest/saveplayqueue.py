@@ -1,11 +1,6 @@
 import datetime
-import xml.etree.ElementTree as ET
 
-from sqlalchemy.orm import subqueryload
-from sqlalchemy.orm.exc import NoResultFound
-
-from . import (Command, addCmd, InternalError, MissingParam, NoPerm, fillUser,
-               positive_t, track_t)
+from . import (Command, addCmd, positive_t, track_t)
 from ...models import User, PlayQueue
 
 
@@ -20,7 +15,7 @@ class SavePlayQueue(Command):
 
 
     def handleReq(self, session):
-        user = (session.query(User).\
+        user = (session.query(User).
                 filter(User.name == self.req.authed_user.name).one_or_none())
         # Delete the old playqueue
         session.query(PlayQueue).filter(PlayQueue.user_id == user.id).delete()

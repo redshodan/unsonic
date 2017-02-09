@@ -1,8 +1,6 @@
-import xml.etree.ElementTree as ET
-
-from . import Command, addCmd, InternalError, MissingParam, track_t, playlist_t
+from . import Command, addCmd, MissingParam, track_t, playlist_t
 from .getplaylist import GetPlayList
-from ...models import Session, PlayList, PlayListTrack, Track
+from ...models import PlayList, PlayListTrack, Track
 
 
 class CreatePlayList(Command):
@@ -14,20 +12,21 @@ class CreatePlayList(Command):
         }
     dbsess = True
 
-    
+
     def handleReq(self, session):
-        if self.params["playlistId"] and self.params["name"]:
+        plid = self.params["playlistId"]
+        if plid and self.params["name"]:
             raise MissingParam(
                 "Can't supply playlistId and name at the same time")
-        elif (not self.params["playlistId"] and not self.params["name"]):
+        elif (not plid and not self.params["name"]):
             raise MissingParam("Must supply playlistId or name")
 
-        if self.params["playlistId"]:
+        if plid:
             # Update/append case
             plist = session.query(PlayList).filter(
-                PlayList.id == self.params["playlistId"]).one_or_none()
+                PlayList.id == plid).one_or_none()
             if plist is None:
-                raise MissingParam("Invalid playlistId: pl-%s" % sid)
+                raise MissingParam("Invalid playlistId: pl-%s" % plid)
         else:
             # New creation case
             plist = PlayList(user_id=self.req.authed_user.id,
@@ -39,8 +38,7 @@ class CreatePlayList(Command):
             track = session.query(Track).filter(Track.id == sid).one_or_none()
             if track is None:
                 raise MissingParam("Invalid songId: tr-%s" % sid)
-            pltrack = PlayListTrack(track_id=track.id,
-                                    playlist_id = plist.id)
+            pltrack = PlayListTrack(track_id=track.id, playlist_id=plist.id)
             session.add(pltrack)
             self.params["id"] = plist.id
 

@@ -1,10 +1,6 @@
-import argparse
-
 from nicfit import command
-import mishmash.config
 from mishmash.core import Command
 
-from .. import models, auth
 from ..models import User
 
 

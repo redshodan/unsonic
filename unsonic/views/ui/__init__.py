@@ -17,9 +17,9 @@ def view(req):
         path = os.path.join("views", req.path[1:])
     fname = os.path.join(base, path)
 
-    repls = {"rest":req.route_url("rest"),
-             "home":req.route_url("home"),
-             "user":req.authed_user.name.encode("utf-8")}
+    repls = {"rest": req.route_url("rest"),
+             "home": req.route_url("home"),
+             "user": req.authed_user.name.encode("utf-8")}
     body = open(fname).read()
     for key, val in repls.items():
         body = body.replace("%%%s%%" % str(key), str(val))

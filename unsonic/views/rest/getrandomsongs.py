@@ -3,8 +3,8 @@ import xml.etree.ElementTree as ET
 from sqlalchemy.orm import subqueryload
 from sqlalchemy.sql.expression import func as dbfunc
 
-from . import Command, addCmd, fillAlbum, fillArtist, fillTrack, year_t
-from ...models import Session, Artist, Album, Track
+from . import Command, addCmd, fillTrack, year_t
+from ...models import Album, Track
 
 
 class GetRandomSongs(Command):

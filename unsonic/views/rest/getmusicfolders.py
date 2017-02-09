@@ -16,6 +16,6 @@ class GetMusicFolders(Command):
             folder.set("id", "fl-%s" % name)
             folder.set("name", name)
         return self.makeResp(child=folders)
-        
-        
+
+
 addCmd(GetMusicFolders)

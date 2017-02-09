@@ -1,4 +1,5 @@
-import os, configparser
+import os
+import configparser
 
 # This needs to be very early in the import sequence so the monkeypatch
 # works right.
@@ -16,7 +17,8 @@ class HereConfig(MishConfig):
             # Cfghere
             cfghere = os.path.dirname(os.path.abspath(filename))
             self.set(configparser.DEFAULTSECT, "cfghere", cfghere)
-        
+
+
     def get(self, section, key, **kwargs):
         val = super().get(section, key, **kwargs)
         if val and "%(here)s" in val:
@@ -27,5 +29,6 @@ class HereConfig(MishConfig):
                                super().get(configparser.DEFAULTSECT, "cfghere"))
         else:
             return val
+
 
 mishmash.config.Config = HereConfig

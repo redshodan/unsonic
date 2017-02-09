@@ -1,7 +1,6 @@
 from . import RestTestCase
 from ...models import Session, PlayList
 from ...views.rest.createplaylist import CreatePlayList
-from ...views.rest import Command
 
 
 class TestCreatePlayList(RestTestCase):
@@ -10,7 +9,7 @@ class TestCreatePlayList(RestTestCase):
         plist = ["tr-1", "tr-2", "tr-3"]
         cmd = self.buildCmd(CreatePlayList, {"name": pname, "songId": plist})
         resp = cmd()
-        sub_resp = self.checkResp(cmd.req, resp)
+        self.checkResp(cmd.req, resp)
         with Session() as session:
             row = session.query(PlayList).\
                       filter(PlayList.name == pname).one_or_none()
@@ -27,11 +26,11 @@ class TestCreatePlayList(RestTestCase):
         sub_resp = self.checkResp(cmd.req, cmd())
         playlist = sub_resp.find("{http://subsonic.org/restapi}playlist")
         pl_id = playlist.get("id")
-    
+
         plist2 = ["tr-3", "tr-2", "tr-1"]
         cmd = self.buildCmd(CreatePlayList,
                             {"playlistId": pl_id, "songId": plist2})
-        sub_resp = self.checkResp(cmd.req, cmd())
+        self.checkResp(cmd.req, cmd())
         with Session() as session:
             row = session.query(PlayList).\
                       filter(PlayList.name == pname).one_or_none()

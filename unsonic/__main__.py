@@ -1,7 +1,5 @@
-import os
-
 import unsonic
-import unsonic.commands
+import unsonic.commands         # noqa: F401
 from nicfit import Command
 
 import mishmash

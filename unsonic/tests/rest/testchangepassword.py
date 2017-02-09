@@ -12,7 +12,7 @@ class TestChangePassword(RestTestCase):
         cmd = self.buildCmd(ChangePassword,
                             {"username": "test", "password": "newpass"})
         resp = cmd()
-        sub_resp = self.checkResp(cmd.req, resp)
+        self.checkResp(cmd.req, resp)
         with Session() as session:
             row = session.query(User).filter(User.name == "test").one_or_none()
             self.assertEqual(row.password, "newpass")
@@ -21,7 +21,7 @@ class TestChangePassword(RestTestCase):
     def testChangeSelfPassword(self):
         cmd = self.buildCmd(ChangePassword, {"password": "newpass"})
         resp = cmd()
-        sub_resp = self.checkResp(cmd.req, resp)
+        self.checkResp(cmd.req, resp)
         with Session() as session:
             row = session.query(User).filter(User.name == "test").one_or_none()
             self.assertEqual(row.password, "newpass")
@@ -31,7 +31,7 @@ class TestChangePassword(RestTestCase):
         cmd = self.buildCmd(ChangePassword, {"username": "admin",
                                              "password": "newpass"})
         resp = cmd()
-        sub_resp = self.checkResp(cmd.req, resp, Command.E_PERM)
+        self.checkResp(cmd.req, resp, Command.E_PERM)
         with Session() as session:
             row = session.query(User).filter(User.name == "admin").one_or_none()
             self.assertEqual(row.password, None)
@@ -41,7 +41,7 @@ class TestChangePassword(RestTestCase):
         cmd = self.buildCmd(ChangePassword, {"username": "test",
                                              "password": "newpass"}, "admin")
         resp = cmd()
-        sub_resp = self.checkResp(cmd.req, resp)
+        self.checkResp(cmd.req, resp)
         with Session() as session:
             row = session.query(User).filter(User.name == "admin").one_or_none()
             self.assertEqual(row.password, None)

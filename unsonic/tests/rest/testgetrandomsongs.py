@@ -1,11 +1,5 @@
-import unittest
-
-from pyramid import testing
-
-from . import RestTestCase, setUpModule
-from ...models import Session
+from . import RestTestCase
 from ...views.rest.getrandomsongs import GetRandomSongs
-from ...views.rest import Command
 
 
 class TestRandomSongs(RestTestCase):
@@ -22,13 +16,13 @@ class TestRandomSongs(RestTestCase):
             self.assertTrue(int(song.get("duration")) >= 0)
             self.assertTrue(int(song.get("bitRate")) >= 0)
         return count, titles
-        
+
     def testBasic(self):
         cmd = self.buildCmd(GetRandomSongs)
         resp = cmd()
         count, titles = self.validate(cmd, resp)
         self.assertEqual(count, 10)
-        
+
     def testSized(self):
         cmd = self.buildCmd(GetRandomSongs, {"size": "2"})
         resp = cmd()

@@ -1,8 +1,6 @@
-import xml.etree.ElementTree as ET
-
-from . import (Command, addCmd, InternalError, MissingParam, track_t,
-               bool_t, positive_t, playlist_t)
-from ...models import Session, PlayList, PlayListTrack, Track
+from . import (Command, addCmd, MissingParam, track_t, bool_t, positive_t,
+               playlist_t)
+from ...models import PlayList, PlayListTrack, Track
 
 
 class UpdatePlayList(Command):
@@ -17,7 +15,7 @@ class UpdatePlayList(Command):
         }
     dbsess = True
 
-    
+
     def handleReq(self, session):
         plist = session.query(PlayList).filter(
             PlayList.id == self.params["playlistId"]).one_or_none()
@@ -52,12 +50,11 @@ class UpdatePlayList(Command):
             track = session.query(Track).filter(Track.id == sid).one()
             if track is None:
                 raise MissingParam("Invalid songId: tr-%s" % sid)
-            pltrack = PlayListTrack(track_id=track.id,
-                                    playlist_id = plist.id)
+            pltrack = PlayListTrack(track_id=track.id, playlist_id=plist.id)
             session.add(pltrack)
 
         plist.changed = plist.changed.now()
-        
+
         return self.makeResp()
 
 

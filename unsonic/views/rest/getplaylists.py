@@ -2,8 +2,8 @@ import xml.etree.ElementTree as ET
 
 from sqlalchemy.orm import subqueryload
 
-from . import Command, addCmd, fillPlayList, InternalError, NoPerm
-from ...models import Session, PlayList, PlayListTrack, PlayListUser
+from . import Command, addCmd, fillPlayList, NoPerm
+from ...models import PlayList, getUserByName
 
 
 class GetPlayLists(Command):
@@ -11,10 +11,10 @@ class GetPlayLists(Command):
     param_defs = {"username": {}}
     dbsess = True
 
-    
+
     def handleReq(self, session):
         if (not self.params["username"] or
-            self.req.authed_user.name == self.params["username"]):
+                self.req.authed_user.name == self.params["username"]):
             db_user = self.req.authed_user
         elif self.req.authed_user.isAdmin():
             db_user = getUserByName(session, self.params["username"])

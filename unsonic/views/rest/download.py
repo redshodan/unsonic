@@ -1,9 +1,5 @@
-import xml.etree.ElementTree as ET
-
-from . import (Command, MissingParam, NotFound, addCmd, fillAlbum, fillArtist,
-               fillTrack)
+from . import addCmd, track_t
 from .stream import Stream
-from . import Command, addCmd, bool_t, track_t
 
 
 class Download(Stream):
@@ -14,5 +10,6 @@ class Download(Stream):
 
     def __init__(self, req):
         super().__init__(req)
+
 
 addCmd(Download)
