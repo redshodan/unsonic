@@ -2,6 +2,10 @@ import os
 import datetime
 from argparse import Namespace
 from contextlib import contextmanager
+from pathlib import Path
+
+from alembic import command
+from alembic.config import Config
 
 import sqlalchemy
 from sqlalchemy import (Table, Column, Integer, Text, ForeignKey, String,
@@ -18,7 +22,7 @@ from mishmash.orm import Image, Tag, artist_images          # noqa: F401
 from mishmash.orm import album_images, track_tags           # noqa: F401
 from mishmash.database import init as dbinit
 
-from .version import DB_VERSION
+import unsonic.config
 
 
 db_url = None
@@ -30,9 +34,9 @@ ALL = object()
 
 @sqlalchemy.event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
-    # FIXME
-    # if db_url.startswith("sqlite://"):
-    if True:
+    """Allows foreign keys to work in sqlite."""
+    import sqlite3
+    if dbapi_connection.__class__ is sqlite3.Connection:
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
         cursor.close()
@@ -70,11 +74,6 @@ class DBInfo(Base, OrmObject):
 
 
     @staticmethod
-    def initTable(session, config):
-        session.add(DBInfo(version=DB_VERSION))
-
-
-    @staticmethod
     def loadTable(session):
         dbinfo.version = None
         dbinfo.old_versions = []
@@ -108,10 +107,6 @@ class User(Base, OrmObject):
     playlists = relation("PlayList", cascade="all, delete-orphan",
                          passive_deletes=True)
     avatar = Column(Integer, ForeignKey("images.id", ondelete='CASCADE'))
-
-    @staticmethod
-    def initTable(session, config):
-        addUser(session, "admin", None, auth.Roles.admin_roles)
 
 
     @staticmethod
@@ -307,6 +302,16 @@ def init(settings, webapp=False):
     config.various_artists_name = web.CONFIG.get("mishmash",
                                                  "various_artists_name")
     db_engine, session_maker = dbinit(config)
+    initAlembic()
+
+
+def initAlembic():
+    # Upgrade to head (i.e. this) revision, or no-op if they match
+    db_url = unsonic.config.CONFIG.get("mishmash", "sqlalchemy.url")
+    alembic_d = Path(__file__).parent.parent / "alembic"
+    alembic_cfg = Config(str(alembic_d / "alembic.ini"))
+    alembic_cfg.set_main_option("sqlalchemy.url", db_url)
+    command.upgrade(alembic_cfg, "head")
 
 
 def load():
@@ -409,11 +414,9 @@ def rateItem(session, user_id, item_id, rating=None, starred=None):
             session.flush()
         artist_id = row.album.artist_id
     elif item_id.startswith("tr-"):
-        print("TrackRating", num, user_id)
         row = session.query(TrackRating).filter(
             TrackRating.track_id == num,
             TrackRating.user_id == user_id).one_or_none()
-        print("row", row)
         if row is None:
             row = TrackRating(track_id=num, user_id=user_id)
             session.add(row)
@@ -426,13 +429,10 @@ def rateItem(session, user_id, item_id, rating=None, starred=None):
         else:
             row.rating = rating
             row.pseudo_rating = False
-    print(row)
     if isinstance(starred, datetime.datetime):
-        print("starred", starred)
         row.starred = starred
         row.pseudo_starred = False
     elif starred is True:
-        print("starred", starred)
         row.starred = None
         row.pseudo_starred = True
     session.flush()
@@ -499,7 +499,6 @@ def updatePseudoRatings(session, user_id=None, album_id=ALL, artist_id=ALL):
                 arrating = ArtistRating(user_id=user_id, artist_id=artist.id)
                 session.add(arrating)
             if arrating.rating is None or not arrating.pseudo_rating:
-                print("skipping hand set rating", arrating, artist)
                 continue
             albums = session.query(Album). \
                          filter(Album.artist_id == artist.id).all()

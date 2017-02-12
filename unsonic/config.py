@@ -7,9 +7,14 @@ import mishmash
 from mishmash.config import Config as MishConfig
 
 
+CONFIG = None
+
+
 class HereConfig(MishConfig):
     def __init__(self, filename, **kwargs):
         super().__init__(filename, **kwargs)
+        global CONFIG
+        CONFIG = self
         # Here
         here = "/".join(os.path.dirname(__file__).split("/")[:-1])
         self.set(configparser.DEFAULTSECT, "here", here)

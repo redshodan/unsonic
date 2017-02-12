@@ -14,14 +14,14 @@ class Serve(Command):
 
 
     def _initArgParser(self, parser):
-        parser.add_argument("--reload", action="store_true",
-                            help="Use auto-restart file monitor")
         parser.add_argument("pserve_args", nargs=argparse.REMAINDER,
-                            help="Pyramid pserve arguments")
+                            help="Pyramid pserve arguments. Put a '--' before "
+                                 "any pserve arguments.")
 
 
     def _run(self, args=None):
         args = args or self.args
+        pargs = args.pserve_args
 
         if not self.config.filename:
             print("No config file specified. Must specify a config file.")
@@ -37,8 +37,9 @@ class Serve(Command):
             print("Failed to find the unsonic-server command.")
             sys.exit(-1)
         argv = [path]
-        if args.reload:
-            argv.append("--reload")
-        argv.extend(args.pserve_args)
+        if pargs[0] == "--":
+            pargs = pargs[1:]
+        argv.extend(pargs)
         argv.append(str(self.config.filename))
+        print(" ".join(argv))
         os.execv(path, argv)

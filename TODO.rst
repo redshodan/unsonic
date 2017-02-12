@@ -4,11 +4,11 @@ For Initial Release
 * add argparse.parse_known_args() option to mishmash for pass-through args to pserve
 * musicFolderId's
 
-* Get alembic rocking for schema versioning or some other schema up/down-grade
-  path. Check with Travis on mishmash supporting the same.
 * Proper server logging
 * setup docker image for unsonic
 * Get unsonic into pypi (registered, work out dist package contents)
+  * Update the pkg-info on pypi
+* get setup.py to know about package files other than source
 
 
 General

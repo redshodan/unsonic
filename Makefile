@@ -1,6 +1,6 @@
 TOPDIR:=$(dir $(abspath $(lastword $(MAKEFILE_LIST))))
-VBIN=$(TOPDIR)/build/venv/bin
-VLIB=$(TOPDIR)/build/venv/lib
+VBIN=$(TOPDIR)build/venv/bin
+VLIB=$(TOPDIR)build/venv/lib
 PYTHON=$(VBIN)/python
 PYTEST=$(VBIN)/pytest
 PIP=$(VBIN)/pip
@@ -30,21 +30,23 @@ mishmash: external/mishmash mishmash.egg
 
 mishmash-update:
 	cd external/mishmash; git fetch
-	cd external/mishmash; $(PIP) install -U -r requirements/default.txt
-	cd external/mishmash; $(PYTHON) setup.py install
+	cd external/mishmash; $(PIP) install -e .
 
 external/mishmash:
 	cd external; git clone 'https://github.com/nicfit/mishmash.git' mishmash
 
 mishmash.egg: $(PY_LIB)/MishMash*.egg/mishmash
 $(PY_LIB)/MishMash*.egg/mishmash:
-	cd external/mishmash; $(PIP) install -U -r requirements/default.txt
-	cd external/mishmash; $(PYTHON) setup.py install
+	cd external/mishmash; $(PIP) install -e .
 
 $(PYTEST): requirements-test.txt
 	$(PIP) install -r requirements-test.txt
 
-devel: $(PY_LIB)/unsonic.egg-link
+flake8: $(FLAKE8)
+$(FLAKE8):
+	$(PIP) install flake8
+
+devel: $(PY_LIB)/unsonic.egg-link flake8
 
 $(PY_LIB)/unsonic.egg-link: build/venv/bin/python setup.py setup.cfg README.rst 
 $(PY_LIB)/unsonic.egg-link: development.ini
@@ -53,16 +55,16 @@ $(PY_LIB)/unsonic.egg-link:
 	touch $@
 
 db: devel-db
-devel-db: build/development.sqlite
+devel-db: devel build/development.sqlite
 build/development.sqlite:
 	bin/unsonic -c development.ini sync test/music
 	bin/unsonic -c development.ini adduser test test
 
 run: devel-run
 devel-run: bin/unsonic build/development.sqlite
-	bin/unsonic -c development.ini serve --reload
+	bin/unsonic -c development.ini serve -- --reload
 
-check:
+check: $(FLAKE8)
 	$(FLAKE8)
 
 tests: $(PYTEST) tests-clean
