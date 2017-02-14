@@ -34,6 +34,8 @@ def init(global_config, settings):
     models.init(settings, True)
     models.load()
 
+    unsonic.log.resetupLogging(global_config["__file__"], global_config)
+
 
 def main(global_config, **settings):
     """This function returns a Pyramid WSGI application."""

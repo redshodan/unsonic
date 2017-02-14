@@ -37,7 +37,7 @@ class Serve(Command):
             print("Failed to find the unsonic-server command.")
             sys.exit(-1)
         argv = [path]
-        if pargs[0] == "--":
+        if len(pargs) and pargs[0] == "--":
             pargs = pargs[1:]
         argv.extend(pargs)
         argv.append(str(self.config.filename))
