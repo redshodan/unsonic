@@ -42,3 +42,8 @@ def setupMash():
 
     wrapper = FileWrapper(sys.stdout, stdout_l)
     eyed3.utils.console.setOutput(wrapper, wrapper)
+
+
+def resetupLogging(config_uri, global_config):
+    from pyramid.scripts.common import setup_logging
+    setup_logging(config_uri, global_config)
