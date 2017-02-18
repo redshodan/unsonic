@@ -89,7 +89,8 @@ class Command(object):
         attrs_ = {"status": "ok" if status is True else "failed",
                   "xmlns": "http://subsonic.org/restapi",
                   "version": PROTOCOL_VERSION,
-                  "unsonic": UNSONIC_PROTOCOL_VERSION}
+                  "unsonic": UNSONIC_PROTOCOL_VERSION
+                 }
         attrs_.update(attrs)
         for key, value in attrs_.items():
             body.set(key, value)
@@ -115,7 +116,7 @@ class Command(object):
         resp = self.req.response
         if "f" in self.req.params:
             if self.req.params["f"] == "jsonp" and "callback" in self.req.params:
-                body = xmltodict.parse(body)
+                body = xmltodict.parse(body, attr_prefix="")
                 txt = "%s(%s)" % (self.req.params["callback"], json.dumps(body))
                 resp.text = txt
                 resp.content_type = "application/javascript"

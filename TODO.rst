@@ -3,6 +3,8 @@ For Initial Release
 * mishmash Command take a subparser description.
 * add argparse.parse_known_args() option to mishmash for pass-through args to pserve
 * musicFolderId's
+* turn addCmd() into a class decorator
+* func tests run full passes with json and jsonp
 
 * Proper server logging
 * setup docker image for unsonic
