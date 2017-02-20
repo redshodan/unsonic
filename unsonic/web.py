@@ -2,13 +2,13 @@ import sys
 import time
 from pkg_resources import load_entry_point
 
-from paste.translogger import TransLogger
 from pyramid.config import Configurator
 
 import unsonic
 from . import models, auth
 from .views import rest, ui
 from .config import HereConfig
+from .translogger import ColorTransLogger
 
 
 __requires__ = 'pyramid>=1.4.3'
@@ -70,7 +70,7 @@ def main(global_config, **settings):
 
     # Log requests
     app = config.make_wsgi_app()
-    return TransLogger(app, setup_console_handler=False)
+    return ColorTransLogger(app, setup_console_handler=False)
 
 
 # Wrapper around the pserve script to catch syntax and import errors
