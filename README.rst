@@ -66,9 +66,20 @@ Running
   * ./bin/unsonic -c <config.ini> adduser name pass
   * ./bin/unsonic -c <config.ini> serve [--reload]
 
-Manual testing
+Manual Testing
 --------------
   * ./test/bin/tester getArtists
+
+Installing a Web Client
+-----------------------
+  * Download/clone Jamstash from https://github.com/tsquillario/Jamstash
+  * Copy the contents of jamstash/dist/ to unsonic/unsonic/views/ui/
+  * With Unsonic running, point your browser at the url printed out, normally
+    something like http://localhost:6543 and your will be redirected to the load
+    Jamstash.
+  * Jamstash is very picky about the server URL in it's configuration. Make sure
+    there is no trailing '/' character otherwise Jamstash will not be able to
+    build the path correctly.
 
 Adjusting the configuration
 ===========================

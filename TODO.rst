@@ -5,13 +5,17 @@ For Initial Release
 * musicFolderId's
 * turn addCmd() into a class decorator
 * func tests run full passes with json and jsonp
+* Jamstash requires json but json with an empty element results in podcasts:
+  null and jamstash can't handle the null right.
 
-* Proper server logging
-* setup docker image for unsonic
+* Proper server logging: Broken at the moment
 * Get unsonic into pypi (registered, work out dist package contents)
   * Update the pkg-info on pypi
 * get setup.py to know about package files other than source
 
+Next Release
+============
+* setup docker image for unsonic
 
 General
 =======
