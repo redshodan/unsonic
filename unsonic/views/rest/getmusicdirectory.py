@@ -27,6 +27,7 @@ class GetMusicDirectory(Command):
 
     def handleReq(self, session):
         directory = ET.Element(self.dir_param)
+        directory.set("id", self.params["id"])
         if self.params["id"].startswith("fl-"):
             raise Exception("TOP LEVEL FOLDER")
         elif self.params["id"].startswith("ar-"):
@@ -35,7 +36,6 @@ class GetMusicDirectory(Command):
             directory.set(
                 "parent",
                 "fl-%s" % list(getMashPaths(self.settings).keys())[0])
-            directory.set("id", self.params["id"])
             artist_name = None
             # Gather albums
             for row in session.query(Album).options(subqueryload("*")).\

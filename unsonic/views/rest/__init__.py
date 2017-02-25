@@ -10,6 +10,7 @@ from pyramid.security import Allow, Authenticated, DENY_ALL
 from sqlalchemy.orm import subqueryload
 
 from eyed3.core import Date as Eyed3Date
+from nicfit.console.ansi import Fg
 
 from ...log import log
 from ...version import PROTOCOL_VERSION, UNSONIC_PROTOCOL_VERSION
@@ -112,12 +113,20 @@ class Command(object):
         root = xmltodict.parse(body, attr_prefix="")
         def walker(d):
             for key, val in d.items():
-                if isinstance(val, OrderedDict):
+                if isinstance(val, list):
+                    for val2 in val:
+                        walker(val2)
+                elif isinstance(val, OrderedDict):
                     walker(val)
                 elif val is None:
                     d[key] = OrderedDict()
+                elif val == "false":
+                    d[key] = False
+                elif val == "true":
+                    d[key] = True
         walker(root)
         return root
+
 
     def makeResp(self, attrs={}, child=None, status=True, body=None):
         if body is None:
@@ -143,7 +152,7 @@ class Command(object):
             resp.text = body
             resp.content_type = "text/xml"
         resp.charset = "UTF-8"
-        log.debug("Response(%s): %s" % (self.name, pretty))
+        log.debug("Response(%s): %s" % (self.name, Fg.blue(pretty)))
         return resp
 
 
