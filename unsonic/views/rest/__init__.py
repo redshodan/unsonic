@@ -1,6 +1,7 @@
 import os
 import json
 import xmltodict
+from collections import OrderedDict
 from datetime import datetime
 import xml.etree.ElementTree as ET
 
@@ -107,6 +108,17 @@ class Command(object):
         return "%s%s\n" % (XML_HEADER, ET.tostring(body).decode("utf-8"))
 
 
+    def toDict(self, body):
+        root = xmltodict.parse(body, attr_prefix="")
+        def walker(d):
+            for key, val in d.items():
+                if isinstance(val, OrderedDict):
+                    walker(val)
+                elif val is None:
+                    d[key] = OrderedDict()
+        walker(root)
+        return root
+
     def makeResp(self, attrs={}, child=None, status=True, body=None):
         if body is None:
             body = self.makeBody(attrs, child, status)
@@ -115,19 +127,23 @@ class Command(object):
         resp = self.req.response
         if "f" in self.req.params:
             if self.req.params["f"] == "jsonp" and "callback" in self.req.params:
-                body = xmltodict.parse(body, attr_prefix="")
-                txt = "%s(%s)" % (self.req.params["callback"], json.dumps(body))
+                dct = self.toDict(body)
+                pretty = "%s(%s)" % (self.req.params["callback"],
+                                     json.dumps(dct, indent=3))
+                txt = "%s(%s)" % (self.req.params["callback"], json.dumps(dct))
                 resp.text = txt
                 resp.content_type = "application/javascript"
             elif self.req.params["f"] == "json":
-                body = xmltodict.parse(body, attr_prefix="")
-                resp.text = json.dumps(body)
+                dct = self.toDict(body)
+                pretty = json.dumps(dct, indent=3)
+                resp.text = json.dumps(dct)
                 resp.content_type = "application/json"
         else:
+            pretty = body
             resp.text = body
             resp.content_type = "text/xml"
         resp.charset = "UTF-8"
-        log.debug("Response(%s): %s" % (self.name, resp.body.decode("utf-8")))
+        log.debug("Response(%s): %s" % (self.name, pretty))
         return resp
 
 
