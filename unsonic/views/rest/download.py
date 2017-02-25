@@ -1,7 +1,8 @@
-from . import addCmd, track_t
+from . import registerCmd, track_t
 from .stream import Stream
 
 
+@registerCmd
 class Download(Stream):
     name = "download.view"
     param_defs = {
@@ -10,6 +11,3 @@ class Download(Stream):
 
     def __init__(self, req):
         super().__init__(req)
-
-
-addCmd(Download)

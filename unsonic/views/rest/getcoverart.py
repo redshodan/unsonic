@@ -3,10 +3,11 @@ from sqlalchemy.orm import subqueryload
 from pyramid.response import Response
 from pyramid.exceptions import NotFound
 
-from . import Command, addCmd, MissingParam
+from . import Command, registerCmd, MissingParam
 from ...models import Image
 
 
+@registerCmd
 class GetCoverArt(Command):
     name = "getCoverArt.view"
     param_defs = {"id": {"required": True}}
@@ -28,6 +29,3 @@ class GetCoverArt(Command):
                             body=image[0].data)
         else:
             raise NotFound()
-
-
-addCmd(GetCoverArt)

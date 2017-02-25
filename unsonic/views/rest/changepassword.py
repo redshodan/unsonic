@@ -1,7 +1,8 @@
-from . import (Command, addCmd, InternalError, NoPerm)
+from . import Command, registerCmd, InternalError, NoPerm
 from ...models import User
 
 
+@registerCmd
 class ChangePassword(Command):
     name = "changePassword.view"
     param_defs = {
@@ -28,6 +29,3 @@ class ChangePassword(Command):
         session.add(user)
 
         return self.makeResp()
-
-
-addCmd(ChangePassword)

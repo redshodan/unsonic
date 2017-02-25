@@ -6,10 +6,11 @@ from sqlalchemy.sql.expression import func as dbfunc
 
 from eyed3.core import Date as Eyed3Date
 
-from . import Command, MissingParam, addCmd, fillAlbumUser
+from . import Command, registerCmd, MissingParam, fillAlbumUser
 from ...models import Artist, Album, AlbumRating, PlayCount, Track, Scrobble
 
 
+@registerCmd
 class GetAlbumList(Command):
     name = "getAlbumList.view"
     param_defs = {
@@ -172,6 +173,3 @@ class GetAlbumList(Command):
             raise MissingParam("Unsupported type")
 
         return self.makeResp(child=alist)
-
-
-addCmd(GetAlbumList)

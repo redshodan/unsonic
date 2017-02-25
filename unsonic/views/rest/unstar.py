@@ -1,7 +1,8 @@
-from . import Command, addCmd, playable_id_t, MissingParam
+from . import Command, registerCmd, playable_id_t, MissingParam
 from ...models import rateItem
 
 
+@registerCmd
 class UnStar(Command):
     name = "unstar.view"
     param_defs = {
@@ -22,6 +23,3 @@ class UnStar(Command):
 
         rateItem(self.req.authed_user.id, id, starred=True)
         return self.makeResp()
-
-
-addCmd(UnStar)

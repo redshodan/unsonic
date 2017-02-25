@@ -1,8 +1,9 @@
-from . import Command, addCmd, MissingParam, track_t, playlist_t
+from . import Command, registerCmd, MissingParam, track_t, playlist_t
 from .getplaylist import GetPlayList
 from ...models import PlayList, PlayListTrack, Track
 
 
+@registerCmd
 class CreatePlayList(Command):
     name = "createPlaylist.view"
     param_defs = {
@@ -46,6 +47,3 @@ class CreatePlayList(Command):
 
         # Fun little hack to return the newly created playlist
         return GetPlayList.handleReq(self, session)
-
-
-addCmd(CreatePlayList)

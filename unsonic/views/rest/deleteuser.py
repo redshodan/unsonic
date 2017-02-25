@@ -1,7 +1,8 @@
-from . import Command, addCmd, NoPerm
+from . import Command, registerCmd, NoPerm
 from ...models import User
 
 
+@registerCmd
 class DeleteUser(Command):
     name = "deleteUser.view"
     param_defs = {
@@ -19,6 +20,3 @@ class DeleteUser(Command):
         session.query(User).filter(User.name == name).delete()
 
         return self.makeResp()
-
-
-addCmd(DeleteUser)

@@ -1,10 +1,11 @@
 import xml.etree.ElementTree as ET
 
-from . import Command, addCmd, NoPerm, fillUser
+from . import Command, registerCmd, NoPerm, fillUser
 from ...models import User
 from ... import auth
 
 
+@registerCmd
 class GetUsers(Command):
     name = "getUsers.view"
     param_defs = {}
@@ -20,6 +21,3 @@ class GetUsers(Command):
             users.append(fillUser(session, auth.User(db_user)))
 
         return self.makeResp(child=users)
-
-
-addCmd(GetUsers)

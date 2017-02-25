@@ -111,6 +111,7 @@ class Command(object):
 
     def toDict(self, body):
         root = xmltodict.parse(body, attr_prefix="")
+
         def walker(d):
             for key, val in d.items():
                 if isinstance(val, list):
@@ -124,6 +125,7 @@ class Command(object):
                     d[key] = False
                 elif val == "true":
                     d[key] = True
+
         walker(root)
         return root
 
@@ -195,8 +197,9 @@ class Command(object):
                     raise MissingParam(name)
 
 
-def addCmd(cmd):
+def registerCmd(cmd):
     commands[cmd.name] = cmd
+    return cmd
 
 
 # Param type check functions

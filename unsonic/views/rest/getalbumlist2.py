@@ -1,7 +1,8 @@
 from . getalbumlist import GetAlbumList
-from . import (addCmd, fillAlbumID3)
+from . import registerCmd, fillAlbumID3
 
 
+@registerCmd
 class GetAlbumList2(GetAlbumList):
     name = "getAlbumList2.view"
     param_defs = GetAlbumList.param_defs
@@ -17,6 +18,3 @@ class GetAlbumList2(GetAlbumList):
         for row in result:
             album = fillAlbumID3(session, row, self.req.authed_user, False)
             alist.append(album)
-
-
-addCmd(GetAlbumList2)

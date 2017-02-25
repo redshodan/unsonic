@@ -2,11 +2,12 @@ import xml.etree.ElementTree as ET
 
 from sqlalchemy.orm import subqueryload
 
-from . import (Command, MissingParam, NotFound, addCmd, fillAlbumUser,
+from . import (Command, registerCmd, MissingParam, NotFound, fillAlbumUser,
                fillTrackUser)
 from ...models import Artist, Album, Track, getMashPaths
 
 
+@registerCmd
 class GetMusicDirectory(Command):
     name = "getMusicDirectory.view"
     param_defs = {"id": {"required": True}}
@@ -99,6 +100,3 @@ class GetMusicDirectory(Command):
         else:
             raise MissingParam("Invalid value for 'id'")
         return self.makeResp(child=directory)
-
-
-addCmd(GetMusicDirectory)

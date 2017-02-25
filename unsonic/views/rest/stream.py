@@ -1,9 +1,10 @@
 from pyramid.response import FileResponse
 
-from . import Command, addCmd, bool_t, track_t
+from . import Command, registerCmd, bool_t, track_t
 from ...models import Track
 
 
+@registerCmd
 class Stream(Command):
     name = "stream.view"
     param_defs = {
@@ -20,6 +21,3 @@ class Stream(Command):
     def handleReq(self, session):
         row = session.query(Track).filter(Track.id == self.params["id"]).all()[0]
         return FileResponse(row.path)
-
-
-addCmd(Stream)

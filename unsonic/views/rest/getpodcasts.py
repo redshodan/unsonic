@@ -1,8 +1,9 @@
 import xml.etree.ElementTree as ET
 
-from . import Command, addCmd
+from . import Command, registerCmd
 
 
+@registerCmd
 class GetPodcasts(Command):
     name = "getPodcasts.view"
     param_defs = {}
@@ -12,6 +13,3 @@ class GetPodcasts(Command):
     def handleReq(self, session):
         podcasts = ET.Element("podcasts")
         return self.makeResp(child=podcasts)
-
-
-addCmd(GetPodcasts)

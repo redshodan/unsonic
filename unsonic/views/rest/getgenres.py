@@ -1,9 +1,10 @@
 import xml.etree.ElementTree as ET
 
-from . import Command, addCmd
+from . import Command, registerCmd
 from ...models import Tag
 
 
+@registerCmd
 class GetGenres(Command):
     name = "getGenres.view"
     param_defs = {}
@@ -26,6 +27,3 @@ class GetGenres(Command):
                           % row.id).fetchall()[0][0]))
             genres.append(genre)
         return self.makeResp(child=genres)
-
-
-addCmd(GetGenres)

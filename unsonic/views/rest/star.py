@@ -1,9 +1,10 @@
 import datetime
 
-from . import Command, addCmd, playable_id_t, MissingParam
+from . import Command, registerCmd, playable_id_t, MissingParam
 from ...models import rateItem
 
 
+@registerCmd
 class Star(Command):
     name = "star.view"
     param_defs = {
@@ -27,6 +28,3 @@ class Star(Command):
         rateItem(session, self.req.authed_user.id, id,
                  starred=datetime.datetime.now())
         return self.makeResp()
-
-
-addCmd(Star)

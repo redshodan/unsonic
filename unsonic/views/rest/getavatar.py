@@ -1,7 +1,8 @@
-from . import Command, addCmd
+from . import Command, registerCmd
 from ...models import Image, getUserByName
 
 
+@registerCmd
 class GetAvatar(Command):
     name = "getAvatar.view"
     param_defs = {
@@ -18,6 +19,3 @@ class GetAvatar(Command):
         row = session.query(Image).filter(Image.id == db_user.avatar).one()
 
         return self.makeBinaryResp(row.data, row.mime_type, row.md5)
-
-
-addCmd(GetAvatar)

@@ -1,6 +1,7 @@
-from . import Command, addCmd
+from . import Command, registerCmd
 
 
+@registerCmd
 class AddChatMessage(Command):
     name = "addChatMessage.view"
     param_defs = {"message": {}}
@@ -9,6 +10,3 @@ class AddChatMessage(Command):
 
     def handleReq(self, session):
         return self.makeResp()
-
-
-addCmd(AddChatMessage)

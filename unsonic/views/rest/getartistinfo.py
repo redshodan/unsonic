@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
 
-from . import Command, addCmd, playable_id_t
+from . import Command, registerCmd, playable_id_t
 
 
 bacon_ipsum = (
@@ -12,6 +12,7 @@ bacon_ipsum = (
 "flank. Kevin chicken strip steak meatball ground round cow.")
 
 
+@registerCmd
 class GetArtistInfo(Command):
     name = "getArtistInfo.view"
     param_defs = {
@@ -39,6 +40,3 @@ class GetArtistInfo(Command):
             ainfo.append(url)
 
         return self.makeResp(child=ainfo)
-
-
-addCmd(GetArtistInfo)

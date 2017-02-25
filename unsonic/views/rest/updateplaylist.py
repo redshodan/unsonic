@@ -1,8 +1,9 @@
-from . import (Command, addCmd, MissingParam, track_t, bool_t, positive_t,
+from . import (Command, registerCmd, MissingParam, track_t, bool_t, positive_t,
                playlist_t)
 from ...models import PlayList, PlayListTrack, Track
 
 
+@registerCmd
 class UpdatePlayList(Command):
     name = "updatePlaylist.view"
     param_defs = {
@@ -56,6 +57,3 @@ class UpdatePlayList(Command):
         plist.changed = plist.changed.now()
 
         return self.makeResp()
-
-
-addCmd(UpdatePlayList)

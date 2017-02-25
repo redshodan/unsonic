@@ -1,7 +1,8 @@
-from . import Command, addCmd, playable_id_t
+from . import Command, registerCmd, playable_id_t
 from ...models import rateItem
 
 
+@registerCmd
 class SetRating(Command):
     name = "setRating.view"
     param_defs = {
@@ -15,6 +16,3 @@ class SetRating(Command):
         rateItem(session, self.req.authed_user.id, self.params["id"],
                  rating=self.params["rating"])
         return self.makeResp()
-
-
-addCmd(SetRating)

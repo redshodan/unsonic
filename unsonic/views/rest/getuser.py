@@ -1,7 +1,8 @@
-from . import Command, addCmd, NoPerm, fillUser
+from . import Command, registerCmd, NoPerm, fillUser
 from ...models import getUserByName
 
 
+@registerCmd
 class GetUser(Command):
     name = "getUser.view"
     param_defs = {
@@ -20,6 +21,3 @@ class GetUser(Command):
                          "are an admin")
 
         return self.makeResp(child=fillUser(session, db_user))
-
-
-addCmd(GetUser)

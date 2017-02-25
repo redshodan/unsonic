@@ -1,9 +1,10 @@
 import xml.etree.ElementTree as ET
 
-from . import Command, addCmd, positive_t, fillArtist, fillAlbum, fillTrack
+from . import Command, registerCmd, positive_t, fillArtist, fillAlbum, fillTrack
 from ...models import Artist, Album, Track
 
 
+@registerCmd
 class Search2(Command):
     name = "search2.view"
     param_defs = {
@@ -56,6 +57,3 @@ class Search2(Command):
                 track = fillTrack(session, row)
                 result.append(track)
         return self.makeResp(child=result)
-
-
-addCmd(Search2)

@@ -1,8 +1,9 @@
-from . import Command, addCmd, InternalError, NoPerm, bool_t, bitrate_t
+from . import Command, registerCmd, InternalError, NoPerm, bool_t, bitrate_t
 from ...models import User, Role
 from ...auth import Roles
 
 
+@registerCmd
 class CreateUser(Command):
     name = "createUser.view"
     param_defs = {
@@ -78,6 +79,3 @@ class CreateUser(Command):
             session.add(Role(user_id=user.id, name=Roles.REST))
 
         return self.makeResp()
-
-
-addCmd(CreateUser)

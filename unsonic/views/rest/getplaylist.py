@@ -1,9 +1,11 @@
 from sqlalchemy.orm import subqueryload
 
-from . import Command, addCmd, fillPlayList, fillTrack, playlist_t, MissingParam
+from . import (Command, registerCmd, fillPlayList, fillTrack, playlist_t,
+               MissingParam)
 from ...models import PlayList
 
 
+@registerCmd
 class GetPlayList(Command):
     name = "getPlaylist.view"
     param_defs = {"id": {"required": True, "type": playlist_t}}
@@ -24,6 +26,3 @@ class GetPlayList(Command):
             playlist.append(entry)
 
         return self.makeResp(child=playlist)
-
-
-addCmd(GetPlayList)

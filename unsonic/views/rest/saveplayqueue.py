@@ -1,9 +1,10 @@
 import datetime
 
-from . import (Command, addCmd, positive_t, track_t)
+from . import Command, registerCmd, positive_t, track_t
 from ...models import User, PlayQueue
 
 
+@registerCmd
 class SavePlayQueue(Command):
     name = "savePlayQueue.view"
     param_defs = {
@@ -36,6 +37,3 @@ class SavePlayQueue(Command):
             session.add(PlayQueue(user_id=user.id, track_id=track_id))
         # If no id's, then there is no playqueue and its already been deleted
         return self.makeResp()
-
-
-addCmd(SavePlayQueue)

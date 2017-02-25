@@ -1,9 +1,11 @@
 from sqlalchemy.orm import subqueryload
 
-from . import Command, NotFound, addCmd, artist_t, fillAlbumID3, fillArtistUser
+from . import (Command, registerCmd, NotFound, artist_t, fillAlbumID3,
+               fillArtistUser)
 from ...models import Artist, Album, Track
 
 
+@registerCmd
 class GetArtist(Command):
     name = "getArtist.view"
     param_defs = {"id": {"required": True, "type": artist_t}}
@@ -36,6 +38,3 @@ class GetArtist(Command):
             album.set("duration", str(duration))
         artist.set("albumCount", str(album_count))
         return self.makeResp(child=artist)
-
-
-addCmd(GetArtist)

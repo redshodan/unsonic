@@ -2,9 +2,10 @@ import time
 from datetime import datetime
 import xml.etree.ElementTree as ET
 
-from . import Command, addCmd
+from . import Command, registerCmd
 
 
+@registerCmd
 class GetLicense(Command):
     name = "getLicense.view"
     param_defs = {}
@@ -16,6 +17,3 @@ class GetLicense(Command):
         now = datetime.fromtimestamp(time.time() + 31536000)
         license.set("licenseExpires", now.isoformat())
         return self.makeResp(child=license)
-
-
-addCmd(GetLicense)

@@ -1,9 +1,10 @@
 from sqlalchemy.orm import subqueryload
 
-from . import Command, addCmd, playlist_t, MissingParam
+from . import Command, registerCmd, playlist_t, MissingParam
 from ...models import PlayList
 
 
+@registerCmd
 class DeletePlayList(Command):
     name = "deletePlaylist.view"
     param_defs = {"id": {"required": True, "type": playlist_t}}
@@ -19,6 +20,3 @@ class DeletePlayList(Command):
         res.delete()
 
         return self.makeResp()
-
-
-addCmd(DeletePlayList)

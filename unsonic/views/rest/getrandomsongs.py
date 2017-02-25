@@ -3,10 +3,11 @@ import xml.etree.ElementTree as ET
 from sqlalchemy.orm import subqueryload
 from sqlalchemy.sql.expression import func as dbfunc
 
-from . import Command, addCmd, fillTrack, year_t
+from . import Command, registerCmd, fillTrack, year_t
 from ...models import Album, Track
 
 
+@registerCmd
 class GetRandomSongs(Command):
     name = "getRandomSongs.view"
     param_defs = {
@@ -43,6 +44,3 @@ class GetRandomSongs(Command):
             song = fillTrack(session, row)
             random_songs.append(song)
         return self.makeResp(child=random_songs)
-
-
-addCmd(GetRandomSongs)

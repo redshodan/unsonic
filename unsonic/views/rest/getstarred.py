@@ -2,10 +2,11 @@ import xml.etree.ElementTree as ET
 
 from sqlalchemy.orm import subqueryload
 
-from . import Command, addCmd, fillArtistUser, fillAlbumUser, fillTrackUser
+from . import Command, registerCmd, fillArtistUser, fillAlbumUser, fillTrackUser
 from ...models import ArtistRating, AlbumRating, TrackRating
 
 
+@registerCmd
 class GetStarred(Command):
     name = "getStarred.view"
     param_defs = {"musicFolderId": {}}
@@ -35,6 +36,3 @@ class GetStarred(Command):
             starred.append(album)
 
         return self.makeResp(child=starred)
-
-
-addCmd(GetStarred)

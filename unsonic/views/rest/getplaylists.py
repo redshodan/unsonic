@@ -2,10 +2,11 @@ import xml.etree.ElementTree as ET
 
 from sqlalchemy.orm import subqueryload
 
-from . import Command, addCmd, fillPlayList, NoPerm
+from . import Command, registerCmd, fillPlayList, NoPerm
 from ...models import PlayList, getUserByName
 
 
+@registerCmd
 class GetPlayLists(Command):
     name = "getPlaylists.view"
     param_defs = {"username": {}}
@@ -29,6 +30,3 @@ class GetPlayLists(Command):
             playlists.append(playlist)
 
         return self.makeResp(child=playlists)
-
-
-addCmd(GetPlayLists)

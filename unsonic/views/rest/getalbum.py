@@ -1,9 +1,10 @@
 from sqlalchemy.orm import subqueryload
 
-from . import (Command, NotFound, addCmd, album_t, fillAlbumID3)
+from . import Command, registerCmd, NotFound, album_t, fillAlbumID3
 from ...models import Album
 
 
+@registerCmd
 class GetAlbum(Command):
     name = "getAlbum.view"
     param_defs = {"id": {"required": True, "type": album_t}}
@@ -18,6 +19,3 @@ class GetAlbum(Command):
         if album is None:
             raise NotFound(self.req.params["id"])
         return self.makeResp(child=album)
-
-
-addCmd(GetAlbum)

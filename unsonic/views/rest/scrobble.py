@@ -3,11 +3,12 @@ import datetime
 from sqlalchemy.orm import subqueryload
 from sqlalchemy.orm.exc import NoResultFound
 
-from . import Command, addCmd, bool_t, track_t, NotFound
+from . import Command, registerCmd, bool_t, track_t, NotFound
 from ...models import PlayCount, Track, dbinfo
 from ...models import Scrobble as DBScrobble
 
 
+@registerCmd
 class Scrobble(Command):
     name = "scrobble.view"
     param_defs = {
@@ -51,6 +52,3 @@ class Scrobble(Command):
                                   tstamp=datetime.datetime.now())
             session.add(scrobble)
         return self.makeResp()
-
-
-addCmd(Scrobble)

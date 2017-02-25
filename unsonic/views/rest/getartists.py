@@ -2,10 +2,11 @@ import xml.etree.ElementTree as ET
 
 from sqlalchemy.orm import subqueryload
 
-from . import Command, addCmd, fillArtist
+from . import Command, registerCmd, fillArtist
 from ...models import Artist, Album
 
 
+@registerCmd
 class GetArtists(Command):
     name = "getArtists.view"
     param_defs = {"musicFolderId": {}}
@@ -35,6 +36,3 @@ class GetArtists(Command):
                     count = count + 1
                 artist.set("albumCount", str(count))
         return self.makeResp(child=artists)
-
-
-addCmd(GetArtists)

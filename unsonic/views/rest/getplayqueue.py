@@ -1,9 +1,10 @@
 import xml.etree.ElementTree as ET
 
-from . import (Command, addCmd, strDate, fillTrackUser)
+from . import Command, registerCmd, strDate, fillTrackUser
 from ...models import User
 
 
+@registerCmd
 class GetPlayQueue(Command):
     name = "getPlayQueue.view"
     param_defs = {}
@@ -29,6 +30,3 @@ class GetPlayQueue(Command):
                                        self.req.authed_user, "entry"))
 
         return self.makeResp(child=playq)
-
-
-addCmd(GetPlayQueue)

@@ -2,10 +2,11 @@ import xml.etree.ElementTree as ET
 
 from sqlalchemy.orm import subqueryload
 
-from . import Command, addCmd, fillArtistUser
+from . import Command, registerCmd, fillArtistUser
 from ...models import Artist, Meta
 
 
+@registerCmd
 class GetIndexes(Command):
     name = "getIndexes.view"
     param_defs = {
@@ -46,6 +47,3 @@ class GetIndexes(Command):
         #             count = count + 1
         #         artist.set("albumCount", str(count))
         return self.makeResp(child=indexes)
-
-
-addCmd(GetIndexes)
