@@ -73,7 +73,7 @@ Manual Testing
 Installing a Web Client
 -----------------------
   * Download/clone Jamstash from https://github.com/tsquillario/Jamstash
-  * Copy the contents of jamstash/dist/ to unsonic/unsonic/views/ui/
+  * Edit your config.ini so that the [app:main]/unsonic.ui path points to jamstash/dist
   * With Unsonic running, point your browser at the url printed out, normally
     something like http://localhost:6543 and your will be redirected to the load
     Jamstash.

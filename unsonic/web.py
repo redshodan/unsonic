@@ -15,6 +15,7 @@ __requires__ = 'pyramid>=1.4.3'
 
 
 NAME = "Unsonic"
+UI = None
 CONFIG_FILE = None
 CONFIG = None
 SETTINGS = None
@@ -53,6 +54,9 @@ def main(global_config, **settings):
     global NAME
     if "unsonic.name" in settings:
         NAME = settings["unsonic.name"]
+    global UI
+    if "unsonic.ui" in settings:
+        UI = settings["unsonic.ui"]
 
     # Init auth
     auth.init(global_config, config)

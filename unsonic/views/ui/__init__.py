@@ -2,6 +2,7 @@ import os
 
 from pyramid.response import FileResponse
 
+from ... import web
 from ...auth import Roles
 
 
@@ -35,12 +36,16 @@ def index(request):
     return FileResponse(index, request=request)
 
 
-def init(global_config, config):
-    config.add_route("/ui/js/global.js", "/ui/js/global.js",
-                     factory="unsonic.views.RouteContext")
-    config.add_view("unsonic.views.ui.view", route_name="/ui/js/global.js",
-                    permission=Roles.USERS)
+def notfound(request):
+    return Response('Not Found', status='404 Not Found')
 
-    config.add_static_view('ui', 'unsonic.views:ui/', cache_max_age=3600,
-                           factory="unsonic.views.RouteContext",
-                           permission=Roles.USERS)
+
+def init(global_config, config):
+    ui = web.UI
+    if not ui:
+        config.add_notfound_view(notfound)
+    else:
+        ui = os.path.abspath(ui)
+        config.add_static_view('ui', ui, cache_max_age=3600,
+                               factory="unsonic.views.RouteContext",
+                               permission=Roles.USERS)

@@ -1,14 +1,9 @@
 For Initial Release
 ===================
 * mishmash Command take a subparser description.
-* add argparse.parse_known_args() option to mishmash for pass-through args to pserve
 * musicFolderId's
-* turn addCmd() into a class decorator
 * func tests run full passes with json and jsonp
-* Jamstash requires json but json with an empty element results in podcasts:
-  null and jamstash can't handle the null right.
 
-* Proper server logging: Broken at the moment
 * Get unsonic into pypi (registered, work out dist package contents)
   * Update the pkg-info on pypi
 * get setup.py to know about package files other than source
