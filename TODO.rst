@@ -6,7 +6,6 @@ For Initial Release
 
 * Get unsonic into pypi (registered, work out dist package contents)
   * Update the pkg-info on pypi
-* get setup.py to know about package files other than source
 
 Next Release
 ============
