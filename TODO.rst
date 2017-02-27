@@ -1,8 +1,8 @@
 For Initial Release
 ===================
 * mishmash Command take a subparser description.
-* musicFolderId's
 * func tests run full passes with json and jsonp
+* genres for everything
 
 * Get unsonic into pypi (registered, work out dist package contents)
   * Update the pkg-info on pypi
@@ -103,7 +103,6 @@ Missing
 Partial
 -------
 - getIndexes:
-  params: both params
   resp:
   - missing ignoredArticles.
     <indexes ignoredArticles="The El La Los Las Le Les">
@@ -112,7 +111,6 @@ Partial
     <shortcut id="10" name="Podcasts"/>
 
 - getArtists:
-  params: musicFolderId
   resp:
   - missing ignoredArticles.
     <artists ignoredArticles="The El La Los Las Le Les">
@@ -125,20 +123,12 @@ Partial
 - getAlbumList:
   params: type is missing byGenre
           genre
-          musicFolderId
   resp:
   - missing averageRating for album
 
 - getRandomSongs:
   params: unimplemented params
           genre
-          musicFolderId
-
-- search2:
-  params: musicFolderId
-
-- search3:
-  params: musicFolderId
 
 - stream:
   params: missing converted, for videos
@@ -155,6 +145,3 @@ Partial
 
 - createUser:
   resp: Needs folders
-
-- getStarred:
-  resp: Needs musicFolderId

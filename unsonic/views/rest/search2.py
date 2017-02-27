@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 
-from . import Command, registerCmd, positive_t, fillArtist, fillAlbum, fillTrack
+from . import (Command, registerCmd, positive_t, fillArtist, fillAlbum,
+               fillTrack, folder_t)
 from ...models import Artist, Album, Track
 
 
@@ -15,8 +16,17 @@ class Search2(Command):
         "albumOffset": {"default": 0, "type": positive_t},
         "songCount": {"default": 20, "type": positive_t},
         "songOffset": {"default": 0, "type": positive_t},
+        "musicFolderId": {"type": folder_t},
         }
     dbsess = True
+
+
+    def query(self, session, klass):
+        if self.params["musicFolderId"]:
+            return (session.query(klass).
+                    filter(klass.lib_id == self.params["musicFolderId"]))
+        else:
+            return session.query(klass)
 
 
     def handleReq(self, session):
@@ -30,27 +40,21 @@ class Search2(Command):
 
         result = ET.Element("searchResult2")
         if ar_count:
-            for row in session.query(Artist). \
+            for row in self.query(session, Artist). \
                            filter(Artist.name.ilike("%%%s%%" % query)). \
                            limit(ar_count). \
                            offset(ar_off):
                 artist = fillArtist(session, row)
                 result.append(artist)
         if al_count:
-            for row in session.query(Album). \
+            for row in self.query(session, Album). \
                            filter(Album.title.ilike("%%%s%%" % query)). \
                            limit(al_count). \
                            offset(al_off):
                 album = fillAlbum(session, row)
                 result.append(album)
-                if row.artist:
-                    album.set("parent", "ar-%d" % row.artist.id)
-                else:
-                    album.set("parent", "UNKNOWN")
-                album.set("isDir", "true")
-                album.set("title", album.get("name"))
         if tr_count:
-            for row in session.query(Track). \
+            for row in self.query(session, Track). \
                            filter(Track.title.ilike("%%%s%%" % query)). \
                            limit(tr_count). \
                            offset(tr_off):

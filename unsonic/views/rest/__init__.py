@@ -253,6 +253,19 @@ def playlist_t(value):
     return int(value[3:])
 
 
+def folder_t(value):
+    if not value.startswith("fl-"):
+        raise MissingParam("Invalid id")
+    return int(value[3:])
+
+
+def datetime_t(tstamp):
+    try:
+        return datetime.utcfromtimestamp(int(tstamp) / 1000)
+    except:
+        raise MissingParam(
+            "Invalid type for param. '%s' is not a timestamp" % tstamp)
+
 def year_t(year):
     try:
         return Eyed3Date(int(year), 1, 1)
@@ -323,6 +336,8 @@ def fillAlbum(session, row, name="album"):
     album.set("isDir", "true")
     if row.artist:
         album.set("parent", "ar-%s" % row.artist.id)
+    else:
+        album.set("parent", "UNKNOWN")
     fillCoverArt(session, row, album, "al")
     if row.date_added:
         album.set("created", strDate(row.date_added))

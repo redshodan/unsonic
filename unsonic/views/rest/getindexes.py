@@ -1,31 +1,43 @@
+from datetime import datetime
 import xml.etree.ElementTree as ET
 
 from sqlalchemy.orm import subqueryload
 
-from . import Command, registerCmd, fillArtistUser
-from ...models import Artist, Meta
+from . import Command, registerCmd, fillArtistUser, folder_t, datetime_t
+from ...models import Artist, Meta, Library
 
 
 @registerCmd
 class GetIndexes(Command):
     name = "getIndexes.view"
     param_defs = {
-        "musicFolderId": {},
-        "ifModifiedSince": {"type": int},
+        "musicFolderId": {"type": folder_t},
+        "ifModifiedSince": {"type": datetime_t},
         }
     dbsess = True
 
 
     def handleReq(self, session):
-        # TODO: handle params
         indexes = ET.Element("indexes")
         index_group = None
         row = session.query(Meta).one_or_none()
+
+        # Return empty response if sync is older
+        if (self.params["ifModifiedSince"] and
+                (self.params["ifModifiedSince"] >=
+                 datetime.utcfromtimestamp(row.last_sync.timestamp()))):
+            return self.makeResp()
+
+        # TODO: Use libraries.last_sync once its done in mishmash
         indexes.set("lastModified",
                     str(int(row.last_sync.timestamp() * 1000)))
         # TODO: find the actual ignored articles
         indexes.set("ignoredArticles", "")
-        rows = session.query(Artist).options(subqueryload("*")).\
+
+        q = session.query(Artist)
+        if self.params["musicFolderId"]:
+            q = q.filter(Artist.lib_id == self.params["musicFolderId"])
+        rows = q.options(subqueryload("*")).\
             options(subqueryload("*")).order_by(Artist.sort_name).all()
         for row in rows:
             first = row.sort_name[0].upper()
@@ -36,14 +48,4 @@ class GetIndexes(Command):
                 index.set("name", index_group)
             artist = fillArtistUser(session, row, None, self.req.authed_user)
             index.append(artist)
-        # for index in indexes:
-        #     for artist in index:
-        #         count = 0
-        #         artist_id = int(artist.get("id")[3:])
-        #         # TODO: albumCount is not in the XSD for this non-ID3 call.
-        #         #       Why did I add it?
-        #         for album in session.query(Album).options(subqueryload("*")).\
-        #             filter(Album.artist_id == artist_id).all():
-        #             count = count + 1
-        #         artist.set("albumCount", str(count))
         return self.makeResp(child=indexes)

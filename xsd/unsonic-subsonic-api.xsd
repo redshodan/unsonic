@@ -112,6 +112,9 @@
     </xs:complexType>
 
     <xs:complexType name="Artist">
+        <xs:sequence>
+            <xs:element name="cover-art" type="sub:CoverArtID" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
         <xs:attribute name="id" type="xs:string" use="required"/>
         <xs:attribute name="name" type="xs:string" use="required"/>
         <xs:attribute name="starred" type="xs:dateTime" use="optional"/> <!-- Added in 1.10.1 -->

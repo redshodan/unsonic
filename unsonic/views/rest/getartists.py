@@ -2,14 +2,14 @@ import xml.etree.ElementTree as ET
 
 from sqlalchemy.orm import subqueryload
 
-from . import Command, registerCmd, fillArtist
+from . import Command, registerCmd, fillArtist, folder_t
 from ...models import Artist, Album
 
 
 @registerCmd
 class GetArtists(Command):
     name = "getArtists.view"
-    param_defs = {"musicFolderId": {}}
+    param_defs = {"musicFolderId": {"type": folder_t}}
     dbsess = True
 
 
@@ -18,7 +18,10 @@ class GetArtists(Command):
         # TODO: find the actual ignored articles
         artists.set("ignoredArticles", "")
         index_group = None
-        for row in session.query(Artist).options(subqueryload("*")). \
+        q = session.query(Artist)
+        if self.params["musicFolderId"]:
+            q = q.filter(Artist.lib_id == self.params["musicFolderId"])
+        for row in q.options(subqueryload("*")). \
           order_by(Artist.sort_name).all():
             first = row.sort_name[0].upper()
             if index_group != first:

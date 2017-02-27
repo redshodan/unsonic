@@ -6,7 +6,7 @@ from sqlalchemy.sql.expression import func as dbfunc
 
 from eyed3.core import Date as Eyed3Date
 
-from . import Command, registerCmd, MissingParam, fillAlbumUser
+from . import Command, registerCmd, MissingParam, fillAlbumUser, folder_t
 from ...models import Artist, Album, AlbumRating, PlayCount, Track, Scrobble
 
 
@@ -23,6 +23,7 @@ class GetAlbumList(Command):
                  "values": ["alphabeticalByName", "alphabeticalByArtist",
                             "frequent", "highest", "newest", "random",
                             "recent", "starred", "byYear", "byGenre"]},
+        "musicFolderId": {"type": folder_t},
         }
     dbsess = True
 
@@ -45,23 +46,34 @@ class GetAlbumList(Command):
                 album.set("parent", "UNKNOWN")
 
 
+    def queryAlbum(self, session):
+        if self.params["musicFolderId"]:
+            return (session.query(Album).
+                    options(subqueryload("*")).
+                    filter(Album.lib_id == self.params["musicFolderId"]))
+        else:
+            return session.query(Album).options(subqueryload("*"))
+
+
     def handleReq(self, session):
+        if self.params["musicFolderId"]:
+            lib_id = self.params["musicFolderId"]
+        else:
+            lib_id = None
         alist = ET.Element(self.list_param)
         size = self.params["size"]
         offset = self.params["offset"]
         limit = offset + size
         if self.params["type"] == "random":
-            result = session.query(Album). \
-                         options(subqueryload("*")). \
-                         order_by(dbfunc.random()). \
-                         offset(offset). \
+            result = self.queryAlbum(session).\
+                         order_by(dbfunc.random()).\
+                         offset(offset).\
                          limit(limit)
             self.processRows(session, alist, result)
         elif self.params["type"] == "newest":
-            result = session.query(Album). \
-                         options(subqueryload("*")). \
-                         order_by(Album.date_added). \
-                         offset(offset). \
+            result = self.queryAlbum(session).\
+                         order_by(Album.date_added).\
+                         offset(offset).\
                          limit(limit)
             self.processRows(session, alist, result)
         elif self.params["type"] == "highest":
@@ -74,20 +86,25 @@ class GetAlbumList(Command):
                          limit(limit)
             albums = []
             for arate in result:
-                albums.append(arate.album)
+                # TODO: Replace this with the correct sqlalchemy magic
+                if lib_id is None or arate.album.lib_id == lib_id:
+                    albums.append(arate.album)
             self.processRows(session, alist, albums)
         elif self.params["type"] == "frequent":
-            pcounts = session.query(PlayCount). \
-                         options(subqueryload("*")). \
-                         join(Track). \
+            pcounts = session.query(PlayCount).\
+                         options(subqueryload("*")).\
+                         join(Track).\
                          filter(PlayCount.user_id ==
-                                self.req.authed_user.id). \
-                         order_by(PlayCount.count). \
-                         offset(offset). \
+                                self.req.authed_user.id).\
+                         order_by(PlayCount.count).\
+                         offset(offset).\
                          limit(limit)
             albums = []
             for pcount in pcounts:
                 if not pcount.track.album:
+                    continue
+                # TODO: Replace this with the correct sqlalchemy magic
+                if lib_id and pcount.track.lib_id != lib_id:
                     continue
                 if pcount.track.album not in albums:
                     albums.append(pcount.track.album)
@@ -95,16 +112,19 @@ class GetAlbumList(Command):
                     break
             self.processRows(session, alist, albums)
         elif self.params["type"] == "recent":
-            result = session.query(Scrobble). \
-                        options(subqueryload("*")). \
+            result = session.query(Scrobble).\
+                        options(subqueryload("*")).\
                         filter(Scrobble.user_id ==
-                               self.req.authed_user.id). \
-                        order_by(Scrobble.tstamp.desc()). \
-                        offset(offset). \
+                               self.req.authed_user.id).\
+                        order_by(Scrobble.tstamp.desc()).\
+                        offset(offset).\
                         limit(limit)
             albums = []
             for scrobble in result:
                 if not scrobble.track.album:
+                    continue
+                # TODO: Replace this with the correct sqlalchemy magic
+                if lib_id and scrobble.track.lib_id != lib_id:
                     continue
                 if scrobble.track.album not in albums:
                     albums.append(scrobble.track.album)
@@ -112,37 +132,37 @@ class GetAlbumList(Command):
                     break
             self.processRows(session, alist, albums)
         elif self.params["type"] == "starred":
-            result = session.query(AlbumRating). \
-                         options(subqueryload("*")). \
+            result = session.query(AlbumRating).\
+                         options(subqueryload("*")).\
                          filter(AlbumRating.user_id ==
-                                self.req.authed_user.id). \
-                         filter(AlbumRating.starred is not None). \
-                         order_by(AlbumRating.starred). \
-                         offset(offset). \
+                                self.req.authed_user.id).\
+                         filter(AlbumRating.starred is not None).\
+                         order_by(AlbumRating.starred).\
+                         offset(offset).\
                          limit(limit)
             albums = []
             for arate in result:
-                albums.append(arate.album)
+                # TODO: Replace this with the correct sqlalchemy magic
+                if lib_id is None or arate.album.lib_id != lib_id:
+                    albums.append(arate.album)
             self.processRows(session, alist, albums)
         elif self.params["type"] == "alphabeticalByName":
-            result = session.query(Album). \
-                         options(subqueryload("*")). \
-                         order_by(Album.title). \
-                         offset(offset). \
+            result = self.queryAlbum(session).\
+                         order_by(Album.title).\
+                         offset(offset).\
                          limit(limit)
             self.processRows(session, alist, result)
         elif self.params["type"] == "alphabeticalByArtist":
             size = self.params["size"]
-            artists = session.query(Artist). \
-                          options(subqueryload("*")). \
-                          order_by("name"). \
+            artists = session.query(Artist).\
+                          options(subqueryload("*")).\
+                          order_by("name").\
                           limit(limit)
             for artist in artists:
-                albums = session.query(Album). \
-                             options(subqueryload("*")). \
-                             filter(Album.artist_id == artist.id). \
-                             order_by(Album.title). \
-                             offset(offset). \
+                albums = self.queryAlbum(session).\
+                             filter(Album.artist_id == artist.id).\
+                             order_by(Album.title).\
+                             offset(offset).\
                              limit(limit)
                 self.processRows(session, alist, artist.albums)
         elif self.params["type"] == "byYear":
@@ -159,11 +179,10 @@ class GetAlbumList(Command):
             results = []
             for date_row in [Album.original_release_date, Album.release_date,
                              Album.recording_date]:
-                res = session.query(Album). \
-                          options(subqueryload("*")). \
+                res = self.queryAlbum(session).\
                           filter(and_(date_row >= from_year,
-                                      date_row <= to_year)). \
-                          offset(offset). \
+                                      date_row <= to_year)).\
+                          offset(offset).\
                           limit(limit)
                 results.extend(res.all())
             results.sort(key=lambda x: x.getBestDate(), reverse=desc)

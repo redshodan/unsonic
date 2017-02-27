@@ -30,14 +30,14 @@ mishmash: external/mishmash mishmash.egg
 
 mishmash-update:
 	cd external/mishmash; git fetch
-	cd external/mishmash; $(PIP) install -e .
+	cd external/mishmash; $(PIP) install -Ue .
 
 external/mishmash:
 	cd external; git clone 'https://github.com/nicfit/mishmash.git' mishmash
 
 mishmash.egg: $(PY_LIB)/MishMash*.egg/mishmash
 $(PY_LIB)/MishMash*.egg/mishmash:
-	cd external/mishmash; $(PIP) install -e .
+	cd external/mishmash; $(PIP) install -Ue .
 
 $(PYTEST): requirements-test.txt
 	$(PIP) install -r requirements-test.txt
@@ -57,7 +57,7 @@ $(PY_LIB)/unsonic.egg-link:
 db: devel-db
 devel-db: devel build/development.sqlite
 build/development.sqlite:
-	bin/unsonic -c development.ini sync test/music
+	bin/unsonic -c development.ini sync Music
 	bin/unsonic -c development.ini adduser test test
 
 run: devel-run

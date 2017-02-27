@@ -25,7 +25,7 @@ def requirements(filename):
 
 setup(name='unsonic',
       version='0.0',
-      description='Unsonic, the un-Subsonic music server',
+      description='Unsonic, the ultimate un-Subsonic music server.',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
           "Intended Audience :: End Users/Desktop",
