@@ -57,7 +57,7 @@ $(PY_LIB)/unsonic.egg-link:
 db: devel-db
 devel-db: devel build/development.sqlite
 build/development.sqlite:
-	bin/unsonic -c development.ini sync Music
+	bin/unsonic -c development.ini sync
 	bin/unsonic -c development.ini adduser test test
 
 run: devel-run
