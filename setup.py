@@ -1,4 +1,5 @@
 import os
+import runpy
 
 from setuptools import setup, find_packages
 
@@ -14,6 +15,9 @@ tests_require = [
     'pytest-runner',
 ]
 
+# Extract the version from unsonic
+VERSION = runpy.run_path(os.path.join(here, "unsonic/version.py"))["VERSION"]
+
 
 def requirements(filename):
     if os.path.exists(filename):
@@ -24,7 +28,7 @@ def requirements(filename):
 
 
 setup(name='unsonic',
-      version='0.0',
+      version=VERSION,
       description='Unsonic, the ultimate un-Subsonic music server.',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[

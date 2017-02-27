@@ -70,6 +70,10 @@ check: $(FLAKE8)
 tests: $(PYTEST) tests-clean
 	$(PYTHON) setup.py test $(FTF)
 
+dist: sdist
+sdist:
+	$(PYTHON) setup.py sdist
+
 clean:
 	find unsonic external -name '*.pyc' | xargs rm -f
 

@@ -307,7 +307,7 @@ def init(settings, webapp=False):
 def initAlembic():
     # Upgrade to head (i.e. this) revision, or no-op if they match
     db_url = unsonic.config.CONFIG.get("mishmash", "sqlalchemy.url")
-    alembic_d = Path(__file__).parent.parent / "alembic"
+    alembic_d = Path(__file__).parent / "alembic"
     alembic_cfg = Config(str(alembic_d / "alembic.ini"))
     alembic_cfg.set_main_option("sqlalchemy.url", db_url)
     command.upgrade(alembic_cfg, "head")
