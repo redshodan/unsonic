@@ -1,3 +1,2 @@
-include production.ini README.rst LICENSE CHANGES.rst *.cfg
-include unsonic/alembic/alembic.ini unsonic/alembic/README unsonic/alembic/script.py.mako
-recursive-include unsonic *.ico *.png *.css *.gif *.jpg *.pt *.txt *.mak *.mako *.js *.html *.xml
+include setup.cfg README.rst LICENSE CHANGES.rst requirements.txt production.ini 
+recursive-include unsonic *.ico *.png *.css *.gif *.pt *.mako *.html *.ini
