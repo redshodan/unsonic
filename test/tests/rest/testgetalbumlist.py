@@ -1,6 +1,6 @@
 from . import RestTestCase
-from ...views.rest.getalbumlist import GetAlbumList
-from ...views.rest import Command
+from unsonic.views.rest.getalbumlist import GetAlbumList
+from unsonic.views.rest import Command
 
 
 class TestAlbumList(RestTestCase):

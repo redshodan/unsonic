@@ -1,5 +1,5 @@
 from . import RestTestCase
-from ...views.rest.getlicense import GetLicense
+from unsonic.views.rest.getlicense import GetLicense
 
 
 class TestLicense(RestTestCase):

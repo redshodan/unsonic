@@ -1,2 +1,2 @@
-include *.txt *.ini *.cfg *.rst
+include production.ini README.rst LICENSE *.cfg
 recursive-include unsonic *.ico *.png *.css *.gif *.jpg *.pt *.txt *.mak *.mako *.js *.html *.xml

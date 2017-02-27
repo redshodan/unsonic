@@ -1,6 +1,6 @@
 from . import RestTestCase
-from ...views.rest.getartist import GetArtist
-from ...views.rest import Command
+from unsonic.views.rest.getartist import GetArtist
+from unsonic.views.rest import Command
 
 
 class TestArtist(RestTestCase):

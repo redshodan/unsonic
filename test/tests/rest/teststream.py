@@ -1,7 +1,7 @@
 from . import RestTestCase
-from ...models import Session, Track
-from ...views.rest.stream import Stream
-from ...views.rest import Command
+from unsonic.models import Session, Track
+from unsonic.views.rest.stream import Stream
+from unsonic.views.rest import Command
 
 
 class TestStream(RestTestCase):

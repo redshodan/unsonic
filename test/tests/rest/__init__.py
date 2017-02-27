@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 from webob.multidict import MultiDict, NestedMultiDict
 from pyramid import testing
 
-from ... import models, web
+from unsonic import models, web
 from .. import setUpModule as base_setUpModule
 
 
@@ -25,7 +25,7 @@ class RestTestCase(unittest.TestCase):
         self.config = testing.setUp()
         self.settings = self.config.get_settings()
         here = "/".join(os.path.dirname(__file__).split("/")[:-3])
-        global_settings = {"__file__": os.path.join(here, "testing.ini"),
+        global_settings = {"__file__": os.path.join(here, "test/testing.ini"),
                            "here": here}
         web.init(global_settings, self.settings)
         super().setUp()
@@ -52,7 +52,7 @@ class RestTestCase(unittest.TestCase):
 
         # Validate the response against the XSD
         p = subprocess.Popen(["xmllint", "--format", "--schema",
-                              "xsd/unsonic-subsonic-api.xsd", "-"],
+                              "test/xsd/unsonic-subsonic-api.xsd", "-"],
                               stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                               stderr=subprocess.STDOUT)
         out, err = p.communicate(resp.body, timeout=15)
@@ -73,7 +73,7 @@ class RestTestCase(unittest.TestCase):
 def setUpModule():
     # Check for xmllint
     p = subprocess.Popen(["xmllint", "--format", "--schema",
-                          "xsd/unsonic-subsonic-api.xsd", "-"],
+                          "test/xsd/unsonic-subsonic-api.xsd", "-"],
                           stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                           stderr=subprocess.STDOUT)
     out, err = p.communicate(XMLLINT_TEST.encode("utf-8"), timeout=15)

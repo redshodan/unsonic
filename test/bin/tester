@@ -17,5 +17,5 @@ cmd += "'"
 
 print(cmd)
 os.system(cmd)
-os.system("xmllint --format --schema xsd/unsonic-subsonic-api.xsd %s" %
+os.system("xmllint --format --schema test/xsd/unsonic-subsonic-api.xsd %s" %
           outfile.name)

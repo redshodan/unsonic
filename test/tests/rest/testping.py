@@ -1,5 +1,5 @@
 from . import RestTestCase
-from ...views.rest.ping import Ping
+from unsonic.views.rest.ping import Ping
 
 
 class TestPing(RestTestCase):

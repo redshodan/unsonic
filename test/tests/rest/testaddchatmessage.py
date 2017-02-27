@@ -1,5 +1,5 @@
 from . import RestTestCase
-from ...views.rest.addchatmessage import AddChatMessage
+from unsonic.views.rest.addchatmessage import AddChatMessage
 
 
 class TestAddChatMessage(RestTestCase):

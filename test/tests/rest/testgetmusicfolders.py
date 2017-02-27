@@ -1,5 +1,5 @@
 from . import RestTestCase
-from ...views.rest.getmusicfolders import GetMusicFolders
+from unsonic.views.rest.getmusicfolders import GetMusicFolders
 
 
 class TestMusicFolders(RestTestCase):

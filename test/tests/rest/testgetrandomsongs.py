@@ -1,5 +1,5 @@
 from . import RestTestCase
-from ...views.rest.getrandomsongs import GetRandomSongs
+from unsonic.views.rest.getrandomsongs import GetRandomSongs
 
 
 class TestRandomSongs(RestTestCase):

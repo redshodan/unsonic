@@ -1,7 +1,7 @@
 import unittest
 
 from . import RestTestCase
-from ...views.rest.getindexes import GetIndexes
+from unsonic.views.rest.getindexes import GetIndexes
 
 
 class TestIndexes(RestTestCase):

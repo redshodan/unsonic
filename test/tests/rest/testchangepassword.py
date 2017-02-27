@@ -1,7 +1,7 @@
 from . import RestTestCase
-from ...models import Session, User
-from ...views.rest.changepassword import ChangePassword
-from ...views.rest import Command
+from unsonic.models import Session, User
+from unsonic.views.rest.changepassword import ChangePassword
+from unsonic.views.rest import Command
 
 
 class TestChangePassword(RestTestCase):

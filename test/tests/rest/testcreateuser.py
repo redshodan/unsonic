@@ -1,6 +1,6 @@
 from . import RestTestCase
-from ...models import Session, User
-from ...views.rest.createuser import CreateUser
+from unsonic.models import Session, User
+from unsonic.views.rest.createuser import CreateUser
 
 
 class TestCreateUser(RestTestCase):

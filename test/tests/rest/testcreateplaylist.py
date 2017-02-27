@@ -1,6 +1,6 @@
 from . import RestTestCase
-from ...models import Session, PlayList
-from ...views.rest.createplaylist import CreatePlayList
+from unsonic.models import Session, PlayList
+from unsonic.views.rest.createplaylist import CreatePlayList
 
 
 class TestCreatePlayList(RestTestCase):

@@ -1,8 +1,8 @@
 import unittest
 
 from . import RestTestCase
-from ...views.rest.getmusicdirectory import GetMusicDirectory
-from ...views.rest import Command
+from unsonic.views.rest.getmusicdirectory import GetMusicDirectory
+from unsonic.views.rest import Command
 
 
 class TestMusicDirectory(RestTestCase):

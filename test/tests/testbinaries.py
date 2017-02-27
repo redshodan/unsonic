@@ -1,11 +1,11 @@
-from .. import __main__
-from ..models import Session, User
+from unsonic import __main__
+from unsonic.models import Session, User
 from . import TestCase
 
 
 class TestBinaries(TestCase):
     def testAddUser(self):
-        ret = __main__.main(["-c", "testing.ini", "adduser", "sue", "pass",
+        ret = __main__.main(["-c", "test/testing.ini", "adduser", "sue", "pass",
                             "role1", "role2"])
         self.assertEqual(ret, 0)
         with Session() as session:
@@ -19,10 +19,10 @@ class TestBinaries(TestCase):
 
 
     def testAddUserTwice(self):
-        ret = __main__.main(["-c", "testing.ini", "adduser", "sue", "pass",
+        ret = __main__.main(["-c", "test/testing.ini", "adduser", "sue", "pass",
                             "role1", "role2"])
         self.assertEqual(ret, 0)
-        ret = __main__.main(["-c", "testing.ini", "adduser", "sue", "pass",
+        ret = __main__.main(["-c", "test/testing.ini", "adduser", "sue", "pass",
                             "role1", "role2"])
         self.assertEqual(ret, -1)
         with Session() as session:
@@ -36,10 +36,10 @@ class TestBinaries(TestCase):
 
 
     def testDelUser(self):
-        ret = __main__.main(["-c", "testing.ini", "adduser", "sue", "pass",
+        ret = __main__.main(["-c", "test/testing.ini", "adduser", "sue", "pass",
                             "role1", "role2"])
         self.assertEqual(ret, 0)
-        ret = __main__.main(["-c", "testing.ini", "deluser", "sue"])
+        ret = __main__.main(["-c", "test/testing.ini", "deluser", "sue"])
         self.assertEqual(ret, 0)
         with Session() as session:
             row = session.query(User).filter(User.name == "sue").all()
@@ -47,10 +47,11 @@ class TestBinaries(TestCase):
 
 
     def testPassword(self):
-        ret = __main__.main(["-c", "testing.ini", "adduser", "sue", "pass",
+        ret = __main__.main(["-c", "test/testing.ini", "adduser", "sue", "pass",
                             "role1", "role2"])
         self.assertEqual(ret, 0)
-        ret = __main__.main(["-c", "testing.ini", "password", "sue", "testtest"])
+        ret = __main__.main(["-c", "test/testing.ini", "password", "sue",
+                             "testtest"])
         self.assertEqual(ret, 0)
         with Session() as session:
             row = session.query(User).filter(User.name == "sue").all()

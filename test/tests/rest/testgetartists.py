@@ -1,5 +1,5 @@
 from . import RestTestCase
-from ...views.rest.getartists import GetArtists
+from unsonic.views.rest.getartists import GetArtists
 
 
 class TestArtists(RestTestCase):
