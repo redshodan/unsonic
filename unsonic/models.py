@@ -1,4 +1,3 @@
-import os
 import datetime
 from argparse import Namespace
 from contextlib import contextmanager
@@ -17,9 +16,9 @@ from sqlalchemy.orm import relation
 from sqlalchemy.orm.exc import NoResultFound
 
 import mishmash.orm
-from mishmash.orm import Base, Artist, Album, Meta, Track   # noqa: F401
-from mishmash.orm import Image, Tag, Library, artist_images # noqa: F401
-from mishmash.orm import album_images, track_tags           # noqa: F401
+from mishmash.orm import Base, Artist, Album, Meta, Track    # noqa: F401
+from mishmash.orm import Image, Tag, Library, artist_images  # noqa: F401
+from mishmash.orm import album_images, track_tags            # noqa: F401
 from mishmash.database import init as dbinit
 
 import unsonic.config
@@ -327,13 +326,6 @@ def asdict(value):
             key, val = line.split(":")
             ret[key.strip()] = val.strip()
     return ret
-
-
-def getMashPaths(settings):
-    paths = asdict(web.CONFIG.get("mishmash", "paths"))
-    for key in list(paths.keys()):
-        paths[key] = os.path.expandvars(os.path.expanduser(paths[key]))
-    return paths
 
 
 # Table utilities

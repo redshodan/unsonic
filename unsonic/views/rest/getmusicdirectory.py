@@ -4,7 +4,7 @@ from sqlalchemy.orm import subqueryload
 
 from . import (Command, registerCmd, MissingParam, NotFound, fillAlbumUser,
                fillTrackUser)
-from ...models import Artist, Album, Track, getMashPaths
+from ...models import Artist, Album, Track
 
 
 @registerCmd
@@ -29,23 +29,24 @@ class GetMusicDirectory(Command):
     def handleReq(self, session):
         directory = ET.Element(self.dir_param)
         directory.set("id", self.params["id"])
+        # FIXME: Do we care about the top level directory hierarchy?
         if self.params["id"].startswith("fl-"):
             raise Exception("TOP LEVEL FOLDER")
         elif self.params["id"].startswith("ar-"):
             artist_id = int(self.params["id"][3:])
-            # FIXME: Do we care about the top level directory hierarchy?
-            directory.set(
-                "parent",
-                "fl-%s" % list(getMashPaths(self.settings).keys())[0])
-            artist_name = None
+            row = session.query(Artist).options(subqueryload("*")).\
+                       filter(Artist.id == artist_id).one_or_none()
+            if row:
+                directory.set("name", row.name)
+                directory.set("parent", "fl-%s" % row.lib_id)
+            else:
+                raise NotFound(self.params["id"])
             # Gather albums
             for row in session.query(Album).options(subqueryload("*")).\
                     filter(Album.artist_id == artist_id).all():
                 album = fillAlbumUser(session, row, None, self.req.authed_user,
                                       self.album_param)
                 directory.append(album)
-                if row.artist and row.artist.name:
-                    artist_name = row.artist.name
             # Gather tracks with no album
             for row in session.query(Track).options(subqueryload("*")).\
                     filter(Track.album_id is None,
@@ -54,14 +55,6 @@ class GetMusicDirectory(Command):
                 song = fillTrackUser(session, row, None, self.req.authed_user,
                                      self.track_param)
                 directory.append(song)
-            if not artist_name:
-                rows = session.query(Artist).options(subqueryload("*")).\
-                    filter(Artist.id == artist_id).all()
-                if len(rows) == 1:
-                    artist_name = rows[0].name
-            if not artist_name:
-                raise NotFound(self.params["id"])
-            directory.set("name", artist_name)
         elif self.params["id"].startswith("al-"):
             album_id = int(self.params["id"][3:])
             album = session.query(Album).options(subqueryload("*")).filter(

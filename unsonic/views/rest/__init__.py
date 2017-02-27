@@ -266,6 +266,7 @@ def datetime_t(tstamp):
         raise MissingParam(
             "Invalid type for param. '%s' is not a timestamp" % tstamp)
 
+
 def year_t(year):
     try:
         return Eyed3Date(int(year), 1, 1)

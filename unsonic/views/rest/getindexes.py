@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 from sqlalchemy.orm import subqueryload
 
 from . import Command, registerCmd, fillArtistUser, folder_t, datetime_t
-from ...models import Artist, Meta, Library
+from ...models import Artist, Meta
 
 
 @registerCmd

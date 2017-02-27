@@ -14,7 +14,7 @@ class TestMusicDirectory(RestTestCase):
         directory = sub_resp.find("{http://subsonic.org/restapi}directory")
         self.assertEqual(directory.get("id"), aid)
         self.assertTrue(len(directory.get("name")) > 0)
-        self.assertEqual(directory.get("parent"), "fl-Music")
+        self.assertEqual(directory.get("parent"), "fl-2")
         for child in directory.iter("{http://subsonic.org/restapi}child"):
             self.assertTrue(child.get("id").startswith("al-"))
             self.assertTrue(len(child.get("title")) > 0)
@@ -31,7 +31,7 @@ class TestMusicDirectory(RestTestCase):
         directory = sub_resp.find("{http://subsonic.org/restapi}directory")
         self.assertEqual(directory.get("id"), aid)
         self.assertTrue(len(directory.get("name")) > 0)
-        self.assertEqual(directory.get("parent"), "fl-Music")
+        self.assertEqual(directory.get("parent"), "fl-2")
         child = directory.find("{http://subsonic.org/restapi}child")
         self.assertEqual(child.get("album"), "-")
         self.assertTrue(child.get("id").startswith("tr-"))

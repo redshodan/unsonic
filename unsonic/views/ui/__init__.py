@@ -1,6 +1,6 @@
 import os
 
-from pyramid.response import FileResponse
+from pyramid.response import Response, FileResponse
 
 from ... import web
 from ...auth import Roles
