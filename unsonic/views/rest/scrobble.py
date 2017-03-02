@@ -1,6 +1,5 @@
 import datetime
 
-from sqlalchemy.orm import subqueryload
 from sqlalchemy.orm.exc import NoResultFound
 
 from . import Command, registerCmd, bool_t, track_t, NotFound
@@ -26,15 +25,13 @@ class Scrobble(Command):
         else:
             # Check track id
             try:
-                session.query(Track).options(subqueryload("*")).filter(
-                    Track.id == self.params["id"]).one()
+                session.query(Track).filter(Track.id == self.params["id"]).one()
             except NoResultFound:
                 raise NotFound("Track not found")
 
             # Inc play count
             try:
                 pcount = session.query(PlayCount). \
-                           options(subqueryload("*")). \
                            filter(PlayCount.track_id == self.params["id"],
                                   PlayCount.user_id ==
                                   self.req.authed_user.id).one()

@@ -1,7 +1,6 @@
 import xml.etree.ElementTree as ET
 
 from sqlalchemy import and_
-from sqlalchemy.orm import subqueryload
 from sqlalchemy.sql.expression import func as dbfunc
 
 from eyed3.core import Date as Eyed3Date
@@ -49,10 +48,9 @@ class GetAlbumList(Command):
     def queryAlbum(self, session):
         if self.params["musicFolderId"]:
             return (session.query(Album).
-                    options(subqueryload("*")).
                     filter(Album.lib_id == self.params["musicFolderId"]))
         else:
-            return session.query(Album).options(subqueryload("*"))
+            return session.query(Album)
 
 
     def handleReq(self, session):
@@ -78,7 +76,6 @@ class GetAlbumList(Command):
             self.processRows(session, alist, result)
         elif self.params["type"] == "highest":
             result = session.query(AlbumRating). \
-                         options(subqueryload("*")). \
                          filter(AlbumRating.user_id ==
                                 self.req.authed_user.id). \
                          order_by(AlbumRating.rating). \
@@ -92,7 +89,6 @@ class GetAlbumList(Command):
             self.processRows(session, alist, albums)
         elif self.params["type"] == "frequent":
             pcounts = session.query(PlayCount).\
-                         options(subqueryload("*")).\
                          join(Track).\
                          filter(PlayCount.user_id ==
                                 self.req.authed_user.id).\
@@ -113,7 +109,6 @@ class GetAlbumList(Command):
             self.processRows(session, alist, albums)
         elif self.params["type"] == "recent":
             result = session.query(Scrobble).\
-                        options(subqueryload("*")).\
                         filter(Scrobble.user_id ==
                                self.req.authed_user.id).\
                         order_by(Scrobble.tstamp.desc()).\
@@ -133,7 +128,6 @@ class GetAlbumList(Command):
             self.processRows(session, alist, albums)
         elif self.params["type"] == "starred":
             result = session.query(AlbumRating).\
-                         options(subqueryload("*")).\
                          filter(AlbumRating.user_id ==
                                 self.req.authed_user.id).\
                          filter(AlbumRating.starred is not None).\
@@ -155,7 +149,6 @@ class GetAlbumList(Command):
         elif self.params["type"] == "alphabeticalByArtist":
             size = self.params["size"]
             artists = session.query(Artist).\
-                          options(subqueryload("*")).\
                           order_by("name").\
                           limit(limit)
             for artist in artists:

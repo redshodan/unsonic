@@ -1,5 +1,3 @@
-from sqlalchemy.orm import subqueryload
-
 from . import Command, registerCmd, NotFound, album_t, fillAlbumID3
 from ...models import Album
 
@@ -13,8 +11,8 @@ class GetAlbum(Command):
 
     def handleReq(self, session):
         album = None
-        for row in session.query(Album).options(subqueryload("*")).\
-                       filter(Album.id == self.params["id"]).all():
+        for row in session.query(Album).filter(
+                Album.id == self.params["id"]).all():
             album = fillAlbumID3(session, row, self.req.authed_user, True)
         if album is None:
             raise NotFound(self.req.params["id"])

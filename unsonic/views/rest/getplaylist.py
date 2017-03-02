@@ -1,5 +1,3 @@
-from sqlalchemy.orm import subqueryload
-
 from . import (Command, registerCmd, fillPlayList, fillTrack, playlist_t,
                MissingParam)
 from ...models import PlayList
@@ -13,7 +11,7 @@ class GetPlayList(Command):
 
 
     def handleReq(self, session):
-        plrow = session.query(PlayList).options(subqueryload("*")). \
+        plrow = session.query(PlayList). \
                     filter(PlayList.id == self.params["id"]). \
                     filter(PlayList.user_id == self.req.authed_user.id). \
                     one_or_none()

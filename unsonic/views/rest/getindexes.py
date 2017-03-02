@@ -1,8 +1,6 @@
 from datetime import datetime
 import xml.etree.ElementTree as ET
 
-from sqlalchemy.orm import subqueryload
-
 from . import Command, registerCmd, fillArtistUser, folder_t, datetime_t
 from ...models import Artist, Meta
 
@@ -37,8 +35,7 @@ class GetIndexes(Command):
         q = session.query(Artist)
         if self.params["musicFolderId"]:
             q = q.filter(Artist.lib_id == self.params["musicFolderId"])
-        rows = q.options(subqueryload("*")).\
-            options(subqueryload("*")).order_by(Artist.sort_name).all()
+        rows = q.order_by(Artist.sort_name).all()
         for row in rows:
             first = row.sort_name[0].upper()
             if index_group != first:

@@ -1,5 +1,3 @@
-from sqlalchemy.orm import subqueryload
-
 from pyramid.response import Response
 from pyramid.exceptions import NotFound
 
@@ -21,8 +19,7 @@ class GetCoverArt(Command):
         except:
             raise MissingParam("Invalid id: %s" % id)
         if id.startswith("ar-") or id.startswith("al-"):
-            image = session.query(Image).options(subqueryload("*")).\
-                filter_by(id=num).all()
+            image = session.query(Image).filter_by(id=num).all()
 
         if len(image) == 1:
             return Response(content_type=image[0].mime_type,

@@ -1,5 +1,3 @@
-from sqlalchemy.orm import subqueryload
-
 from . import Command, registerCmd, playlist_t, MissingParam
 from ...models import PlayList
 
@@ -12,7 +10,7 @@ class DeletePlayList(Command):
 
 
     def handleReq(self, session):
-        res = session.query(PlayList).options(subqueryload("*")). \
+        res = session.query(PlayList). \
                     filter(PlayList.id == self.params["id"]). \
                     filter(PlayList.user_id == self.req.authed_user.id)
         if not res.one_or_none():

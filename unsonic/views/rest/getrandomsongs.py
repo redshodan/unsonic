@@ -1,6 +1,5 @@
 import xml.etree.ElementTree as ET
 
-from sqlalchemy.orm import subqueryload
 from sqlalchemy.sql.expression import func as dbfunc
 
 from . import Command, registerCmd, fillTrack, year_t, folder_t
@@ -23,10 +22,9 @@ class GetRandomSongs(Command):
     def query(self, session):
         if self.params["musicFolderId"]:
             return (session.query(Track).
-                    options(subqueryload("*")).
                     filter(Track.lib_id == self.params["musicFolderId"]))
         else:
-            return session.query(Track).options(subqueryload("*"))
+            return session.query(Track)
 
 
     def handleReq(self, session):

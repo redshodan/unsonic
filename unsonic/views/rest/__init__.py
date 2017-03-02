@@ -7,8 +7,6 @@ import xml.etree.ElementTree as ET
 
 from pyramid.security import Allow, Authenticated, DENY_ALL
 
-from sqlalchemy.orm import subqueryload
-
 from eyed3.core import Date as Eyed3Date
 from nicfit.console.ansi import Fg
 
@@ -376,8 +374,7 @@ def fillAlbumID3(session, row, user, append_tracks):
         album.set("genre", row.tags[0].name)
     track_count = 0
     duration = 0
-    for row in session.query(Track).options(subqueryload("*")).filter(
-            Track.album_id == row.id).all():
+    for row in session.query(Track).filter(Track.album_id == row.id).all():
         track_count += 1
         duration = duration + row.time_secs
         if append_tracks:
