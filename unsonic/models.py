@@ -1,3 +1,4 @@
+import os
 import datetime
 from argparse import Namespace
 from contextlib import contextmanager
@@ -290,7 +291,8 @@ Track.scrobbles = relation("Scrobble")
 # Utility functions
 def init(settings, webapp=False):
     global db_url, db_engine, session_maker
-    settings["sqlalchemy.url"] = web.CONFIG.get("mishmash", "sqlalchemy.url")
+    settings["sqlalchemy.url"] = (os.environ.get("MISHMASH_DBURL") or
+                                  web.CONFIG.get("mishmash", "sqlalchemy.url"))
     settings["sqlalchemy.convert_unicode"] = \
         web.CONFIG.get("mishmash", "sqlalchemy.convert_unicode")
     settings["sqlalchemy.encoding"] = web.CONFIG.get("mishmash",
@@ -301,12 +303,11 @@ def init(settings, webapp=False):
     config.various_artists_name = web.CONFIG.get("mishmash",
                                                  "various_artists_name")
     db_engine, session_maker = dbinit(config)
-    initAlembic()
+    initAlembic(db_url)
 
 
-def initAlembic():
+def initAlembic(db_url):
     # Upgrade to head (i.e. this) revision, or no-op if they match
-    db_url = unsonic.config.CONFIG.get("mishmash", "sqlalchemy.url")
     alembic_d = Path(__file__).parent / "alembic"
     alembic_cfg = Config(str(alembic_d / "alembic.ini"))
     alembic_cfg.set_main_option("sqlalchemy.url", db_url)
