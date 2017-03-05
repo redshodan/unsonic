@@ -288,11 +288,19 @@ class Scrobble(Base, OrmObject):
 Track.scrobbles = relation("Scrobble")
 
 
+def _dbUrl(config):
+    url = (os.environ.get("MISHMASH_DBURL") or
+           config.get("mishmash", "sqlalchemy.url"))
+    config.set("mishmash", "sqlalchemy.url", url)
+    return url
+
+
 # Utility functions
 def init(settings, webapp=False):
     global db_url, db_engine, session_maker
-    settings["sqlalchemy.url"] = (os.environ.get("MISHMASH_DBURL") or
-                                  web.CONFIG.get("mishmash", "sqlalchemy.url"))
+    settings["sqlalchemy.url"] = _dbUrl(web.CONFIG)
+    web.CONFIG.set("mishmash", "sqlalchemy.url", settings["sqlalchemy.url"])
+
     settings["sqlalchemy.convert_unicode"] = \
         web.CONFIG.get("mishmash", "sqlalchemy.convert_unicode")
     settings["sqlalchemy.encoding"] = web.CONFIG.get("mishmash",
@@ -303,11 +311,12 @@ def init(settings, webapp=False):
     config.various_artists_name = web.CONFIG.get("mishmash",
                                                  "various_artists_name")
     db_engine, session_maker = dbinit(config)
-    initAlembic(db_url)
+    initAlembic()
 
 
-def initAlembic(db_url):
+def initAlembic():
     # Upgrade to head (i.e. this) revision, or no-op if they match
+    db_url = _dbUrl(unsonic.config.CONFIG)
     alembic_d = Path(__file__).parent / "alembic"
     alembic_cfg = Config(str(alembic_d / "alembic.ini"))
     alembic_cfg.set_main_option("sqlalchemy.url", db_url)
