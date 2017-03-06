@@ -86,5 +86,18 @@ dist-clean: clean
 tests-clean:
 	rm -f build/testing.sqlite build/testing.sqlite.org
 
+docker:
+	test -n "${MUSIC_DIR}" || (echo "MUSIC_DIR volume directy required" && false)
+	docker-compose -f ./docker/docker-compose.yml build
+	docker-compose -f ./docker/docker-compose.yml create
+
+docker-sqlite: docker
+	docker-compose -f ./docker/docker-compose.yml up unsonic-sqlite
+
+docker-postgres: docker
+	docker-compose -f ./docker/docker-compose.yml up -d postgres
+	sleep 3
+	docker-compose -f ./docker/docker-compose.yml up unsonic-postgres
+
 .PHONY: devel db pyramid paste sqlalchemy psycopg2 run tests clean mishmash mishmash.egg
-.PHONY: dist-clean external
+.PHONY: dist-clean external docker

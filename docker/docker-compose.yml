@@ -2,54 +2,43 @@ version: "2"
 
 services:
 
-    unsonic: &unsonic
+    unsonic:
         build:
             context: .
             dockerfile: Dockerfile
-        image: nicfit/unsonic
-
-    unsonic-sqlite:
-        image: nicfit/unsonic
-        container_name: Unsonic-sqlite
-        environment:
-            MISHMASH_DBURL: sqlite:////unsonic/var/music.db
-        volumes:
-            - /etc/localtime:/etc/localtimel:ro
-            - ${MUSIC_DIR}:/media/music:ro
-        ports:
-            - 16543:6543
+        image: unsonic
 
     postgres:
         image: postgres:9.6-alpine
-        container_name: PostgreSql-unsonic
+        container_name: PostgreSql
         environment:
             POSTGRES_DB: unsonic
             POSTGRES_USER: unsonic
             POSTGRES_PASSWORD: FaithSubjectToChange
 
+    unsonic-base: &unsonic-container
+        image: unsonic
+        volumes:
+            - /etc/localtime:/etc/localtimel:ro
+            - ${MUSIC_DIR}:/media/music:ro
+
+    unsonic-sqlite:
+        <<: *unsonic-container
+        container_name: Unsonic-sqlite
+        environment:
+            MISHMASH_DBURL: sqlite:////unsonic/var/music.db
+        ports:
+            - 16543:6543
+
     unsonic-postgres:
-        image: nicfit/unsonic
+        <<: *unsonic-container
         container_name: Unsonic-postgres
         environment:
             POSTGRES_PASSWORD: FaithSubjectToChange
             MISHMASH_DBURL: postgresql://unsonic:FaithSubjectToChange@postgres/unsonic
         links:
             - postgres:postgres
-        volumes:
-            - /etc/localtime:/etc/localtimel:ro
-            - ${MUSIC_DIR}:/media/music:ro
         ports:
             - 26543:6543
         depends_on:
             - postgres
-
-    unsonic.nicfit.net:
-        image: nicfit/unsonic
-        container_name: unsonic.nicfit.net
-        environment:
-            MISHMASH_DBURL: sqlite:////unsonic/var/music.db
-        volumes:
-            - /etc/localtime:/etc/localtimel:ro
-            - ${MUSIC_DIR}:/media/music:ro
-        ports:
-            - 6543:6543

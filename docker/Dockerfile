@@ -34,7 +34,9 @@ RUN mkdir -p ${APP_DIR}/etc ${APP_DIR}/var/log && \
 
 RUN source ${APP_DIR}/bin/activate && \
     pip install git+https://github.com/redshodan/unsonic.git@docker
+#RUN source ${APP_DIR}/bin/activate && \
+#    pip install unsonic
 
-COPY config.ini ${APP_DIR}/etc/config.ini
 COPY unsonic-init ${APP_DIR}/bin/
+COPY config.ini ${APP_DIR}/etc/config.ini
 #CMD ["/bin/bash"]
