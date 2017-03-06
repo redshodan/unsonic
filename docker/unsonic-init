@@ -11,6 +11,6 @@ fi
 
 $UNSONIC sync
 $UNSONIC adduser nicfit 'test'
-#$UNSONIC serve
+$UNSONIC serve
 
 #exec /bin/bash
