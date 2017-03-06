@@ -170,6 +170,7 @@ class GetAlbumList(Command):
                                       day=1)
                 to_year = Eyed3Date(year=self.params["toYear"], month=12, day=31)
             results = set()
+            second = False
             for date_row in [Album.original_release_date, Album.release_date,
                              Album.recording_date]:
                 res = self.queryAlbum(session).\
@@ -177,8 +178,20 @@ class GetAlbumList(Command):
                                       date_row <= to_year)).\
                           offset(offset).\
                           limit(limit)
-                for row in res.all():
-                    results.add(row)
+                if not second:
+                    second = True
+                    for row in res.all():
+                        results.add(row)
+                else:
+                    for row in res.all():
+                        # If no orig date, go ahead and add it
+                        if not row.original_release_date:
+                            results.add(row)
+                        # Add only if the orig date is in the range and ignore
+                        # rel date
+                        elif ((row.original_release_date >= from_year) and
+                              (row.original_release_date <= to_year)):
+                            results.add(row)
             results = list(results)
             results.sort(key=lambda x: x.getBestDate(), reverse=desc)
             self.processRows(session, alist, results)
