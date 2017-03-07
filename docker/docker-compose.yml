@@ -12,7 +12,7 @@ services:
         image: postgres:9.6-alpine
         container_name: PostgreSql
         environment:
-            POSTGRES_DB: unsonic
+            POSTGRES_DB: music
             POSTGRES_USER: unsonic
             POSTGRES_PASSWORD: FaithSubjectToChange
 
@@ -26,7 +26,7 @@ services:
         <<: *unsonic-container
         container_name: Unsonic-sqlite
         environment:
-            MISHMASH_DBURL: sqlite:////unsonic/var/music.db
+            MISHMASH_DBURL: sqlite:////unsonic/var/music-dev.db
         ports:
             - 16543:6543
 
@@ -35,7 +35,7 @@ services:
         container_name: Unsonic-postgres
         environment:
             POSTGRES_PASSWORD: FaithSubjectToChange
-            MISHMASH_DBURL: postgresql://unsonic:FaithSubjectToChange@postgres/unsonic
+            MISHMASH_DBURL: postgresql://unsonic:FaithSubjectToChange@postgres/music-dev
         links:
             - postgres:postgres
         ports:

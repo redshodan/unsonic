@@ -10,7 +10,7 @@ if [ -z $MISHMASH_DBURL ]; then
 fi
 
 $UNSONIC sync
-$UNSONIC adduser nicfit 'test'
+$UNSONIC adduser nicfit 'test' || echo "User prolly exists"
 $UNSONIC serve
 
 #exec /bin/bash
