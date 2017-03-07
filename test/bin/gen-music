@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 
 import os, sys
+from pathlib import Path
 
 
-TTS = "pico2wave -w %s '%s'"
-MP3 = "lame -Sth --preset standard %s %s"
+ROOT_DIR = "test/music"
+
+TTS = "pico2wave -w '%s' '%s'"
+MP3 = "lame -Sth --preset standard '%s' '%s'"
 ID3 = "build/venv/bin/python3 -m eyed3.main"
 
 # eyed3 arguments, used as keys to the TRACKS structure
@@ -13,20 +16,23 @@ ALBUM = "-A"
 TITLE = "-t"
 GENRE = "-G"
 YEAR = "-Y"
+RELDATE = "--release-date"
+ORGDATE = "--orig-release-date"
+RECDATE = "--recording-date"
 
 # [{attributes to apply to all tracks}, [{track}, {track}, {track}]]
 TRACKS = \
 [
     # Artist 1, 1 album
-    [{ARTIST: "artist 1", ALBUM: "album 1"},
+    [{ARTIST: "artist 1", ALBUM: "album 1", GENRE: "18", YEAR:"1991"},
         [{TITLE: "song 1"}, {TITLE: "song 2"}, {TITLE: "song 3"},
          {TITLE: "song 4"}]],
 
     # Artist 2, 2 albums
-    [{ARTIST: "artist 2", ALBUM: "album 1"},
+    [{ARTIST: "artist 2", ALBUM: "album 1", GENRE: "143", YEAR:"1973"},
         [{TITLE: "song 1"}, {TITLE: "song 2"}, {TITLE: "song 3"},
          {TITLE: "song 4"}, {TITLE: "song 5"}, {TITLE: "song 6"}]],
-    [{ARTIST: "artist 2", ALBUM: "album 2", GENRE: "techno"},
+    [{ARTIST: "artist 2", ALBUM: "album 2", GENRE: "53", YEAR:"2009"},
         [{TITLE: "song 1"}, {TITLE: "song 2"}, {TITLE: "song 3"},
          {TITLE: "song 4"}, {TITLE: "song 5"}, {TITLE: "song 6"}]],
 
@@ -38,22 +44,28 @@ TRACKS = \
         [{TITLE: "single 1"}, {TITLE:"single 2"}]],
 
     # Artist single-only, no album, two singles
-    [{ARTIST: "artist singles-only"},
+    [{ARTIST: "artist singles-only", GENRE: "17", YEAR:"2015"},
         [{TITLE: "single 1"}, {TITLE:"single 2"}]],
 
     # Collection 1, 3 artists
-    [{ALBUM: "collection 1"},
+    [{ALBUM: "collection 1", GENRE: "10", YEAR: "1998"},
         [{ARTIST: "artist 1", TITLE: "song 1"},
          {ARTIST: "artist 2", TITLE: "song 2"},
          {ARTIST: "artist 3", TITLE: "song 3"}]],
 
     # Collection 2, 5 artists
-    [{ALBUM: "collection 2"},
+    [{ALBUM: "collection 2", GENRE: "5", YEAR: "1997"},
         [{ARTIST: "artist 1", TITLE: "song 1"},
          {ARTIST: "artist 2", TITLE: "song 2"},
          {ARTIST: "artist 3", TITLE: "song 3"},
          {ARTIST: "artist 4", TITLE: "song 4"},
          {ARTIST: "artist 5", TITLE: "song 5"}]],
+
+    # Artist 6,
+    [{ARTIST: "artist 6", ALBUM: "original release", RELDATE: "1952"},
+         [{TITLE: "song 1"}, {TITLE: "song 2"}]],
+    [{ARTIST: "artist 6", ALBUM: "re-release", ORGDATE: "1952", RELDATE: "2005"},
+         [{TITLE: "song 1"}, {TITLE: "song 2"}]],
         
     # two songs with no album or artist
     [{},
@@ -73,10 +85,19 @@ for track in tracks:
     album_name = track[ALBUM] if ALBUM in track else "-"
     track_name = track[TITLE]
 
+    # Paths
+    text = "%s. %s. %s." % (artist_name, album_name, track_name)
     wav_fname = "%s-%s-%s.wav" % (artist_name, album_name, track_name)
     wav_fname = wav_fname.replace(" ", "_")
     mp3_fname = wav_fname.replace(".wav", ".mp3")
-    text = "%s. %s. %s." % (artist_name, album_name, track_name)
+    mp3_path = Path(ROOT_DIR)
+    if artist_name != "_":
+        mp3_path /= artist_name
+    if album_name != "-":
+        mp3_path /= album_name
+    mp3_path.mkdir(exist_ok=True)
+    mp3_path /= mp3_fname
+    mp3_fname = str(mp3_path)
     
     # Make the wav
     cmd = TTS % (wav_fname, text)
@@ -99,7 +120,7 @@ for track in tracks:
     for arg, val in track.items():
         cmd.append(arg)
         cmd.append("'%s'" % val)
-    cmd = "%s %s %s" % (ID3, " ".join(cmd), mp3_fname)
+    cmd = "%s %s '%s'" % (ID3, " ".join(cmd), mp3_fname)
     print(cmd)
     if os.system(cmd) != 0:
         print("ID3 failed")
