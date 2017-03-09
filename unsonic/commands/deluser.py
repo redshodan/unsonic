@@ -1,10 +1,8 @@
-from nicfit import command
-from mishmash.core import Command
-
-from ..models import User
+from . import Command, register
+from ..models import User, initAlembic
 
 
-@command.register
+@register
 class DelUser(Command):
     NAME = "deluser"
     HELP = "Delete a user from the database."
@@ -15,6 +13,8 @@ class DelUser(Command):
 
 
     def _run(self, args=None):
+        initAlembic()
+
         args = args or self.args
 
         res = self.db_session.query(User).filter(User.name == args.username[0])

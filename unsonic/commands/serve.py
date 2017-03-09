@@ -3,11 +3,10 @@ import sys
 import argparse
 import shutil
 
-from nicfit import command
-from nicfit.command import Command
+from . import Command, register
 
 
-@command.register
+@register
 class Serve(Command):
     NAME = "serve"
     HELP = "Run the unsonic web interface using the Pyramid pserve script."

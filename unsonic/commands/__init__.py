@@ -1,8 +1,8 @@
 # flake8: noqa: F401
 
-import mishmash.commands
+from nicfit.command import register
+from mishmash.core import Command
 
-from . import sync
 from .adduser import AddUser
 from .deluser import DelUser
 from .listusers import ListUsers
