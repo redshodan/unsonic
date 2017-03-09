@@ -4,7 +4,7 @@ import argparse
 import shutil
 
 from nicfit import command
-from mishmash.core import Command
+from nicfit.command import Command
 
 
 @command.register
@@ -19,11 +19,10 @@ class Serve(Command):
                                  "any pserve arguments.")
 
 
-    def _run(self, args=None):
-        args = args or self.args
+    def run(self, args, config):
         pargs = args.pserve_args
 
-        if not self.config.filename:
+        if not config.filename:
             print("No config file specified. Must specify a config file.")
             sys.exit(-1)
 
@@ -40,6 +39,6 @@ class Serve(Command):
         if len(pargs) and pargs[0] == "--":
             pargs = pargs[1:]
         argv.extend(pargs)
-        argv.append(str(self.config.filename))
+        argv.append(str(config.filename))
         print(" ".join(argv))
         os.execv(path, argv)
