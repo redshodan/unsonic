@@ -3,11 +3,10 @@ import sys
 import argparse
 import shutil
 
-from nicfit import command
-from mishmash.core import Command
+from . import Command, register
 
 
-@command.register
+@register
 class Serve(Command):
     NAME = "serve"
     HELP = "Run the unsonic web interface using the Pyramid pserve script."
@@ -19,11 +18,10 @@ class Serve(Command):
                                  "any pserve arguments.")
 
 
-    def _run(self, args=None):
-        args = args or self.args
+    def run(self, args, config):
         pargs = args.pserve_args
 
-        if not self.config.filename:
+        if not config.filename:
             print("No config file specified. Must specify a config file.")
             sys.exit(-1)
 
@@ -40,6 +38,6 @@ class Serve(Command):
         if len(pargs) and pargs[0] == "--":
             pargs = pargs[1:]
         argv.extend(pargs)
-        argv.append(str(self.config.filename))
+        argv.append(str(config.filename))
         print(" ".join(argv))
         os.execv(path, argv)

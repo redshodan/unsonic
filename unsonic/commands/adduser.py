@@ -1,13 +1,11 @@
 import argparse
 
-from nicfit import command
-from mishmash.core import Command
-
+from . import Command, register
 from .. import models, auth
-from ..models import User
+from ..models import User, initAlembic
 
 
-@command.register
+@register
 class AddUser(Command):
     NAME = "adduser"
     HELP = "Add a user to the database."
@@ -21,6 +19,8 @@ class AddUser(Command):
 
 
     def _run(self, args=None):
+        initAlembic()
+
         args = args or self.args
 
         if len(args.roles):

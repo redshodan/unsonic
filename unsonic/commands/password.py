@@ -1,10 +1,8 @@
-from nicfit import command
-from mishmash.core import Command
-
-from .. import models
+from . import Command, register
+from ..models import setUserPassword, initAlembic
 
 
-@command.register
+@register
 class Password(Command):
     NAME = "password"
     HELP = "Change a users password."
@@ -17,7 +15,7 @@ class Password(Command):
 
     def _run(self, args=None):
         args = args or self.args
-        if models.setUserPassword(self.db_session, args.username[0],
+        if setUserPassword(self.db_session, args.username[0],
                                   args.password[0]):
             print("Password set for '%s'." % args.username[0])
             return 0
