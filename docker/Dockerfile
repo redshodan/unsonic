@@ -8,7 +8,7 @@ RUN curl -o /etc/pacman.d/mirrorlist \
     sed -i 's/^#//' /etc/pacman.d/mirrorlist
 RUN pacman -Syu --noconfirm
 RUN pacman -S --noconfirm python python-virtualenv python-pip \
-                          postgresql-libs git
+                          postgresql-libs python-psycopg2 git
 
 ENV HOME=/home/unsonic \
     APP_DIR=/unsonic
@@ -30,7 +30,7 @@ USER unsonic
 ENV LANG en_US.UTF-8
 
 RUN mkdir -p ${APP_DIR}/etc ${APP_DIR}/var/log && \
-    virtualenv $APP_DIR
+    virtualenv ${APP_DIR}
 
 RUN source ${APP_DIR}/bin/activate && \
     pip install git+https://github.com/redshodan/unsonic.git@docker
