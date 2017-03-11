@@ -111,6 +111,8 @@ class Command(object):
         root = xmltodict.parse(body, attr_prefix="")
 
         def walker(d):
+            if not isinstance(d, list):
+                return
             for key, val in d.items():
                 if isinstance(val, list):
                     for val2 in val:
