@@ -9,7 +9,10 @@ from . import Command, register
 @register
 class Serve(Command):
     NAME = "serve"
-    HELP = "Run the unsonic web interface using the Pyramid pserve script."
+    HELP = "Run the unsonic web interface."
+    DESC = ("Run the unsonic web interface using the Pyramid pserve script. "
+            "This interface is HTTP only and can not do HTTPS. Please read the "
+            "documentation for instructions on how to run Unsonic with HTTPS.")
 
 
     def _initArgParser(self, parser):
