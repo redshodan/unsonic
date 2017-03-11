@@ -1,15 +1,18 @@
-For Initial Release
+Initial Release
 ===================
 * mishmash Command take a subparser description.
 * func tests run full passes with json and jsonp
 * genres for everything
+* fix db slowness
+* Clementine fails auth, using old auth style. must be broken?
 
-* Get unsonic into pypi (registered, work out dist package contents)
-  * Update the pkg-info on pypi
 
 Next Release
 ============
-* setup docker image for unsonic
+* Scrobbling
+* Add an export-playlists command
+* Add playlist manipulation commands
+
 
 General
 =======
@@ -17,23 +20,9 @@ General
 * EC2/S3 support. Remote file storage for media files. Run in AWS. Pass back S3 URL for untranscoded stream.
 
 
-For dsub
-========
-* getPodcasts.view -- At least fake it up with empty data
-* getChatMessages -- At least fake it up with empty data
-
-
-unsonic-db
+database
 ==========
 * cache auth.User objects with db refresh checks. Update cache on deleteUser call.
-* Add an export-playlists command
-
-
-jamstash
-========
-* Implement json
-* Remove user/pass
-* Use templating to set url
 
 
 Tests
