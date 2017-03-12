@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
 
-from . import Command, registerCmd, playable_id_t
+from . import Command, registerCmd, int_t, playable_id_t
 
 
 bacon_ipsum = (
@@ -17,7 +17,7 @@ class GetArtistInfo(Command):
     name = "getArtistInfo.view"
     param_defs = {
         "id": {"required": True, "type": playable_id_t},
-        "count": {"default": 20, "type": int},
+        "count": {"default": 20, "type": int_t},
         "includeNotPresent": {},
         }
     dbsess = True

@@ -203,6 +203,19 @@ def registerCmd(cmd):
 
 
 # Param type check functions
+def str_t(value):
+    if not value or not len(value):
+        raise MissingParam("Missing string parameter")
+    return value
+
+
+def int_t(value):
+    try:
+        return int(value)
+    except:
+        raise MissingParam("Invalid number parameter")
+
+
 def bool_t(value):
     if value in ["True", "true"]:
         return True

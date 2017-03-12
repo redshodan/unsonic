@@ -1,4 +1,4 @@
-from . import Command, registerCmd, playable_id_t
+from . import Command, registerCmd, playable_id_t, int_t
 from ...models import rateItem
 
 
@@ -7,7 +7,7 @@ class SetRating(Command):
     name = "setRating.view"
     param_defs = {
         "id": {"type": playable_id_t, "required": True},
-        "rating": {"type": int, "required": True},
+        "rating": {"type": int_t, "required": True},
         }
     dbsess = True
 

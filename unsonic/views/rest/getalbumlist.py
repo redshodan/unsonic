@@ -2,22 +2,25 @@ import xml.etree.ElementTree as ET
 
 from sqlalchemy import and_
 from sqlalchemy.sql.expression import func as dbfunc
+from sqlalchemy.sql.expression import Select, text
 
 from eyed3.core import Date as Eyed3Date
 
-from . import Command, registerCmd, MissingParam, fillAlbumUser, folder_t
-from ...models import Artist, Album, AlbumRating, PlayCount, Track, Scrobble
+from . import (Command, registerCmd, MissingParam, fillAlbumUser, folder_t,
+               str_t, int_t)
+from ...models import (Artist, Album, AlbumRating, PlayCount, Track,
+                       Scrobble, Tag, track_tags)
 
 
 @registerCmd
 class GetAlbumList(Command):
     name = "getAlbumList.view"
     param_defs = {
-        "size": {"default": 10, "type": int},
-        "offset": {"default": 0, "type": int},
-        "fromYear": {"type": int},
-        "toYear": {"type": int},
-        "genre": {},
+        "size": {"default": 10, "type": int_t},
+        "offset": {"default": 0, "type": int_t},
+        "fromYear": {"type": int_t},
+        "toYear": {"type": int_t},
+        "genre": {"type": str_t},
         "type": {"required": True,
                  "values": ["alphabeticalByName", "alphabeticalByArtist",
                             "frequent", "highest", "newest", "random",
@@ -147,7 +150,6 @@ class GetAlbumList(Command):
                          limit(limit)
             self.processRows(session, alist, result)
         elif self.params["type"] == "alphabeticalByArtist":
-            size = self.params["size"]
             artists = session.query(Artist).\
                           order_by("name").\
                           limit(limit)
@@ -159,16 +161,19 @@ class GetAlbumList(Command):
                              limit(limit)
                 self.processRows(session, alist, artist.albums)
         elif self.params["type"] == "byYear":
-            if self.params["fromYear"] > self.params["toYear"]:
+            to_year = self.params["toYear"]
+            from_year = self.params["fromYear"]
+            if not to_year or not from_year:
+                raise MissingParam("Missing proper toYear/fromYear parameters "
+                                   "for search byYear")
+            if from_tear > to_year:
                 desc = True
-                to_year = Eyed3Date(year=self.params["fromYear"], month=12,
-                                      day=31)
-                from_year = Eyed3Date(year=self.params["toYear"], month=1, day=1)
+                to_year = Eyed3Date(year=from_tear, month=12, day=31)
+                from_year = Eyed3Date(year=to_year, month=1, day=1)
             else:
                 desc = False
-                from_year = Eyed3Date(year=self.params["fromYear"], month=1,
-                                      day=1)
-                to_year = Eyed3Date(year=self.params["toYear"], month=12, day=31)
+                from_year = Eyed3Date(year=from_year, month=1, day=1)
+                to_year = Eyed3Date(year=to_tear, month=12, day=31)
             results = set()
             second = False
             for date_row in [Album.original_release_date, Album.release_date,
@@ -195,6 +200,34 @@ class GetAlbumList(Command):
             results = list(results)
             results.sort(key=lambda x: x.getBestDate(), reverse=desc)
             self.processRows(session, alist, results)
+        elif self.params["type"] == "byGenre":
+            genre = self.params["genre"]
+            if not genre:
+                raise MissingParam("Missing genre param when searching byGenre")
+            
+            # TODO: When mishmash does album tags/genres, do that too
+            ret = session.query(Tag).filter(Tag.name == genre).one_or_none()
+            if not ret:
+                return self.makeResp(child=alist)
+            label_id = ret.id
+
+            # tracks = session.execute(track_tags.select(track_tags.c.track_id).
+            #                          where(text("label_id = %d" % label_id)))
+            # if not len(tracks):
+            #     return self.makeResp(child=alist)
+            
+            # tags = session.query(track_tags).\
+            #             filter(track_tags.label_id == label_id)
+            # result = []
+            # for tag in tags.all():
+            foo = session.query(Track).get(id)
+            tacks = foo.tags.filter(Tag.id == label_id).\
+                             order_by(Track.date_added).\
+                             offset(offset).\
+                             limit(limit)
+            for track in tracks:
+                result.append(track)
+            self.processRows(session, alist, result)
         else:
             # FIXME: Implement the rest once play tracking is done
             raise MissingParam("Unsupported type")
