@@ -81,6 +81,35 @@ Installing a Web Client
     there is no trailing '/' character otherwise Jamstash will not be able to
     build the path correctly.
 
+Docker Installation
++++++++++++++++++++
+Docker files are located in the ./docker directory. The Makefile contains some 
+convenience targets but the specific ``docker`` and/or ``docker-compose`` cmmands
+are also shown.
+
+To build the Unsonic Docker image:::
+    $ docker build ./docker
+    # Or using docker-compose
+    $ docker-compose -f ./docker/docker-compose.yml build
+
+The docker-compose file defines 3 containers, each is geared toward a development/test setup; a
+production Docker should only use these as a reference. The containers defined are of PostgreSQL,
+and an Unsonic serve based on PostgreSQL and SQLite. The Unsonic containers requires a music
+directory to volume mount so one must be specified.
+
+::
+    $ MUSIC_DIR=~/music/ docker-compose -f ./docker/docker-compose.yml create
+    $ MUSIC_DIR=~/music/ docker-compose -f ./docker/docker-compose.yml up Unsonic-postgres
+
+Or using the Makefile to simplify all of the above.
+
+::
+    $ make MUSIC_DIR=~/music/ docker-sqlite
+
+See docker/Dockerfile for details about the ``unsonic`` image. The container details are 
+defined ``docker/docker-compose.yml``. The files ``docker/config.ini`` and ``docker/unsonic-init``
+can be used to tweak the Unsonic process itself.
+
 Adjusting the configuration
 ===========================
 The main configuration settings are the location of the database ::
