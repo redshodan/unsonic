@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+
+source /unsonic/bin/activate
+
+UNSONIC="unsonic -c /unsonic/etc/config.ini"
+if [ -z $MISHMASH_DBURL ]; then
+    echo "MISHMASH_DBURL environment variable required."
+    exit 1
+fi
+
+$UNSONIC sync
+$UNSONIC adduser nicfit 'test' || echo "User prolly exists"
+$UNSONIC serve
+
+#exec /bin/bash

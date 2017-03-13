@@ -1,0 +1,44 @@
+version: "2"
+
+services:
+
+    unsonic:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: unsonic
+
+    postgres:
+        image: postgres:9.6-alpine
+        container_name: PostgreSql-unsonic
+        environment:
+            POSTGRES_DB: music-dev
+            POSTGRES_USER: unsonic
+            POSTGRES_PASSWORD: TheFaithSubjectToChange
+
+    unsonic-base: &unsonic-container
+        image: unsonic
+        volumes:
+            - /etc/localtime:/etc/localtimel:ro
+            - ${MUSIC_DIR}:/media/music:ro
+
+    unsonic-sqlite:
+        <<: *unsonic-container
+        container_name: Unsonic-sqlite
+        environment:
+            MISHMASH_DBURL: sqlite:////unsonic/var/music-dev.db
+        ports:
+            - 16543:6543
+
+    unsonic-postgres:
+        <<: *unsonic-container
+        container_name: Unsonic-postgres
+        environment:
+            POSTGRES_PASSWORD: TheFaithSubjectToChange
+            MISHMASH_DBURL: postgresql://unsonic:TheFaithSubjectToChange@postgres/music-dev
+        links:
+            - postgres:postgres
+        ports:
+            - 26543:6543
+        depends_on:
+            - postgres
