@@ -1,6 +1,5 @@
-TOPDIR:=$(dir $(abspath $(lastword $(MAKEFILE_LIST))))
-VBIN=$(TOPDIR)build/venv/bin
-VLIB=$(TOPDIR)build/venv/lib
+VBIN=$(VIRTUAL_ENV)/bin
+VLIB=$(VIRTUAL_ENV)/lib
 PYTHON=$(VBIN)/python
 PYTEST=$(VBIN)/pytest
 PIP=$(VBIN)/pip

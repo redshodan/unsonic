@@ -5,6 +5,7 @@ Initial Release
 * genres for everything
 * fix db slowness
 * Clementine fails auth, using old auth style. must be broken?
+* VIRTUAL_ENV var for Makefile
 
 
 Next Release

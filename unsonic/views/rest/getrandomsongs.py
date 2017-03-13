@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 
 from sqlalchemy.sql.expression import func as dbfunc
 
-from . import Command, registerCmd, fillTrack, year_t, folder_t
+from . import Command, registerCmd, fillTrack, year_t, folder_t, int_t
 from ...models import Album, Track
 
 
@@ -10,7 +10,7 @@ from ...models import Album, Track
 class GetRandomSongs(Command):
     name = "getRandomSongs.view"
     param_defs = {
-        "size": {"default": 10, "type": int},
+        "size": {"default": 10, "type": int_t},
         "genre": {},
         "fromYear": {"type": year_t},
         "toYear": {"type": year_t},
