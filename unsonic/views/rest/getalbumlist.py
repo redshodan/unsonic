@@ -166,14 +166,14 @@ class GetAlbumList(Command):
             if not to_year or not from_year:
                 raise MissingParam("Missing proper toYear/fromYear parameters "
                                    "for search byYear")
-            if from_tear > to_year:
+            if from_year > to_year:
                 desc = True
-                to_year = Eyed3Date(year=from_tear, month=12, day=31)
+                to_year = Eyed3Date(year=from_year, month=12, day=31)
                 from_year = Eyed3Date(year=to_year, month=1, day=1)
             else:
                 desc = False
                 from_year = Eyed3Date(year=from_year, month=1, day=1)
-                to_year = Eyed3Date(year=to_tear, month=12, day=31)
+                to_year = Eyed3Date(year=to_year, month=12, day=31)
             results = set()
             second = False
             for date_row in [Album.original_release_date, Album.release_date,
@@ -204,24 +204,24 @@ class GetAlbumList(Command):
             genre = self.params["genre"]
             if not genre:
                 raise MissingParam("Missing genre param when searching byGenre")
-            
+
             # TODO: When mishmash does album tags/genres, do that too
             ret = session.query(Tag).filter(Tag.name == genre).one_or_none()
             if not ret:
                 return self.makeResp(child=alist)
-            label_id = ret.id
+            tag_id = ret.id
 
             # tracks = session.execute(track_tags.select(track_tags.c.track_id).
-            #                          where(text("label_id = %d" % label_id)))
+            #                          where(text("tag_id = %d" % tag_id)))
             # if not len(tracks):
             #     return self.makeResp(child=alist)
-            
+
             # tags = session.query(track_tags).\
-            #             filter(track_tags.label_id == label_id)
+            #             filter(track_tags.tag_id == tag_id)
             # result = []
             # for tag in tags.all():
             foo = session.query(Track).get(id)
-            tacks = foo.tags.filter(Tag.id == label_id).\
+            tracks = foo.tags.filter(Tag.id == tag_id).\
                              order_by(Track.date_added).\
                              offset(offset).\
                              limit(limit)

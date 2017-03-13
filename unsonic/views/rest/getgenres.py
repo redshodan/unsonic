@@ -19,11 +19,11 @@ class GetGenres(Command):
             # TODO: Make this more better sqlalchemy magic?
             genre.set("songCount",
                       str(session.connection().execute(
-                          "SELECT COUNT(*) FROM track_tags WHERE label_id = %d"
+                          "SELECT COUNT(*) FROM track_tags WHERE tag_id = %d"
                           % row.id).fetchall()[0][0]))
             genre.set("albumCount",
                       str(session.connection().execute(
-                          "SELECT COUNT(*) FROM album_tags WHERE label_id = %d"
+                          "SELECT COUNT(*) FROM album_tags WHERE tag_id = %d"
                           % row.id).fetchall()[0][0]))
             genres.append(genre)
         return self.makeResp(child=genres)
