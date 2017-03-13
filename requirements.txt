@@ -10,4 +10,4 @@ pastedeploy
 paste
 psycopg2
 xmltodict
-mishmash[postgres]==0.3b1
+mishmash[postgres]==0.3b2
