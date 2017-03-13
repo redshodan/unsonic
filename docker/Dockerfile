@@ -33,7 +33,7 @@ RUN mkdir -p ${APP_DIR}/etc ${APP_DIR}/var/log && \
     virtualenv ${APP_DIR}
 
 RUN source ${APP_DIR}/bin/activate && \
-    pip install git+https://github.com/redshodan/unsonic.git@docker
+    pip install git+https://github.com/redshodan/unsonic.git
 #RUN source ${APP_DIR}/bin/activate && \
 #    pip install unsonic
 
