@@ -1,3 +1,7 @@
+ifeq "$(origin VIRTUAL_ENV)" "undefined"
+	VIRTUAL_ENV=$(dir $(abspath $(lastword $(MAKEFILE_LIST))))/build/venv
+endif
+
 VBIN=$(VIRTUAL_ENV)/bin
 VLIB=$(VIRTUAL_ENV)/lib
 PYTHON=$(VBIN)/python
