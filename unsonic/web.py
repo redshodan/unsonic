@@ -71,6 +71,11 @@ def main(global_config, **settings):
         config.add_route(cmd.name, "/rest/" + cmd.name,
                          factory="unsonic.views.rest.RouteContext")
         config.add_view(cmd, route_name=cmd.name, permission=auth.Roles.REST)
+        # Clementine calls some API's with the wrong caps.. sigh
+        name = cmd.name[0].upper() + cmd.name[1:]
+        config.add_route(name, "/rest/" + name,
+                         factory="unsonic.views.rest.RouteContext")
+        config.add_view(cmd, route_name=name, permission=auth.Roles.REST)
 
     # Log requests
     app = config.make_wsgi_app()

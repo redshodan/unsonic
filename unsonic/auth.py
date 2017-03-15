@@ -1,4 +1,5 @@
 import hashlib
+import codecs
 
 from pyramid.authentication import BasicAuthAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
@@ -119,6 +120,15 @@ class SubsonicAuth(BasicAuthAuthenticationPolicy):
                     # Stash the user for easy access
                     req.authed_user = user
                     return req.authed_user.roles
+                else:
+                    return
+            elif password.startswith("enc:"):
+                try:
+                    decode_hex = codecs.getdecoder("hex_codec")
+                    password = decode_hex(password[4:])[0]
+                    password = password.decode("utf-8")
+                except:
+                    return
             if user and password == user.password:
                 # Stash the user for easy access
                 req.authed_user = user
