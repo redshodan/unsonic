@@ -90,9 +90,11 @@ tests-clean:
 	rm -f build/testing.sqlite build/testing.sqlite.org
 
 DOCKER_COMPOSE := docker-compose -f docker/docker-compose.yml
-docker:
-	@test -n "${MUSIC_DIR}" || (echo "MUSIC_DIR volume directy required" && false)
+image:
 	@$(DOCKER_COMPOSE) build
+
+docker: image
+	@test -n "${MUSIC_DIR}" || (echo "MUSIC_DIR volume directy required" && false)
 	@$(DOCKER_COMPOSE) create --no-recreate
 
 docker-sqlite: docker
