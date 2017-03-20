@@ -18,7 +18,7 @@ ARG MISHMASH_DBURL=sqlite:///${APP_DIR}/var/music.db
 ENV MISHMASH_DBURL=${MISHMASH_DBURL} \
     UNSONIC_CONFIG=${APP_DIR}/etc/config.ini
 
-RUN useradd -m unsonic -d ${HOME}
+RUN useradd -m unsonic -d ${HOME} -u 6543
 RUN echo "source ${APP_DIR}/bin/activate" >> ${HOME}/.bashrc && \
     echo "alias ll='ls -l'" >> ${HOME}/.bashrc
 
