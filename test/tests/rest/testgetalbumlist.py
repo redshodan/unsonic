@@ -63,3 +63,15 @@ class TestAlbumList(RestTestCase):
         cmd = self.buildCmd(GetAlbumList)
         resp = cmd()
         self.checkResp(cmd.req, resp, Command.E_MISSING_PARAM)
+
+
+    def testByGenre(self):
+        cmd = self.buildCmd(GetAlbumList, {"type": "byGenre", "genre": "techno"})
+        resp = cmd()
+        count1, titles1 = self.validate(cmd, resp)
+
+
+    def testByGenreNoGenre(self):
+        cmd = self.buildCmd(GetAlbumList, {"type": "byGenre"})
+        resp = cmd()
+        self.checkResp(cmd.req, resp, Command.E_MISSING_PARAM)

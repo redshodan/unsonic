@@ -21,6 +21,7 @@ class GetGenres(Command):
                       str(session.connection().execute(
                           "SELECT COUNT(*) FROM track_tags WHERE tag_id = %d"
                           % row.id).fetchall()[0][0]))
+            # TODO: Revist this when album_tags is populated by mishmash
             genre.set("albumCount",
                       str(session.connection().execute(
                           "SELECT COUNT(*) FROM album_tags WHERE tag_id = %d"

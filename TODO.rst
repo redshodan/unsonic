@@ -1,11 +1,8 @@
 Initial Release
 ===================
-* mishmash Command take a subparser description.
 * func tests run full passes with json and jsonp
-* genres for everything
 * fix db slowness
-* Clementine fails auth, using old auth style. must be broken?
-* VIRTUAL_ENV var for Makefile
+* fillTrackID3(), did I forget to fill that out?
 
 
 Next Release
@@ -23,7 +20,9 @@ General
 
 database
 ==========
-* cache auth.User objects with db refresh checks. Update cache on deleteUser call.
+* cache auth.User objects with db refresh checks. Update cache on deleteUser
+  call.
+* Cache Tag table
 
 
 Tests
@@ -66,7 +65,6 @@ Missing
 - getSimilarSongs: lastfm similar matching
 - getSimilarSongs2: id3 version of getSimilarSongs
 - getTopSongs: Returns top songs for the given artist, using data from last.fm.
-- getSongsByGenre:
 - getNowPlaying:
 - hls:
 - getCaptions:
@@ -110,14 +108,8 @@ Partial
   - handle playCount for album
     
 - getAlbumList:
-  params: type is missing byGenre
-          genre
   resp:
   - missing averageRating for album
-
-- getRandomSongs:
-  params: unimplemented params
-          genre
 
 - stream:
   params: missing converted, for videos
