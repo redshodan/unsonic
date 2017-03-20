@@ -1,3 +1,6 @@
+import os
+import time
+import logging
 import datetime
 
 from sqlalchemy.orm.exc import NoResultFound
@@ -5,6 +8,9 @@ from sqlalchemy.orm.exc import NoResultFound
 from . import Command, registerCmd, bool_t, track_t, NotFound
 from ...models import PlayCount, Track, dbinfo
 from ...models import Scrobble as DBScrobble
+from ...lastfm import lastfm
+
+log = logging.getLogger(__name__)
 
 
 @registerCmd
@@ -17,7 +23,6 @@ class Scrobble(Command):
         }
     dbsess = True
 
-
     def handleReq(self, session):
         if not self.params["submission"]:
             # User is listening, not scrobbling yet
@@ -25,7 +30,8 @@ class Scrobble(Command):
         else:
             # Check track id
             try:
-                session.query(Track).filter(Track.id == self.params["id"]).one()
+                track = session.query(Track)\
+                               .filter(Track.id == self.params["id"]).one()
             except NoResultFound:
                 raise NotFound("Track not found")
 
@@ -48,4 +54,18 @@ class Scrobble(Command):
                                   track_id=self.params["id"],
                                   tstamp=datetime.datetime.now())
             session.add(scrobble)
+
+            try:
+                lfm = lastfm(os.environ["LASTFM_USERNAME"],
+                             os.environ["LASTFM_PASSWD"])
+            except KeyError:
+                log.debug("Skipping last.fm scrobbler, "
+                          " LASTFM_USERNAME/LASTFM_PASSWD not set")
+            else:
+                lfm.scrobble(artist=track.artist.name, title=track.title,
+                             album=track.album.title,
+                             track_number=track.track_num,
+                             duration=track.time_secs,
+                             timestamp=int(time.time()))
+
         return self.makeResp()
