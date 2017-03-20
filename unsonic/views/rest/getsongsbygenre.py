@@ -49,6 +49,8 @@ class GetSongsByGenre(Command):
                                  "song")
             songs.append(song)
             if row.album:
-                album.set("parent", "al-%d" % row.album.id)
+                song.set("parent", "al-%d" % row.album.id)
             else:
-                album.set("parent", "UNKNOWN")
+                song.set("parent", "UNKNOWN")
+
+        return self.makeResp(child=songs)

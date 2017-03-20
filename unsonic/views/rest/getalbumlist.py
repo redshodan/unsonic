@@ -2,7 +2,6 @@ import xml.etree.ElementTree as ET
 
 from sqlalchemy import and_
 from sqlalchemy.sql.expression import func as dbfunc
-from sqlalchemy.sql.expression import Select, text
 
 from eyed3.core import Date as Eyed3Date
 
@@ -206,30 +205,22 @@ class GetAlbumList(Command):
                 raise MissingParam("Missing genre param when searching byGenre")
 
             # TODO: When mishmash does album tags/genres, do that too
-            ret = session.query(Tag).filter(Tag.name == genre).one_or_none()
-            if not ret:
+            # TODO: Cache tags?
+            tag = session.query(Tag).\
+                filter(dbfunc.lower(Tag.name) == genre.lower()).one_or_none()
+            if not tag:
                 return self.makeResp(child=alist)
-            tag_id = ret.id
-
-            # tracks = session.execute(track_tags.select(track_tags.c.track_id).
-            #                          where(text("tag_id = %d" % tag_id)))
-            # if not len(tracks):
-            #     return self.makeResp(child=alist)
-
-            # tags = session.query(track_tags).\
-            #             filter(track_tags.tag_id == tag_id)
-            # result = []
-            # for tag in tags.all():
-            foo = session.query(Track).get(id)
-            tracks = foo.tags.filter(Tag.id == tag_id).\
-                             order_by(Track.date_added).\
-                             offset(offset).\
-                             limit(limit)
-            for track in tracks:
-                result.append(track)
+            result = session.query(Album).\
+                join(Track).\
+                join(track_tags).\
+                filter(and_(Album.id == Track.album_id,
+                            Track.id == track_tags.c.track_id,
+                            track_tags.c.tag_id == tag.id)).\
+                order_by(Album.title).\
+                offset(offset).\
+                limit(limit)
             self.processRows(session, alist, result)
         else:
-            # FIXME: Implement the rest once play tracking is done
             raise MissingParam("Unsupported type")
 
         return self.makeResp(child=alist)
