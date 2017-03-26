@@ -71,11 +71,12 @@ class GetAlbumList(Command):
                          limit(limit)
             self.processRows(session, alist, result)
         elif self.params["type"] == "newest":
-            result = self.queryAlbum(session).\
-                         order_by(Album.date_added).\
-                         offset(offset).\
-                         limit(limit)
-            self.processRows(session, alist, result)
+            from sqlalchemy import desc as desc_
+            albums = session.query(Album)\
+                            .order_by(desc_("date_added"))\
+                            .offset(offset).limit(limit).all()
+            # FIXME: handle new singles here, make sure this works for various
+            self.processRows(session, alist, albums)
         elif self.params["type"] == "highest":
             result = session.query(AlbumRating). \
                          filter(AlbumRating.user_id ==

@@ -62,6 +62,7 @@ class Scrobble(Command):
                 log.debug("Skipping last.fm scrobbler, "
                           " LASTFM_USERNAME/LASTFM_PASSWD not set")
             else:
+                log.info(f"Scrobbling {track.title}")
                 lfm.scrobble(artist=track.artist.name, title=track.title,
                              album=track.album.title,
                              track_number=track.track_num,
