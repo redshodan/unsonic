@@ -17,7 +17,7 @@ class Serve(Command):
 
     def _initArgParser(self, parser):
         parser.add_argument("pserve_args", nargs=argparse.REMAINDER,
-                            help="Pyramid pserve arguments. Put a '--' before "
+                            help="pyramid pserve arguments. Put a '--' before "
                                  "any pserve arguments.")
 
 

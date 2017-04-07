@@ -9,8 +9,8 @@ class Password(Command):
 
 
     def _initArgParser(self, parser):
-        parser.add_argument("username", nargs=1, help="Username")
-        parser.add_argument("password", nargs=1, help="Password")
+        parser.add_argument("username", nargs=1, help="users name")
+        parser.add_argument("password", nargs=1, help="users password")
 
 
     def _run(self, args=None):

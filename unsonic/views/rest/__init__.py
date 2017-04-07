@@ -57,17 +57,22 @@ class Command(object):
     E_NOT_FOUND = ("70", "Requsted data not found")
 
 
-    def __init__(self, req):
+    def __init__(self, req, session=None):
         self.req = req
         self.params = {}
+        # For testing
+        self.session = session
 
 
     def __call__(self):
         try:
             self.parseParams()
             if hasattr(self, "dbsess"):
-                with Session() as session:
-                    return self.handleReq(session)
+                if self.session:
+                    return self.handleReq(self.session)
+                else:
+                    with Session() as session:
+                        return self.handleReq(session)
             else:
                 return self.handleReq()
         except MissingParam as e:

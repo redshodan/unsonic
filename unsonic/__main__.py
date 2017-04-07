@@ -11,7 +11,7 @@ def buildApp():
         del Command._all_commands["web"]
     if mishmash.commands.web.Web.name in Command._all_commands:
         del Command._all_commands[mishmash.commands.web.Web.name]
-    return mishmash.__main__.MishMash()
+    return mishmash.__main__.MishMash(progname="unsonic")
 
 
 def run(args=None):

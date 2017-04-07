@@ -36,8 +36,8 @@ class CreateUser(Command):
                   "videoConversionRole": Roles.VIDEOCONVERSION}
 
 
-    def __init__(self, req):
-        super().__init__(req)
+    def __init__(self, req, session=None):
+        super().__init__(req, session=session)
         self.update = False
 
 

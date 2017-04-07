@@ -12,8 +12,8 @@ class GetMusicDirectory(Command):
     dbsess = True
 
 
-    def __init__(self, req):
-        super(GetMusicDirectory, self).__init__(req)
+    def __init__(self, req, session=None):
+        super(GetMusicDirectory, self).__init__(req, session)
         self.setParams()
 
 

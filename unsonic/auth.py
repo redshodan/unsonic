@@ -18,7 +18,9 @@ class User():
         self.name = db_user.name
         self.password = db_user.password
         self.email = db_user.email
-        self.scrobbling = db_user.scrobbling
+        self.scrobble_user = db_user.scrobble_user
+        self.scrobble_pass = db_user.scrobble_pass
+        self.scrobble_type = db_user.scrobble_type
         self.roles = []
         for role in db_user.roles:
             self.roles.append(role.name)

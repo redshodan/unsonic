@@ -32,7 +32,7 @@ external: mishmash
 mishmash: external/mishmash mishmash.egg
 
 mishmash-update:
-	cd external/mishmash; git fetch
+	cd external/mishmash; git pull
 	cd external/mishmash; $(PIP) install -Ue .
 
 external/mishmash:

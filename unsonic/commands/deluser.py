@@ -9,7 +9,7 @@ class DelUser(Command):
 
 
     def _initArgParser(self, parser):
-        parser.add_argument("username", nargs=1, help="Username")
+        parser.add_argument("username", nargs=1, help="users name")
 
 
     def _run(self, args=None):

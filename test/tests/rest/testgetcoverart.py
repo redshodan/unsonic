@@ -1,26 +1,17 @@
-# import os
-import unittest
-
-from . import RestTestCase
 from unsonic.views.rest.getcoverart import GetCoverArt
 from unsonic.views.rest import Command
+from unsonic.models import Image
+from . import buildCmd, checkResp
 
 
-class TestCoverArt(RestTestCase):
-    @unittest.skip("Get the paths from the db")
-    def testBasic(self):
-        cmd = self.buildCmd(GetCoverArt, {"id": "al-1"})
-        resp = cmd()
-        path = os.path.join(list(getMashPaths(cmd.settings).values())[0],
-                            "artist 1/artist.png")
-        fp = open(path, "rb")
-        art = fp.read()
-        fp.close()
-        self.assertEqual(len(resp.body), len(art))
-        self.assertEqual(resp.body, art)
+def testBasic(session, ptesting):
+    cmd = buildCmd(session, GetCoverArt, {"id": "al-1"})
+    resp = cmd()
+    image = session.query(Image).filter_by(id=1).one_or_none()
+    assert len(resp.body) == len(image.data)
+    assert resp.body == image.data
 
 
-    def testNoID(self):
-        cmd = self.buildCmd(GetCoverArt)
-        resp = cmd()
-        self.checkResp(cmd.req, resp, Command.E_MISSING_PARAM)
+def testNoID(session, ptesting):
+    cmd = buildCmd(session, GetCoverArt)
+    checkResp(cmd.req, cmd(), Command.E_MISSING_PARAM)

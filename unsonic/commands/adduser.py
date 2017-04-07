@@ -14,11 +14,11 @@ class AddUser(Command):
 
     def _initArgParser(self, parser):
         parser.add_argument("-l", "--list-roles", dest="list_roles",
-                            action="store_true", help="List the roles available")
-        parser.add_argument("username", nargs="?", help="Username")
-        parser.add_argument("password", nargs="?", help="Password")
+                            action="store_true", help="list the roles available")
+        parser.add_argument("username", nargs="?", help="users name")
+        parser.add_argument("password", nargs="?", help="users password")
         parser.add_argument("roles", nargs=argparse.REMAINDER,
-                            help="Roles for the user")
+                            help="users roles")
 
 
     def _run(self, args=None):

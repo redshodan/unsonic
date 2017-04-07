@@ -2,14 +2,13 @@ import os
 import datetime
 from argparse import Namespace
 from contextlib import contextmanager
-from pathlib import Path
 
-from alembic import command
-from alembic.config import Config
+# from alembic import command
+# from alembic.config import Config as AlemConfig
 
 import sqlalchemy
-from sqlalchemy import (Table, Column, Integer, Text, ForeignKey, String,
-                        DateTime, Index, Boolean, UniqueConstraint)
+from sqlalchemy import (Table, Column, Integer, Text, ForeignKey, String, Enum,
+                        DateTime, Index, Boolean, UniqueConstraint, Sequence)
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declared_attr
@@ -22,7 +21,7 @@ from mishmash.orm import Image, Tag, Library, artist_images  # noqa: F401
 from mishmash.orm import album_images, track_tags            # noqa: F401
 from mishmash.database import init as dbinit
 
-import unsonic.config
+# import unsonic.config
 
 
 db_url = None
@@ -84,49 +83,71 @@ class DBInfo(Base, OrmObject):
                 dbinfo.old_versions.append(dbi.version)
 
 
+class Config(Base, OrmObject):
+    __tablename__ = 'un_config'
+
+    key = Column(String, nullable=False, primary_key=True)
+    value = Column(String, nullable=False)
+    user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
+                     nullable=True)
+    modified = sqlalchemy.Column(sqlalchemy.DateTime(), nullable=False,
+                                 default=datetime.datetime.now)
+
+
+    @staticmethod
+    def loadTable(session):
+        pass
+
+
 class User(Base, OrmObject):
     __tablename__ = 'un_users'
 
+    SCROBBLE_TYPES = ["NONE", "LAST_FM", "LIBRE_FM"]
+    _scrobble_types = Enum(*SCROBBLE_TYPES, name="scrobble_types")
+
     # Columns
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, Sequence("user_id_seq"), primary_key=True)
     name = Column(Text, unique=True)
     password = Column(Text)
     email = Column(Text)
     maxbitrate = Column(Integer, default=0, nullable=False)
-    scrobbling = Column(Boolean, default=True, nullable=False)
+    scrobble_user = Column(Text)
+    scrobble_pass = Column(Text)
+    scrobble_type = Column(_scrobble_types, nullable=False, default="NONE")
     playqueue_cur = Column(Integer, ForeignKey("tracks.id"))
     playqueue_pos = Column(Integer, default=0, nullable=False)
     playqueue_mtime = Column(sqlalchemy.DateTime())
     playqueue_mby = Column(Text)
 
-    # Roles
+    # Relations
     roles = relation("Role", cascade="all, delete-orphan",
                       passive_deletes=True)
     playqueue = relation("PlayQueue", cascade="all, delete-orphan",
                          passive_deletes=True)
     playlists = relation("PlayList", cascade="all, delete-orphan",
                          passive_deletes=True)
+    playcounts = relation("PlayCount", cascade="all, delete-orphan",
+                          passive_deletes=True)
+    scrobbles = relation("Scrobble", cascade="all, delete-orphan",
+                          passive_deletes=True)
     avatar = Column(Integer, ForeignKey("images.id", ondelete='CASCADE'))
 
 
     @staticmethod
     def loadTable(session):
-        try:
-            dbinfo.users = {}
-            for user in session.query(User).all():
-                u = Namespace()
-                u.name = user.name
-                u.listening = None
-                dbinfo.users[u.name] = u
-        finally:
-            session.close()
+        dbinfo.users = {}
+        for user in session.query(User).all():
+            u = Namespace()
+            u.name = user.name
+            u.listening = None
+            dbinfo.users[u.name] = u
 
 
 class Role(Base, OrmObject):
     __tablename__ = 'un_roles'
     __table_args__ = (UniqueConstraint("user_id", "name"), {})
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, Sequence("role_id_seq"), primary_key=True)
     user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
                      nullable=False)
     name = Column(Text, nullable=False)
@@ -136,7 +157,7 @@ class Role(Base, OrmObject):
 class PlayQueue(Base, OrmObject):
     __tablename__ = "un_playqueues"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, Sequence("playqueue_id_seq"), primary_key=True)
     user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
                      nullable=False)
     track_id = Column(Integer, ForeignKey("tracks.id"), nullable=False)
@@ -156,7 +177,7 @@ playlist_images = Table("un_playlist_images", Base.metadata,
 class PlayList(Base, OrmObject):
     __tablename__ = 'un_playlists'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, Sequence("playlist_id_seq"), primary_key=True)
     user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
                       nullable=False)
     name = Column(Text)
@@ -178,10 +199,8 @@ class PlayList(Base, OrmObject):
 class PlayListUser(Base, OrmObject):
     __tablename__ = 'un_playlistusers'
 
-    id = Column(Integer, primary_key=True)
-    playlist_id = Column(Integer, ForeignKey("un_playlists.id",
-                                             ondelete='CASCADE'),
-                         nullable=False)
+    id = Column(Integer, Sequence("playlistuser_id_seq"), primary_key=True)
+    playlist_id = Column(Integer, ForeignKey("un_playlists.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False)
     playlist = relation("PlayList")
     user = relation("User")
@@ -190,10 +209,8 @@ class PlayListUser(Base, OrmObject):
 class PlayListTrack(Base, OrmObject):
     __tablename__ = 'un_playlisttracks'
 
-    id = Column(Integer, primary_key=True)
-    playlist_id = Column(Integer, ForeignKey("un_playlists.id",
-                                             ondelete='CASCADE'),
-                         nullable=False)
+    id = Column(Integer, Sequence("playlisttrack_id_seq"), primary_key=True)
+    playlist_id = Column(Integer, ForeignKey("un_playlists.id"), nullable=False)
     track_id = Column(Integer, ForeignKey("tracks.id"), nullable=False)
     track = relation("Track")
     playlist = relation("PlayList")
@@ -211,9 +228,11 @@ class ArtistRating(Base, OrmObject):
     user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False,
                      primary_key=True)
     rating = Column(Integer, default=None, nullable=True)
-    pseudo_rating = Column(Boolean, default=True, nullable=False)
+    pseudo_rating = Column(Boolean(name="pseudo_rating"), default=True,
+                           nullable=False)
     starred = Column(DateTime, default=None, nullable=True)
-    pseudo_starred = Column(Boolean, default=True, nullable=False)
+    pseudo_starred = Column(Boolean(name="pseudo_starred"), default=True,
+                            nullable=False)
     artist = relation("Artist")
     user = relation("User")
 
@@ -229,9 +248,11 @@ class AlbumRating(Base, OrmObject):
     user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False,
                      primary_key=True)
     rating = Column(Integer, default=None, nullable=True)
-    pseudo_rating = Column(Boolean, default=True, nullable=False)
+    pseudo_rating = Column(Boolean(name="pseudo_rating"), default=True,
+                           nullable=False)
     starred = Column(DateTime, default=None, nullable=True)
-    pseudo_starred = Column(Boolean, default=True, nullable=False)
+    pseudo_starred = Column(Boolean(name="pseudo_starred"), default=True,
+                            nullable=False)
     album = relation("Album")
     user = relation("User")
 
@@ -273,7 +294,7 @@ Track.play_count = relation("PlayCount")
 class Scrobble(Base, OrmObject):
     __tablename__ = "un_scrobbles"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, Sequence("scrobble_id_seq"), primary_key=True)
     track_id = Column(Integer, ForeignKey("tracks.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False)
     tstamp = Column(DateTime, default=None, nullable=False)
@@ -296,7 +317,7 @@ def _dbUrl(config):
 
 
 # Utility functions
-def init(settings, webapp=False):
+def init(settings, webapp=False, db_info=None):
     global db_url, db_engine, session_maker
     settings["sqlalchemy.url"] = _dbUrl(web.CONFIG)
     web.CONFIG.set("mishmash", "sqlalchemy.url", settings["sqlalchemy.url"])
@@ -305,22 +326,32 @@ def init(settings, webapp=False):
         web.CONFIG.get("mishmash", "sqlalchemy.convert_unicode")
     settings["sqlalchemy.encoding"] = web.CONFIG.get("mishmash",
                                                      "sqlalchemy.encoding")
-    db_url = settings["sqlalchemy.url"]
-    config = Namespace()
-    config.db_url = db_url
-    config.various_artists_name = web.CONFIG.get("mishmash",
-                                                 "various_artists_name")
-    db_engine, session_maker = dbinit(config.db_url)
+
+    if db_info:
+        db_url = db_info.url
+    else:
+        db_url = settings["sqlalchemy.url"]
+        config = Namespace()
+        config.db_url = db_url
+        config.various_artists_name = web.CONFIG.get("mishmash",
+                                                     "various_artists_name")
+        db_info = dbinit(config.db_url)
+    db_engine = db_info.engine
+    session_maker = db_info.SessionMaker
+
     initAlembic()
 
 
 def initAlembic():
-    # Upgrade to head (i.e. this) revision, or no-op if they match
-    db_url = _dbUrl(unsonic.config.CONFIG)
-    alembic_d = Path(__file__).parent / "alembic"
-    alembic_cfg = Config(str(alembic_d / "alembic.ini"))
-    alembic_cfg.set_main_option("sqlalchemy.url", db_url)
-    command.upgrade(alembic_cfg, "head")
+    # Save just for creating new schema revisions
+    Base.metadata.create_all(db_engine)
+
+    # # Upgrade to head (i.e. this) revision, or no-op if they match
+    # db_url = _dbUrl(unsonic.config.CONFIG)
+    # alembic_d = Path(__file__).parent / "alembic"
+    # alembic_cfg = AlemConfig(str(alembic_d / "alembic.ini"))
+    # alembic_cfg.set_main_option("sqlalchemy.url", db_url)
+    # command.upgrade(alembic_cfg, "head")
 
 
 def load():
@@ -533,7 +564,7 @@ def updatePseudoRatings(session, user_id=None, album_id=ALL, artist_id=ALL):
 from . import auth, web   # noqa: E402
 
 
-UN_TYPES = [DBInfo, User, Role, PlayQueue, PlayList, PlayListUser,
+UN_TYPES = [DBInfo, Config, User, Role, PlayQueue, PlayList, PlayListUser,
             PlayListTrack, ArtistRating, AlbumRating, TrackRating,
             PlayCount, Scrobble]
 

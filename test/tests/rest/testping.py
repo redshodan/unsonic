@@ -1,9 +1,7 @@
-from . import RestTestCase
 from unsonic.views.rest.ping import Ping
+from . import buildCmd, checkResp
 
 
-class TestPing(RestTestCase):
-    def testBasic(self):
-        cmd = self.buildCmd(Ping)
-        resp = cmd()
-        self.checkResp(cmd.req, resp)
+def testBasic(session, ptesting):
+    cmd = buildCmd(session, Ping)
+    checkResp(cmd.req, cmd())

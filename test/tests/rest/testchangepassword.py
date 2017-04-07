@@ -1,49 +1,39 @@
-from . import RestTestCase
-from unsonic.models import Session, User
+from unsonic.models import User
 from unsonic.views.rest.changepassword import ChangePassword
 from unsonic.views.rest import Command
+from . import buildCmd, checkResp
 
 
-class TestChangePassword(RestTestCase):
-    def testChangePassword(self):
-        with Session() as session:
-            row = session.query(User).filter(User.name == "test").one_or_none()
-            self.assertEqual(row.password, "test")
-        cmd = self.buildCmd(ChangePassword,
-                            {"username": "test", "password": "newpass"})
-        resp = cmd()
-        self.checkResp(cmd.req, resp)
-        with Session() as session:
-            row = session.query(User).filter(User.name == "test").one_or_none()
-            self.assertEqual(row.password, "newpass")
+def testChangePassword(session, ptesting):
+    row = session.query(User).filter(User.name == "test").one_or_none()
+    assert row.password == "test"
+    cmd = buildCmd(session, ChangePassword,
+                   {"username": "test", "password": "newpass"})
+    checkResp(cmd.req, cmd())
+    row = session.query(User).filter(User.name == "test").one_or_none()
+    assert row.password == "newpass"
 
 
-    def testChangeSelfPassword(self):
-        cmd = self.buildCmd(ChangePassword, {"password": "newpass"})
-        resp = cmd()
-        self.checkResp(cmd.req, resp)
-        with Session() as session:
-            row = session.query(User).filter(User.name == "test").one_or_none()
-            self.assertEqual(row.password, "newpass")
+def testChangeSelfPassword(session, ptesting):
+    cmd = buildCmd(session, ChangePassword, {"password": "newpass"})
+    checkResp(cmd.req, cmd())
+    row = session.query(User).filter(User.name == "test").one_or_none()
+    assert row.password == "newpass"
 
 
-    def testChangeOtherPasswordNonAdmin(self):
-        cmd = self.buildCmd(ChangePassword, {"username": "admin",
+def testChangeOtherPasswordNonAdmin(session, ptesting):
+    cmd = buildCmd(session, ChangePassword, {"username": "admin",
                                              "password": "newpass"})
-        resp = cmd()
-        self.checkResp(cmd.req, resp, Command.E_PERM)
-        with Session() as session:
-            row = session.query(User).filter(User.name == "admin").one_or_none()
-            self.assertEqual(row.password, None)
+    checkResp(cmd.req, cmd(), Command.E_PERM)
+    row = session.query(User).filter(User.name == "admin").one_or_none()
+    assert row.password is None
 
 
-    def testChangeOtherPasswordAdmin(self):
-        cmd = self.buildCmd(ChangePassword, {"username": "test",
+def testChangeOtherPasswordAdmin(session, ptesting):
+    cmd = buildCmd(session, ChangePassword, {"username": "test",
                                              "password": "newpass"}, "admin")
-        resp = cmd()
-        self.checkResp(cmd.req, resp)
-        with Session() as session:
-            row = session.query(User).filter(User.name == "admin").one_or_none()
-            self.assertEqual(row.password, None)
-            row = session.query(User).filter(User.name == "test").one_or_none()
-            self.assertEqual(row.password, "newpass")
+    checkResp(cmd.req, cmd())
+    row = session.query(User).filter(User.name == "admin").one_or_none()
+    assert row.password is None
+    row = session.query(User).filter(User.name == "test").one_or_none()
+    assert row.password == "newpass"

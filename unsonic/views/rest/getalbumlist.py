@@ -28,8 +28,8 @@ class GetAlbumList(Command):
         }
     dbsess = True
 
-    def __init__(self, req):
-        super().__init__(req)
+    def __init__(self, req, session=None):
+        super().__init__(req, session)
         self.setParams()
 
 
