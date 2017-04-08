@@ -116,6 +116,7 @@ class User(Base, OrmObject):
     playqueue_pos = Column(Integer, default=0, nullable=False)
     playqueue_mtime = Column(sqlalchemy.DateTime())
     playqueue_mby = Column(Text)
+    avatar = Column(Integer, ForeignKey("images.id"))
 
     # Relations
     roles = relation("Role", cascade="all, delete-orphan",
@@ -128,7 +129,6 @@ class User(Base, OrmObject):
                           passive_deletes=True)
     scrobbles = relation("Scrobble", cascade="all, delete-orphan",
                           passive_deletes=True)
-    avatar = Column(Integer, ForeignKey("images.id", ondelete='CASCADE'))
 
 
     @staticmethod
@@ -165,7 +165,8 @@ class PlayQueue(Base, OrmObject):
 
 playlist_images = Table("un_playlist_images", Base.metadata,
                         Column("playlist_id", Integer,
-                               ForeignKey("un_playlists.id")),
+                               ForeignKey("un_playlists.id",
+                                          ondelete='CASCADE')),
                         Column("img_id", Integer,
                                ForeignKey("images.id")))
 '''Pivot table 'playlist_images' for mapping a playlist ID to a value in the
@@ -198,8 +199,11 @@ class PlayListUser(Base, OrmObject):
     __tablename__ = 'un_playlistusers'
 
     id = Column(Integer, Sequence("playlistuser_id_seq"), primary_key=True)
-    playlist_id = Column(Integer, ForeignKey("un_playlists.id"), nullable=False)
-    user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False)
+    playlist_id = Column(Integer,
+                         ForeignKey("un_playlists.id", ondelete='CASCADE'),
+                         nullable=False)
+    user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
+                     nullable=False)
     playlist = relation("PlayList")
     user = relation("User")
 
@@ -208,8 +212,10 @@ class PlayListTrack(Base, OrmObject):
     __tablename__ = 'un_playlisttracks'
 
     id = Column(Integer, Sequence("playlisttrack_id_seq"), primary_key=True)
-    playlist_id = Column(Integer, ForeignKey("un_playlists.id"), nullable=False)
-    track_id = Column(Integer, ForeignKey("tracks.id"), nullable=False)
+    playlist_id = Column(Integer, ForeignKey("un_playlists.id",
+                         ondelete='CASCADE'), nullable=False)
+    track_id = Column(Integer, ForeignKey("tracks.id", ondelete='CASCADE'),
+                      nullable=False)
     track = relation("Track")
     playlist = relation("PlayList")
 
@@ -221,10 +227,10 @@ Track.playlist = relation("PlayListTrack")
 class ArtistRating(Base, OrmObject):
     __tablename__ = "un_artistratings"
 
-    artist_id = Column(Integer, ForeignKey("artists.id"), nullable=False,
-                       primary_key=True)
-    user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False,
-                     primary_key=True)
+    artist_id = Column(Integer, ForeignKey("artists.id", ondelete='CASCADE'),
+                       nullable=False, primary_key=True)
+    user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
+                     nullable=False, primary_key=True)
     rating = Column(Integer, default=None, nullable=True)
     pseudo_rating = Column(Boolean(name="pseudo_rating"), default=True,
                            nullable=False)
@@ -241,10 +247,10 @@ Artist.rating = relation("ArtistRating")
 class AlbumRating(Base, OrmObject):
     __tablename__ = "un_albumratings"
 
-    album_id = Column(Integer, ForeignKey("albums.id"), nullable=False,
-                      primary_key=True)
-    user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False,
-                     primary_key=True)
+    album_id = Column(Integer, ForeignKey("albums.id", ondelete='CASCADE'),
+                      nullable=False, primary_key=True)
+    user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
+                     nullable=False, primary_key=True)
     rating = Column(Integer, default=None, nullable=True)
     pseudo_rating = Column(Boolean(name="pseudo_rating"), default=True,
                            nullable=False)
@@ -261,10 +267,10 @@ Album.rating = relation("AlbumRating")
 class TrackRating(Base, OrmObject):
     __tablename__ = "un_trackratings"
 
-    track_id = Column(Integer, ForeignKey("tracks.id"), nullable=False,
-                      primary_key=True)
-    user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False,
-                     primary_key=True)
+    track_id = Column(Integer, ForeignKey("tracks.id", ondelete='CASCADE'),
+                      nullable=False, primary_key=True)
+    user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
+                     nullable=False, primary_key=True)
     rating = Column(Integer, default=None, nullable=True)
     starred = Column(DateTime, default=None, nullable=True)
     track = relation("Track")
@@ -277,11 +283,11 @@ Track.rating = relation("TrackRating")
 class PlayCount(Base, OrmObject):
     __tablename__ = "un_playcounts"
 
-    track_id = Column(Integer, ForeignKey("tracks.id"), nullable=False,
-                      primary_key=True)
-    user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False,
-                     primary_key=True)
-    count = Column(Integer, nullable=False)
+    track_id = Column(Integer, ForeignKey("tracks.id", ondelete='CASCADE'),
+                      nullable=False, primary_key=True)
+    user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
+                     nullable=False, primary_key=True)
+    count = Column(Integer, default=1, nullable=False)
     track = relation("Track")
     user = relation("User")
 
@@ -293,9 +299,11 @@ class Scrobble(Base, OrmObject):
     __tablename__ = "un_scrobbles"
 
     id = Column(Integer, Sequence("scrobble_id_seq"), primary_key=True)
-    track_id = Column(Integer, ForeignKey("tracks.id"), nullable=False)
-    user_id = Column(Integer, ForeignKey("un_users.id"), nullable=False)
-    tstamp = Column(DateTime, default=None, nullable=False)
+    track_id = Column(Integer, ForeignKey("tracks.id", ondelete='CASCADE'),
+                      nullable=False)
+    user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
+                     nullable=False)
+    tstamp = Column(DateTime, default=datetime.datetime.now, nullable=False)
     track = relation("Track")
     user = relation("User")
 
