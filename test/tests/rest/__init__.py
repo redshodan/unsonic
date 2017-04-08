@@ -15,7 +15,7 @@ def buildCmd(session, klass, params={}, username="test"):
         md.add(key, val)
     request.params = NestedMultiDict(md)
     request.authed_user = models.getUserByName(session, username)
-    cmd = klass(request, session=session)
+    cmd = klass(None, request, session=session)
     cmd.settings = {"mishmash.paths": "Music: test/music"}
     return cmd
 

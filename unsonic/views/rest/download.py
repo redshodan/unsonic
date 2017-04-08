@@ -9,5 +9,5 @@ class Download(Stream):
         "id": {"required": True, "type": track_t},
         }
 
-    def __init__(self, req):
-        super().__init__(req)
+    def __init__(self, route, req):
+        super().__init__(route, req)

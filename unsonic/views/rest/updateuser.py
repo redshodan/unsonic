@@ -9,6 +9,6 @@ class UpdateUser(CreateUser):
     dbsess = True
 
 
-    def __init__(self, req):
-        super().__init__(req)
+    def __init__(self, route, req):
+        super().__init__(route, req)
         super().setUpdate(True)

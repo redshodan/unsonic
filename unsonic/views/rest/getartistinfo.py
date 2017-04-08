@@ -12,6 +12,7 @@ bacon_ipsum = (
 "flank. Kevin chicken strip steak meatball ground round cow.")
 
 
+# TODO: Actually implement
 @registerCmd
 class GetArtistInfo(Command):
     name = "getArtistInfo.view"

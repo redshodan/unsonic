@@ -21,8 +21,6 @@ from mishmash.orm import Image, Tag, Library, artist_images  # noqa: F401
 from mishmash.orm import album_images, track_tags            # noqa: F401
 from mishmash.database import init as dbinit
 
-# import unsonic.config
-
 
 db_url = None
 db_engine = None

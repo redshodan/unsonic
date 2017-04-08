@@ -57,8 +57,9 @@ class Command(object):
     E_NOT_FOUND = ("70", "Requsted data not found")
 
 
-    def __init__(self, req, session=None):
+    def __init__(self, route, req, session=None):
         self.req = req
+        self.route = route
         self.params = {}
         # For testing
         self.session = session
