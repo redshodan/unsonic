@@ -310,7 +310,7 @@ def init(settings, webapp=False):
     config.db_url = db_url
     config.various_artists_name = web.CONFIG.get("mishmash",
                                                  "various_artists_name")
-    db_engine, session_maker = dbinit(config.db_url)
+    db_engine, session_maker, _ = dbinit(config.db_url)
     initAlembic()
 
 
