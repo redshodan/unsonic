@@ -1,9 +1,9 @@
+import os
 from pathlib import Path
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from pyramid import testing
 
-from unsonic import __main__
+from unsonic import __main__, web, models
 from unsonic.models import User
 
 
@@ -13,14 +13,16 @@ def lsession():
     if db.exists():
         db.unlink()
 
-    engine = create_engine("sqlite:///build/testing2.sqlite")
-    connection = engine.connect()
-    SessionMaker = sessionmaker(bind=engine)
+    config = testing.setUp()
+    settings = config.get_settings()
+    here = "/".join(os.path.dirname(__file__).split("/")[:-2])
+    global_settings = {"__file__": os.path.join(here, "test/testing2.ini"),
+                       "here": here}
+    web.init(global_settings, settings, None)
 
-    session = SessionMaker()
+    session = models.session_maker()
     yield session
     session.close()
-    connection.close()
 
     db = Path("build/testing2.sqlite")
     db.unlink()

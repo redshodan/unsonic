@@ -2,9 +2,10 @@ import os
 import datetime
 from argparse import Namespace
 from contextlib import contextmanager
+from pathlib import Path
 
-# from alembic import command
-# from alembic.config import Config as AlemConfig
+from alembic import command
+from alembic.config import Config as AlemConfig
 
 import sqlalchemy
 from sqlalchemy import (Table, Column, Integer, Text, ForeignKey, String, Enum,
@@ -104,7 +105,7 @@ class User(Base, OrmObject):
     _scrobble_types = Enum(*SCROBBLE_TYPES, name="scrobble_types")
 
     # Columns
-    id = Column(Integer, Sequence("user_id_seq"), primary_key=True)
+    id = Column(Integer, Sequence("un_users_id_seq"), primary_key=True)
     name = Column(Text, unique=True)
     password = Column(Text)
     email = Column(Text)
@@ -145,7 +146,7 @@ class Role(Base, OrmObject):
     __tablename__ = 'un_roles'
     __table_args__ = (UniqueConstraint("user_id", "name"), {})
 
-    id = Column(Integer, Sequence("role_id_seq"), primary_key=True)
+    id = Column(Integer, Sequence("un_roles_id_seq"), primary_key=True)
     user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
                      nullable=False)
     name = Column(Text, nullable=False)
@@ -155,10 +156,11 @@ class Role(Base, OrmObject):
 class PlayQueue(Base, OrmObject):
     __tablename__ = "un_playqueues"
 
-    id = Column(Integer, Sequence("playqueue_id_seq"), primary_key=True)
+    id = Column(Integer, Sequence("un_playqueues_id_seq"), primary_key=True)
     user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
                      nullable=False)
-    track_id = Column(Integer, ForeignKey("tracks.id"), nullable=False)
+    track_id = Column(Integer, ForeignKey("tracks.id", ondelete='CASCADE'),
+                      nullable=False)
     user = relation("User")
     track = relation("Track")
 
@@ -176,7 +178,7 @@ playlist_images = Table("un_playlist_images", Base.metadata,
 class PlayList(Base, OrmObject):
     __tablename__ = 'un_playlists'
 
-    id = Column(Integer, Sequence("playlist_id_seq"), primary_key=True)
+    id = Column(Integer, Sequence("un_playlists_id_seq"), primary_key=True)
     user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
                       nullable=False)
     name = Column(Text)
@@ -198,7 +200,7 @@ class PlayList(Base, OrmObject):
 class PlayListUser(Base, OrmObject):
     __tablename__ = 'un_playlistusers'
 
-    id = Column(Integer, Sequence("playlistuser_id_seq"), primary_key=True)
+    id = Column(Integer, Sequence("un_playlistusers_id_seq"), primary_key=True)
     playlist_id = Column(Integer,
                          ForeignKey("un_playlists.id", ondelete='CASCADE'),
                          nullable=False)
@@ -211,7 +213,7 @@ class PlayListUser(Base, OrmObject):
 class PlayListTrack(Base, OrmObject):
     __tablename__ = 'un_playlisttracks'
 
-    id = Column(Integer, Sequence("playlisttrack_id_seq"), primary_key=True)
+    id = Column(Integer, Sequence("un_playlisttracks_id_seq"), primary_key=True)
     playlist_id = Column(Integer, ForeignKey("un_playlists.id",
                          ondelete='CASCADE'), nullable=False)
     track_id = Column(Integer, ForeignKey("tracks.id", ondelete='CASCADE'),
@@ -298,7 +300,7 @@ Track.play_count = relation("PlayCount")
 class Scrobble(Base, OrmObject):
     __tablename__ = "un_scrobbles"
 
-    id = Column(Integer, Sequence("scrobble_id_seq"), primary_key=True)
+    id = Column(Integer, Sequence("un_scrobbles_id_seq"), primary_key=True)
     track_id = Column(Integer, ForeignKey("tracks.id", ondelete='CASCADE'),
                       nullable=False)
     user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
@@ -325,7 +327,13 @@ def _dbUrl(config):
 # Utility functions
 def init(settings, webapp=False, db_info=None):
     global db_url, db_engine, session_maker
-    settings["sqlalchemy.url"] = _dbUrl(web.CONFIG)
+
+    if db_info:
+        db_url = db_info.url
+    else:
+        db_url = _dbUrl(web.CONFIG)
+
+    settings["sqlalchemy.url"] = db_url
     web.CONFIG.set("mishmash", "sqlalchemy.url", settings["sqlalchemy.url"])
 
     settings["sqlalchemy.convert_unicode"] = \
@@ -333,10 +341,7 @@ def init(settings, webapp=False, db_info=None):
     settings["sqlalchemy.encoding"] = web.CONFIG.get("mishmash",
                                                      "sqlalchemy.encoding")
 
-    if db_info:
-        db_url = db_info.url
-    else:
-        db_url = settings["sqlalchemy.url"]
+    if not db_info:
         config = Namespace()
         config.db_url = db_url
         config.various_artists_name = web.CONFIG.get("mishmash",
@@ -345,19 +350,18 @@ def init(settings, webapp=False, db_info=None):
     db_engine = db_info.engine
     session_maker = db_info.SessionMaker
 
-    initAlembic()
+    initAlembic(db_url)
 
 
-def initAlembic():
-    # Save just for creating new schema revisions
-    Base.metadata.create_all(db_engine)
+def initAlembic(url):
+    # # Save just for creating new schema revisions
+    # Base.metadata.create_all(db_engine)
 
-    # # Upgrade to head (i.e. this) revision, or no-op if they match
-    # db_url = _dbUrl(unsonic.config.CONFIG)
-    # alembic_d = Path(__file__).parent / "alembic"
-    # alembic_cfg = AlemConfig(str(alembic_d / "alembic.ini"))
-    # alembic_cfg.set_main_option("sqlalchemy.url", db_url)
-    # command.upgrade(alembic_cfg, "head")
+    # Upgrade to head (i.e. this) revision, or no-op if they match
+    alembic_d = Path(__file__).parent / "alembic"
+    alembic_cfg = AlemConfig(str(alembic_d / "alembic.ini"))
+    alembic_cfg.set_main_option("sqlalchemy.url", url)
+    command.upgrade(alembic_cfg, "head")
 
 
 def load():
@@ -573,7 +577,3 @@ from . import auth, web   # noqa: E402
 UN_TYPES = [DBInfo, Config, User, Role, PlayQueue, PlayList, PlayListUser,
             PlayListTrack, ArtistRating, AlbumRating, TrackRating,
             PlayCount, Scrobble]
-
-# insinuate self into mishmash's table lists so schema is setup correctly
-mishmash.orm.TYPES.extend(UN_TYPES)
-mishmash.orm.TABLES.extend([T.__table__ for T in UN_TYPES])

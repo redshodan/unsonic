@@ -14,8 +14,9 @@ class Password(Command):
 
 
     def _run(self, args=None):
-        initAlembic()
+        initAlembic(self.config.get("mishmash", "sqlalchemy.url"))
         args = args or self.args
+
         if setUserPassword(self.db_session, args.username[0],
                            args.password[0]):
             print("Password set for '%s'." % args.username[0])

@@ -13,8 +13,7 @@ class DelUser(Command):
 
 
     def _run(self, args=None):
-        initAlembic()
-
+        initAlembic(self.config.get("mishmash", "sqlalchemy.url"))
         args = args or self.args
 
         res = self.db_session.query(User).filter(User.name == args.username[0])
