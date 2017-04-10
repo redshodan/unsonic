@@ -70,7 +70,7 @@ devel-run: bin/unsonic build/development.sqlite
 check: $(FLAKE8)
 	$(FLAKE8)
 
-test tests: $(PYTEST) tests-clean
+tests: $(PYTEST) tests-clean
 	$(PYTHON) setup.py test $(FTF)
 
 dist: sdist
