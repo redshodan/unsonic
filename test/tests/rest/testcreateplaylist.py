@@ -1,40 +1,36 @@
-from . import RestTestCase
-from unsonic.models import Session, PlayList
+from unsonic.models import PlayList
 from unsonic.views.rest.createplaylist import CreatePlayList
+from . import buildCmd, checkResp
 
 
-class TestCreatePlayList(RestTestCase):
-    def testCreatePlayList(self):
-        pname = "playlist1"
-        plist = ["tr-1", "tr-2", "tr-3"]
-        cmd = self.buildCmd(CreatePlayList, {"name": pname, "songId": plist})
-        resp = cmd()
-        self.checkResp(cmd.req, resp)
-        with Session() as session:
-            row = session.query(PlayList).\
-                      filter(PlayList.name == pname).one_or_none()
-            self.assertTrue(row)
-            self.assertEqual([t.track_id for t in row.tracks],
-                             [int(t.replace("tr-", "")) for t in plist])
-            self.assertEqual(row.owner.name, "test")
+def testCreatePlayList(session, ptesting):
+    pname = "playlist1"
+    plist = ["tr-1", "tr-2", "tr-3"]
+    cmd = buildCmd(session, CreatePlayList, {"name": pname, "songId": plist})
+    checkResp(cmd.req, cmd())
+    row = session.query(PlayList).\
+              filter(PlayList.name == pname).one_or_none()
+    assert row is not None
+    assert ([t.track_id for t in row.tracks] ==
+            [int(t.replace("tr-", "")) for t in plist])
+    assert row.owner.name == "test"
 
 
-    def testUpdatePlayList(self):
-        pname = "playlist1"
-        plist = ["tr-1", "tr-2", "tr-3"]
-        cmd = self.buildCmd(CreatePlayList, {"name": pname, "songId": plist})
-        sub_resp = self.checkResp(cmd.req, cmd())
-        playlist = sub_resp.find("{http://subsonic.org/restapi}playlist")
-        pl_id = playlist.get("id")
+def testUpdatePlayList(session, ptesting):
+    pname = "playlist1"
+    plist = ["tr-1", "tr-2", "tr-3"]
+    cmd = buildCmd(session, CreatePlayList, {"name": pname, "songId": plist})
+    sub_resp = checkResp(cmd.req, cmd())
+    playlist = sub_resp.find("{http://subsonic.org/restapi}playlist")
+    pl_id = playlist.get("id")
 
-        plist2 = ["tr-3", "tr-2", "tr-1"]
-        cmd = self.buildCmd(CreatePlayList,
-                            {"playlistId": pl_id, "songId": plist2})
-        self.checkResp(cmd.req, cmd())
-        with Session() as session:
-            row = session.query(PlayList).\
-                      filter(PlayList.name == pname).one_or_none()
-            self.assertTrue(row)
-            self.assertEqual([t.track_id for t in row.tracks],
-                             [int(t.replace("tr-", "")) for t in plist + plist2])
-            self.assertEqual(row.owner.name, "test")
+    plist2 = ["tr-3", "tr-2", "tr-1"]
+    cmd = buildCmd(session, CreatePlayList,
+                   {"playlistId": pl_id, "songId": plist2})
+    checkResp(cmd.req, cmd())
+    row = session.query(PlayList).\
+              filter(PlayList.name == pname).one_or_none()
+    assert row is not None
+    assert ([t.track_id for t in row.tracks] ==
+            [int(t.replace("tr-", "")) for t in plist + plist2])
+    assert row.owner.name == "test"

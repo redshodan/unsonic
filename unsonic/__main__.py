@@ -1,3 +1,4 @@
+import inspect
 import unsonic
 import unsonic.commands         # noqa: F401
 from nicfit import Command
@@ -11,7 +12,13 @@ def buildApp():
         del Command._all_commands["web"]
     if mishmash.commands.web.Web.name in Command._all_commands:
         del Command._all_commands[mishmash.commands.web.Web.name]
-    return mishmash.__main__.MishMash()
+
+    # Temp work around while waiting for mishmash release
+    argspec = inspect.getargspec(mishmash.__main__.MishMash.__init__)
+    if "progname" in argspec.args:
+        return mishmash.__main__.MishMash(progname="unsonic")
+    else:
+        return mishmash.__main__.MishMash()
 
 
 def run(args=None):

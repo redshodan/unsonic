@@ -1,7 +1,6 @@
 import os
 import time
 import logging
-import datetime
 
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -51,8 +50,7 @@ class Scrobble(Command):
 
             # Local scrobble
             scrobble = DBScrobble(user_id=self.req.authed_user.id,
-                                  track_id=self.params["id"],
-                                  tstamp=datetime.datetime.now())
+                                  track_id=self.params["id"])
             session.add(scrobble)
 
             try:

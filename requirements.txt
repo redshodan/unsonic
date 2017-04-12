@@ -10,5 +10,5 @@ pastedeploy
 paste
 psycopg2
 xmltodict
-mishmash[postgres]==0.3b2
+mishmash[postgres]
 pylast

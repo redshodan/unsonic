@@ -32,7 +32,7 @@ external: mishmash
 mishmash: external/mishmash mishmash.egg
 
 mishmash-update:
-	cd external/mishmash; git fetch
+	cd external/mishmash; git pull
 	cd external/mishmash; $(PIP) install -Ue .
 
 external/mishmash:
@@ -112,5 +112,5 @@ docker-clean:
     done
 	-docker rmi -f unsonic
 
-.PHONY: devel db pyramid paste sqlalchemy psycopg2 run tests clean mishmash mishmash.egg
+.PHONY: devel db pyramid paste sqlalchemy psycopg2 run test tests clean mishmash mishmash.egg
 .PHONY: dist-clean external docker
