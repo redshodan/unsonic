@@ -43,7 +43,7 @@ class CreatePlayList(Command):
             session.add(pltrack)
             self.params["id"] = plist.id
 
-        session.commit()
+        session.flush()
 
         # Fun little hack to return the newly created playlist
         return GetPlayList.handleReq(self, session)

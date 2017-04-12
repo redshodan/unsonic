@@ -1,77 +1,76 @@
-from . import RestTestCase
 from unsonic.views.rest.getalbumlist import GetAlbumList
 from unsonic.views.rest import Command
+from . import buildCmd, checkResp
 
 
-class TestAlbumList(RestTestCase):
-    def validate(self, cmd, resp):
-        sub_resp = self.checkResp(cmd.req, resp)
-        alist = sub_resp.find("{http://subsonic.org/restapi}albumList")
-        count = 0
-        titles = []
-        for album in alist.iter("{http://subsonic.org/restapi}album"):
-            count += 1
-            titles.append(album.get("title"))
-            self.assertTrue(album.get("id").startswith("al-"))
-            self.assertTrue(len(album.get("title")) > 0)
-            self.assertEqual(album.get("isDir"), "true")
-        return count, titles
+def validate(cmd, resp):
+    sub_resp = checkResp(cmd.req, resp)
+    alist = sub_resp.find("{http://subsonic.org/restapi}albumList")
+    count = 0
+    titles = []
+    for album in alist.iter("{http://subsonic.org/restapi}album"):
+        count += 1
+        titles.append(album.get("title"))
+        assert album.get("id").startswith("al-")
+        assert len(album.get("title")) > 0
+        assert album.get("isDir") == "true"
+    return count, titles
 
 
-    def testRandom(self):
-        cmd = self.buildCmd(GetAlbumList, {"type": "random"})
-        resp = cmd()
-        count1, titles1 = self.validate(cmd, resp)
+def testRandom(session, ptesting):
+    cmd = buildCmd(session, GetAlbumList, {"type": "random"})
+    resp = cmd()
+    count1, titles1 = validate(cmd, resp)
 
 
-    def testSized(self):
-        cmd = self.buildCmd(GetAlbumList, {"type": "random", "size": "2"})
-        resp = cmd()
-        count, titles = self.validate(cmd, resp)
-        self.assertEqual(count, 2)
+def testSized(session, ptesting):
+    cmd = buildCmd(session, GetAlbumList, {"type": "random", "size": "2"})
+    resp = cmd()
+    count, titles = validate(cmd, resp)
+    assert count == 2
 
 
-    def testOffset(self):
-        cmd = self.buildCmd(GetAlbumList, {"type": "random", "size": "3",
+def testOffset(session, ptesting):
+    cmd = buildCmd(session, GetAlbumList, {"type": "random", "size": "3",
                                            "offset": "1"})
-        resp = cmd()
-        count, titles = self.validate(cmd, resp)
-        self.assertEqual(count, 4)
+    resp = cmd()
+    count, titles = validate(cmd, resp)
+    assert count == 4
 
 
-    def testOffset2(self):
-        cmd = self.buildCmd(GetAlbumList, {"type": "random", "size": "3",
+def testOffset2(session, ptesting):
+    cmd = buildCmd(session, GetAlbumList, {"type": "random", "size": "3",
                                            "offset": "2"})
-        resp = cmd()
-        count, titles = self.validate(cmd, resp)
-        self.assertEqual(count, 5)
+    resp = cmd()
+    count, titles = validate(cmd, resp)
+    assert count == 5
 
 
-    def testNewest(self):
-        cmd = self.buildCmd(GetAlbumList, {"type": "newest"})
-        resp = cmd()
-        count1, titles1 = self.validate(cmd, resp)
+def testNewest(session, ptesting):
+    cmd = buildCmd(session, GetAlbumList, {"type": "newest"})
+    resp = cmd()
+    count1, titles1 = validate(cmd, resp)
 
-        cmd = self.buildCmd(GetAlbumList, {"type": "newest"})
-        resp = cmd()
-        count2, titles2 = self.validate(cmd, resp)
+    cmd = buildCmd(session, GetAlbumList, {"type": "newest"})
+    resp = cmd()
+    count2, titles2 = validate(cmd, resp)
 
-        self.assertEqual(titles1, titles2)
-
-
-    def testNoType(self):
-        cmd = self.buildCmd(GetAlbumList)
-        resp = cmd()
-        self.checkResp(cmd.req, resp, Command.E_MISSING_PARAM)
+    assert titles1 == titles2
 
 
-    def testByGenre(self):
-        cmd = self.buildCmd(GetAlbumList, {"type": "byGenre", "genre": "techno"})
-        resp = cmd()
-        count1, titles1 = self.validate(cmd, resp)
+def testNoType(session, ptesting):
+    cmd = buildCmd(session, GetAlbumList)
+    resp = cmd()
+    checkResp(cmd.req, resp, Command.E_MISSING_PARAM)
 
 
-    def testByGenreNoGenre(self):
-        cmd = self.buildCmd(GetAlbumList, {"type": "byGenre"})
-        resp = cmd()
-        self.checkResp(cmd.req, resp, Command.E_MISSING_PARAM)
+def testByGenre(session, ptesting):
+    cmd = buildCmd(session, GetAlbumList, {"type": "byGenre", "genre": "techno"})
+    resp = cmd()
+    count1, titles1 = validate(cmd, resp)
+
+
+def testByGenreNoGenre(session, ptesting):
+    cmd = buildCmd(session, GetAlbumList, {"type": "byGenre"})
+    resp = cmd()
+    checkResp(cmd.req, resp, Command.E_MISSING_PARAM)

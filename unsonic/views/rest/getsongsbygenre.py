@@ -3,8 +3,7 @@ import xml.etree.ElementTree as ET
 from sqlalchemy import and_
 from sqlalchemy.sql.expression import func as dbfunc
 
-from . import (Command, registerCmd, MissingParam, NotFound, fillTrackUser,
-               folder_t, str_t, int_t)
+from . import Command, registerCmd, fillTrackUser, folder_t, str_t, int_t
 from ...models import Track, Tag, track_tags
 
 
@@ -37,11 +36,13 @@ class GetSongsByGenre(Command):
             filter(dbfunc.lower(Tag.name) == genre.lower()).one_or_none()
         if not tag:
             return self.makeResp(child=songs)
-        result = session.query(Track).\
+        q = session.query(Track).\
             join(track_tags).\
             filter(and_(Track.id == track_tags.c.track_id,
-                        track_tags.c.tag_id == tag.id)).\
-            order_by(Track.title).\
+                        track_tags.c.tag_id == tag.id))
+        if lib_id:
+            q = q.filter(Track.lib_id == lib_id)
+        result = q.order_by(Track.title).\
             offset(offset).\
             limit(limit)
         for row in result:

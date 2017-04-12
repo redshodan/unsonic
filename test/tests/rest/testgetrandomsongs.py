@@ -1,30 +1,29 @@
-from . import RestTestCase
 from unsonic.views.rest.getrandomsongs import GetRandomSongs
+from . import buildCmd, checkResp
 
 
-class TestRandomSongs(RestTestCase):
-    def validate(self, cmd, resp):
-        sub_resp = self.checkResp(cmd.req, resp)
-        songs = sub_resp.find("{http://subsonic.org/restapi}randomSongs")
-        count = 0
-        titles = []
-        for song in songs.iter("{http://subsonic.org/restapi}song"):
-            count += 1
-            titles.append(song.get("title"))
-            self.assertTrue(song.get("id").startswith("tr-"))
-            self.assertTrue(int(song.get("id")[3:]) > 0)
-            self.assertTrue(int(song.get("duration")) >= 0)
-            self.assertTrue(int(song.get("bitRate")) >= 0)
-        return count, titles
+def validate(cmd, resp):
+    sub_resp = checkResp(cmd.req, resp)
+    songs = sub_resp.find("{http://subsonic.org/restapi}randomSongs")
+    count = 0
+    titles = []
+    for song in songs.iter("{http://subsonic.org/restapi}song"):
+        count += 1
+        titles.append(song.get("title"))
+        assert song.get("id").startswith("tr-")
+        assert int(song.get("id")[3:]) > 0
+        assert int(song.get("duration")) >= 0
+        assert int(song.get("bitRate")) >= 0
+    return count, titles
 
-    def testBasic(self):
-        cmd = self.buildCmd(GetRandomSongs)
-        resp = cmd()
-        count, titles = self.validate(cmd, resp)
-        self.assertEqual(count, 10)
 
-    def testSized(self):
-        cmd = self.buildCmd(GetRandomSongs, {"size": "2"})
-        resp = cmd()
-        count, titles = self.validate(cmd, resp)
-        self.assertEqual(count, 2)
+def testBasic(session, ptesting):
+    cmd = buildCmd(session, GetRandomSongs)
+    count, titles = validate(cmd, cmd())
+    assert count == 10
+
+
+def testSized(session, ptesting):
+    cmd = buildCmd(session, GetRandomSongs, {"size": "2"})
+    count, titles = validate(cmd, cmd())
+    assert count == 2

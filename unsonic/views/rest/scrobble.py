@@ -1,5 +1,3 @@
-import datetime
-
 from sqlalchemy.orm.exc import NoResultFound
 
 from . import Command, registerCmd, bool_t, track_t, NotFound
@@ -45,7 +43,6 @@ class Scrobble(Command):
 
             # Local scrobble
             scrobble = DBScrobble(user_id=self.req.authed_user.id,
-                                  track_id=self.params["id"],
-                                  tstamp=datetime.datetime.now())
+                                  track_id=self.params["id"])
             session.add(scrobble)
         return self.makeResp()

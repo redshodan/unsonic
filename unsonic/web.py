@@ -21,7 +21,7 @@ CONFIG = None
 SETTINGS = None
 
 
-def init(global_config, settings):
+def init(global_config, settings, dbinfo=None):
     global CONFIG_FILE, CONFIG, SETTINGS
 
     # Stash the global config bits
@@ -32,7 +32,7 @@ def init(global_config, settings):
     CONFIG.read()
 
     # Setup models
-    models.init(settings, True)
+    models.init(settings, True, db_info=dbinfo)
     models.load()
 
     unsonic.log.resetupLogging(global_config["__file__"], global_config)
