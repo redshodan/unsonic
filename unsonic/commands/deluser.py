@@ -1,5 +1,5 @@
 from . import Command, register
-from ..models import User, initAlembic
+from ..models import User
 
 
 @register
@@ -13,7 +13,7 @@ class DelUser(Command):
 
 
     def _run(self, args=None):
-        initAlembic(self.config.get("mishmash", "sqlalchemy.url"))
+        super()._run()
         args = args or self.args
 
         res = self.db_session.query(User).filter(User.name == args.username[0])

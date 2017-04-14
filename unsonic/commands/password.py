@@ -1,5 +1,5 @@
 from . import Command, register
-from ..models import setUserPassword, initAlembic
+from ..models import setUserPassword
 
 
 @register
@@ -14,7 +14,7 @@ class Password(Command):
 
 
     def _run(self, args=None):
-        initAlembic(self.config.get("mishmash", "sqlalchemy.url"))
+        super()._run()
         args = args or self.args
 
         if setUserPassword(self.db_session, args.username[0],

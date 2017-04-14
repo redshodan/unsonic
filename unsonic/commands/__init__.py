@@ -1,7 +1,15 @@
 # flake8: noqa: F401
 
 from nicfit.command import register
-from mishmash.core import Command
+from mishmash import core
+
+
+class Command(core.Command):
+    def _run(self, args=None):
+        initAlembic(self.config.get("mishmash", "sqlalchemy.url"))
+
+
+from ..models import initAlembic
 
 from .adduser import AddUser
 from .config import Config
