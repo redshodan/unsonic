@@ -15,13 +15,15 @@ class HereConfig(MishConfig):
         super().__init__(filename, **kwargs)
         global CONFIG
         CONFIG = self
-        # Here
-        here = "/".join(os.path.dirname(__file__).split("/")[:-1])
-        self.set(configparser.DEFAULTSECT, "here", here)
+        # %(install)s
+        install = "/".join(os.path.dirname(__file__).split("/")[:-1])
+        self.set(configparser.DEFAULTSECT, "install", install)
         if filename:
-            # Cfghere
-            cfghere = os.path.dirname(os.path.abspath(filename))
-            self.set(configparser.DEFAULTSECT, "cfghere", cfghere)
+            # %(here)s
+            here = os.path.dirname(os.path.abspath(filename))
+            self.set(configparser.DEFAULTSECT, "here", here)
+        else:
+            self.set(configparser.DEFAULTSECT, "here", install)
 
 
     def get(self, section, key, **kwargs):
@@ -29,9 +31,9 @@ class HereConfig(MishConfig):
         if val and "%(here)s" in val:
             return val.replace("%(here)s",
                                super().get(configparser.DEFAULTSECT, "here"))
-        elif val and "%(cfghere)s" in val:
-            return val.replace("%(cfghere)s",
-                               super().get(configparser.DEFAULTSECT, "cfghere"))
+        elif val and "%(install)s" in val:
+            return val.replace("%(install)s",
+                               super().get(configparser.DEFAULTSECT, "install"))
         else:
             return val
 
