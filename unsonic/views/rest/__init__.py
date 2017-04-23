@@ -460,11 +460,6 @@ def fillTrackUser(session, song_row, rating_row, user, name="song"):
     return song
 
 
-def fillTrackID3(session, row, user):
-    track = ET.Element("song")
-    return track
-
-
 def fillPlayList(session, row):
     playlist = ET.Element("playlist")
     playlist.set("id", "pl-%d" % row.id)
