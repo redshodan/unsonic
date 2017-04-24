@@ -76,7 +76,8 @@ def database(request):
         db = Path(dbname)
         if db.exists():
             db.unlink()
-    elif request.param == "postgresql":
+    elif (request.param == "postgresql" and
+          not "UN_TEST_NO_CLEANUP" in os.environ):
         # Clean up dangling connections
         connection.execute(PSQL_KILL % dbname)
         connection.close()

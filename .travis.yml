@@ -11,6 +11,9 @@ cache: pip
 before_cache:
   - rm -f $HOME/.cache/pip/log/debug.log
 
+env:
+  - UN_TEST_NO_CLEANUP=1
+
 # command to install dependencies
 install:
   - git clone 'https://github.com/nicfit/mishmash.git' mishmash
