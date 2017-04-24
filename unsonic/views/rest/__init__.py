@@ -16,6 +16,15 @@ from ...models import Session, ArtistRating, AlbumRating, TrackRating, Track
 from ...auth import Roles
 
 
+BACON_IPSUM = (
+"Bacon ipsum dolor amet biltong sausage ribeye pancetta salami pork chop. Short "
+"loin sirloin burgdoggen, turducken kielbasa corned beef landjaeger chicken "
+"short ribs capicola. Drumstick turkey jerky, cow shankle flank pork loin ball "
+"tip. Meatball shoulder landjaeger jerky. Bresaola prosciutto alcatra venison, "
+"meatloaf pork belly ball tip tail cupim porchetta. Chuck alcatra leberkas tail "
+"flank. Kevin chicken strip steak meatball ground round cow.")
+
+
 XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>'
 
 commands = {}

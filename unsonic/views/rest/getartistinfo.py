@@ -1,15 +1,6 @@
 import xml.etree.ElementTree as ET
 
-from . import Command, registerCmd, int_t, playable_id_t
-
-
-bacon_ipsum = (
-"Bacon ipsum dolor amet biltong sausage ribeye pancetta salami pork chop. Short "
-"loin sirloin burgdoggen, turducken kielbasa corned beef landjaeger chicken "
-"short ribs capicola. Drumstick turkey jerky, cow shankle flank pork loin ball "
-"tip. Meatball shoulder landjaeger jerky. Bresaola prosciutto alcatra venison, "
-"meatloaf pork belly ball tip tail cupim porchetta. Chuck alcatra leberkas tail "
-"flank. Kevin chicken strip steak meatball ground round cow.")
+from . import BACON_IPSUM, Command, registerCmd, int_t, playable_id_t
 
 
 # TODO: Actually implement
@@ -28,7 +19,7 @@ class GetArtistInfo(Command):
     def handleReq(self, session):
         ainfo = ET.Element("artistInfo")
         bio = ET.Element("biography")
-        bio.text = bacon_ipsum
+        bio.text = BACON_IPSUM
         ainfo.append(bio)
         mbid = ET.Element("musicBrainzId")
         mbid.text = "1234567890"
