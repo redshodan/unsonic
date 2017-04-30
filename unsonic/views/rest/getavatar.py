@@ -1,4 +1,4 @@
-from . import Command, registerCmd
+from . import Command, registerCmd, NotFound
 from ...models import Image, getUserByName
 
 
@@ -14,8 +14,12 @@ class GetAvatar(Command):
     def handleReq(self, session):
         if self.req.authed_user.name == self.params["username"]:
             db_user = self.req.authed_user
-        elif self.req.authed_user.isAdmin():
+        else:
             db_user = getUserByName(session, self.params["username"])
-        row = session.query(Image).filter(Image.id == db_user.avatar).one()
-
+        if not db_user:
+            raise NotFound("User not found")
+        row = session.query(Image).\
+                  filter(Image.id == db_user.avatar).one_or_none()
+        if not row:
+            raise NotFound("User has no avatar")
         return self.makeBinaryResp(row.data, row.mime_type, row.md5)

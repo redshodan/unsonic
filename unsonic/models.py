@@ -393,7 +393,7 @@ def addUser(session, username, password, roles):
     except IntegrityError:
         session.failed = True
         return "Failed to add user. User already exists."
-    return True
+    return user
 
 
 def delUser(session, username):

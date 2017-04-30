@@ -35,7 +35,9 @@ def bootstrap(dbinfo):
 
     # Create test users
     session = dbinfo.SessionMaker()
-    models.addUser(session, "test", "test", auth.Roles.def_user_roles)
+    user = models.addUser(session, "test", "test", auth.Roles.def_user_roles)
+    user.avatar = 3
+    session.add(user)
     session.commit()
     session.close()
 

@@ -52,7 +52,7 @@ class AddUser(Command):
         else:
             ret = models.addUser(self.db_session, args.username,
                                  args.password, args.roles)
-            if ret is True:
+            if ret:
                 print("Added user '%s'." % args.username)
                 return 0
             else:
