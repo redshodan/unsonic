@@ -2,7 +2,7 @@ import argparse
 
 from . import Command, register
 from .. import models, auth
-from ..models import User, initAlembic
+from ..models import User
 
 
 @register
@@ -22,7 +22,7 @@ class AddUser(Command):
 
 
     def _run(self, args=None):
-        initAlembic(self.config.get("mishmash", "sqlalchemy.url"))
+        super()._run()
         args = args or self.args
 
         if args.list_roles:
@@ -52,7 +52,7 @@ class AddUser(Command):
         else:
             ret = models.addUser(self.db_session, args.username,
                                  args.password, args.roles)
-            if ret is True:
+            if ret:
                 print("Added user '%s'." % args.username)
                 return 0
             else:

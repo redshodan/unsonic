@@ -41,9 +41,9 @@ class CreatePlayList(Command):
                 raise MissingParam("Invalid songId: tr-%s" % sid)
             pltrack = PlayListTrack(track_id=track.id, playlist_id=plist.id)
             session.add(pltrack)
-            self.params["id"] = plist.id
 
         session.flush()
 
         # Fun little hack to return the newly created playlist
+        self.params["id"] = plist.id
         return GetPlayList.handleReq(self, session)

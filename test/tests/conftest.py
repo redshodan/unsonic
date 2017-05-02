@@ -35,7 +35,9 @@ def bootstrap(dbinfo):
 
     # Create test users
     session = dbinfo.SessionMaker()
-    models.addUser(session, "test", "test", auth.Roles.def_user_roles)
+    user = models.addUser(session, "test", "test", auth.Roles.def_user_roles)
+    user.avatar = 3
+    session.add(user)
     session.commit()
     session.close()
 
@@ -76,7 +78,8 @@ def database(request):
         db = Path(dbname)
         if db.exists():
             db.unlink()
-    elif request.param == "postgresql":
+    elif (request.param == "postgresql" and
+          "UN_TEST_NO_CLEANUP" not in os.environ):
         # Clean up dangling connections
         connection.execute(PSQL_KILL % dbname)
         connection.close()

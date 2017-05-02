@@ -1,11 +1,11 @@
 from unsonic.models import Track
-from unsonic.views.rest.stream import Stream
+from unsonic.views.rest.download import Download
 from unsonic.views.rest import Command
 from . import buildCmd, checkResp
 
 
-def testStream(session, ptesting):
-    cmd = buildCmd(session, Stream, {"id": "tr-1"})
+def testDownload(session, ptesting):
+    cmd = buildCmd(session, Download, {"id": "tr-1"})
     resp = cmd()
     row = session.query(Track).filter(Track.id == 1).all()[0]
     fp = open(row.path, "rb")
@@ -15,6 +15,6 @@ def testStream(session, ptesting):
     assert resp.body == streamed
 
 
-def testStreamNoID(session, ptesting):
-    cmd = buildCmd(session, Stream)
+def testDownloadNoID(session, ptesting):
+    cmd = buildCmd(session, Download)
     checkResp(cmd.req, cmd(), Command.E_MISSING_PARAM)

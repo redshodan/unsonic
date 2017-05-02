@@ -8,6 +8,3 @@ class Download(Stream):
     param_defs = {
         "id": {"required": True, "type": track_t},
         }
-
-    def __init__(self, route, req):
-        super().__init__(route, req)

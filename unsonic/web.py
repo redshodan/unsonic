@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 from pkg_resources import load_entry_point
@@ -35,6 +36,9 @@ def init(global_config, settings, dbinfo=None):
     models.init(settings, True, db_info=dbinfo)
     models.load()
 
+    install = "/".join(os.path.dirname(__file__).split("/")[:-1])
+    global_config["install"] = install
+
     unsonic.log.resetupLogging(global_config["__file__"], global_config)
 
 
@@ -51,12 +55,9 @@ def main(global_config, **settings):
                     permission=auth.Roles.USERS)
     config.scan()
 
-    global NAME
-    if "unsonic.name" in settings:
-        NAME = settings["unsonic.name"]
-    global UI
-    if "unsonic.ui" in settings:
-        UI = settings["unsonic.ui"]
+    global NAME, UI
+    NAME = CONFIG.get("unsonic", "name")
+    UI = CONFIG.get("unsonic", "ui")
 
     # Init auth
     auth.init(global_config, config)

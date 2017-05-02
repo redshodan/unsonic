@@ -2,7 +2,6 @@ Initial Release
 ===================
 * func tests run full passes with json and jsonp
 * fix db slowness
-* fillTrackID3(), did I forget to fill that out?
 
 
 Next Release

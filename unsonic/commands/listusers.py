@@ -1,5 +1,5 @@
 from . import Command, register
-from ..models import listUsers, initAlembic
+from ..models import listUsers
 
 
 @register
@@ -9,7 +9,7 @@ class ListUsers(Command):
 
 
     def _run(self, args=None):
-        initAlembic(self.config.get("mishmash", "sqlalchemy.url"))
+        super()._run()
 
         args = args or self.args
 

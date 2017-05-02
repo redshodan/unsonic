@@ -1,5 +1,4 @@
 from . import Command, register
-from ..models import initAlembic
 
 
 @register
@@ -21,6 +20,6 @@ class Config(Command):
 
 
     def _run(self, args=None):
-        initAlembic(self.config.get("mishmash", "sqlalchemy.url"))
+        super()._run()
 
         args = args or self.args
