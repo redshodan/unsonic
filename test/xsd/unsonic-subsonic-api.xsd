@@ -4,7 +4,7 @@
            targetNamespace="http://subsonic.org/restapi"
            attributeFormDefault="unqualified"
            elementFormDefault="qualified"
-           version="1.14.0">
+           version="1.15.0">
 
     <xs:element name="subsonic-response" type="sub:Response"/>
 
@@ -51,6 +51,7 @@
             <xs:element name="similarSongs" type="sub:SimilarSongs" minOccurs="1" maxOccurs="1"/>
             <xs:element name="similarSongs2" type="sub:SimilarSongs2" minOccurs="1" maxOccurs="1"/>
             <xs:element name="topSongs" type="sub:TopSongs" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="scanStatus" type="sub:ScanStatus" minOccurs="1" maxOccurs="1"/>
             <xs:element name="error" type="sub:Error" minOccurs="1" maxOccurs="1"/>
         </xs:choice>
         <xs:attribute name="status" type="sub:ResponseStatus" use="required"/>
@@ -624,6 +625,11 @@
         <xs:attribute name="email" type="xs:string" use="optional"/>
         <xs:attribute name="licenseExpires" type="xs:dateTime" use="optional"/>
         <xs:attribute name="trialExpires" type="xs:dateTime" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="ScanStatus">
+        <xs:attribute name="scanning" type="xs:boolean" use="required"/>
+        <xs:attribute name="count" type="xs:long" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="Users">

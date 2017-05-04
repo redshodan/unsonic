@@ -1,6 +1,6 @@
 from unsonic.views.rest.getavatar import GetAvatar
 from unsonic.views.rest import Command
-from unsonic.models import Image, User
+from unsonic.models import Image
 from . import buildCmd, checkResp
 
 
