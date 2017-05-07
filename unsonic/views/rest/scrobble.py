@@ -11,7 +11,7 @@ class Scrobble(Command):
     param_defs = {
         "id": {"required": True, "type": track_t},
         "time": {},
-        "submission": {"type": bool_t},
+        "submission": {"type": bool_t, "default": True},
         }
     dbsess = True
 
