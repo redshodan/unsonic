@@ -126,7 +126,7 @@ class Command(object):
         root = xmltodict.parse(body, attr_prefix="")
 
         def walker(d):
-            if not isinstance(d, list):
+            if not isinstance(d, list) and not isinstance(d, OrderedDict):
                 return
             for key, val in d.items():
                 if isinstance(val, list):
