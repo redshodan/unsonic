@@ -1,6 +1,12 @@
 import sys
 import logging
 
+try:
+    # Location of setup_logging in older pyramid versions
+    from pyramid.scripts.common import setup_logging
+except:
+    from pyramid.paster import setup_logging
+
 import eyed3.utils.console
 
 
@@ -45,5 +51,4 @@ def setupMash():
 
 
 def resetupLogging(config_uri, global_config):
-    from pyramid.scripts.common import setup_logging
     setup_logging(config_uri, global_config)
