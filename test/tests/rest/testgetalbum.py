@@ -1,5 +1,4 @@
 from unsonic.views.rest.getalbum import GetAlbum
-from unsonic.views.rest import Command
 from . import buildCmd, checkResp
 
 
