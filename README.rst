@@ -27,6 +27,24 @@ Builds
    :target: https://coveralls.io/github/redshodan/unsonic?branch=master
    :alt: Coverage Status
 
+About
+=====
+Unsonic is a free drop in replacement for the Subsonic music server. It follows
+the Subsonic API and is usable with existing Subsonic clients without requiring
+any adjustment to them.
+
+Unsonic strives to be better at handling music files tags, playing of those
+songs and use less system resources.
+
+Supported Clients
+=================
+These are the clients that are known to work well:
+  * DSub (Android)
+  * JamStash (web)
+
+These clients sort of work with isues:
+  * Clementine (Linux desktop)
+
 Installation
 ============
 
