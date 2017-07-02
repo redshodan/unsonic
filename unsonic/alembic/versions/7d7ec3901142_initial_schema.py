@@ -102,12 +102,21 @@ def upgrade():
         'un_config',
         sa.Column('key', sa.String(), nullable=False),
         sa.Column('value', sa.String(), nullable=False),
-        sa.Column('user_id', sa.Integer(), nullable=True),
+        sa.Column('modified', sa.DateTime(), nullable=False),
+        sa.PrimaryKeyConstraint('key', name=op.f('pk_un_config'))
+    )
+
+    # User Config
+    op.create_table(
+        'un_userconfig',
+        sa.Column('user_id', sa.Integer(), nullable=False),
+        sa.Column('key', sa.String(), nullable=False),
+        sa.Column('value', sa.String(), nullable=False),
         sa.Column('modified', sa.DateTime(), nullable=False),
         sa.ForeignKeyConstraint(['user_id'], ['un_users.id'],
-                                name=op.f('fk_un_config_user_id_un_users'),
+                                name=op.f('fk_un_userconfig_user_id_un_users'),
                                 ondelete='CASCADE'),
-        sa.PrimaryKeyConstraint('key', name=op.f('pk_un_config'))
+        sa.PrimaryKeyConstraint('user_id', 'key', name=op.f('pk_un_userconfig'))
     )
 
     # PlayCounts
