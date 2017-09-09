@@ -1,15 +1,22 @@
-Initial Release
-===================
+Release 0.1
+===========
 * func tests run full passes with json and jsonp
 * fix db slowness
 
 
-Next Release
-============
+Release 0.2
+===========
 * Scrobbling
 * Add an export-playlists command
 * Add playlist manipulation commands
 
+Config
+======
+* Minimize ini config. Store as much as possible in the db through the config
+  command. Allow for ini file to override built in defaults for everything. Have
+  an installed default ini file to read in, then user's if found else
+  /etc/unsonic. All commands look for the same ini's to find the db url to
+  startup, or cmdline arg for db url.
 
 General
 =======
