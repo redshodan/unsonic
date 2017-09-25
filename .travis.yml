@@ -14,6 +14,10 @@ before_cache:
 env:
   - UN_TEST_NO_CLEANUP=1
 
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y libxml2-dev
+
 # command to install dependencies
 install:
   - git clone 'https://github.com/nicfit/mishmash.git' mishmash
