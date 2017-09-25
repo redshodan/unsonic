@@ -1,6 +1,5 @@
 import xml.etree.ElementTree as ET
 
-from sqlalchemy import and_
 from sqlalchemy.sql.expression import func as dbfunc
 
 from eyed3.core import Date as Eyed3Date
@@ -179,8 +178,7 @@ class GetAlbumList(Command):
             for date_row in [Album.original_release_date, Album.release_date,
                              Album.recording_date]:
                 res = self.queryAlbum(session).\
-                          filter(and_(date_row >= from_year,
-                                      date_row <= to_year)).\
+                          filter(date_row >= from_year, date_row <= to_year).\
                           offset(offset).\
                           limit(limit)
                 if not second:
@@ -205,18 +203,18 @@ class GetAlbumList(Command):
             if not genre:
                 raise MissingParam("Missing genre param when searching byGenre")
 
-            # TODO: When mishmash does album tags/genres, do that too
-            # TODO: Cache tags?
             tag = session.query(Tag).\
                 filter(dbfunc.lower(Tag.name) == genre.lower()).one_or_none()
             if not tag:
                 return self.makeResp(child=alist)
+
             result = session.query(Album).\
                 join(Track).\
                 join(track_tags).\
-                filter(and_(Album.id == Track.album_id,
-                            Track.id == track_tags.c.track_id,
-                            track_tags.c.tag_id == tag.id)).\
+                filter(Album.id == Track.album_id,
+                       Track.id == track_tags.c.track_id,
+                       track_tags.c.tag_id == tag.id).\
+                group_by(Album).\
                 order_by(Album.title).\
                 offset(offset).\
                 limit(limit)
