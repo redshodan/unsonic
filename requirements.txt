@@ -5,7 +5,7 @@ transaction==2.1.2
 pyramid_tm==2.2
 pyramid_debugtoolbar==4.3
 zope.sqlalchemy==0.7.7
-waitress
+waitress==1.0.2
 pastedeploy
 paste
 psycopg2
