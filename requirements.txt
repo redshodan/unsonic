@@ -1,5 +1,5 @@
 pyramid==1.9.1
-SQLAlchemy
+SQLAlchemy==1.1.14
 alembic
 transaction
 pyramid_tm
