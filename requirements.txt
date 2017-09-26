@@ -3,7 +3,7 @@ SQLAlchemy==1.1.14
 alembic==0.9.5
 transaction==2.1.2
 pyramid_tm==2.2
-pyramid_debugtoolbar
+pyramid_debugtoolbar==4.3
 zope.sqlalchemy
 waitress
 pastedeploy
