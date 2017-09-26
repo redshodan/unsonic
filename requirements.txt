@@ -1,4 +1,4 @@
-pyramid
+pyramid==1.9.1
 SQLAlchemy
 alembic
 transaction
