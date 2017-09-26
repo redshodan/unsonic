@@ -10,4 +10,4 @@ pastedeploy==1.5.2
 paste==2.0.3
 psycopg2==2.7.3.1
 xmltodict==0.11.0
-mishmash[postgres]
+mishmash[postgres]==0.3b4
