@@ -6,7 +6,7 @@ pyramid_tm==2.2
 pyramid_debugtoolbar==4.3
 zope.sqlalchemy==0.7.7
 waitress==1.0.2
-pastedeploy
+pastedeploy==1.5.2
 paste
 psycopg2
 xmltodict
