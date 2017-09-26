@@ -7,7 +7,7 @@ pyramid_debugtoolbar==4.3
 zope.sqlalchemy==0.7.7
 waitress==1.0.2
 pastedeploy==1.5.2
-paste
+paste==2.0.3
 psycopg2
 xmltodict
 mishmash[postgres]
