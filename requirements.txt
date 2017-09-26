@@ -1,6 +1,6 @@
 pyramid==1.9.1
 SQLAlchemy==1.1.14
-alembic
+alembic==0.9.5
 transaction
 pyramid_tm
 pyramid_debugtoolbar
