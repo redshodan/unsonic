@@ -1,4 +1,4 @@
-Unsonic, the ultimate un-Subsonic music server.
+Unsonic, the un-Subsonic music server.
 
 Status
 ======
@@ -10,13 +10,11 @@ Status
 [![License](https://img.shields.io/pypi/l/unsonic.svg)](https://pypi.python.org/pypi/unsonic/)
 [![Supported Python Versions](https://img.shields.io/pypi/pyversions/unsonic.svg)](https://pypi.python.org/pypi/unsonic/)
 
-
 ## Builds
 
 [![Build Status](https://travis-ci.org/redshodan/unsonic.svg?branch=master)](https://travis-ci.org/redshodan/unsonic)
 [![Coverage Status](https://coveralls.io/repos/github/redshodan/unsonic/badge.svg?branch=master)](https://coveralls.io/github/redshodan/unsonic?branch=master)
 [![Updates](https://pyup.io/repos/github/redshodan/unsonic/shield.svg)](https://pyup.io/repos/github/redshodan/unsonic/)
-[![Python 3](https://pyup.io/repos/github/redshodan/unsonic/python-3-shield.svg)](https://pyup.io/repos/github/redshodan/unsonic/)
 
 
 About
@@ -28,6 +26,7 @@ any adjustment to them.
 Unsonic strives to be better at handling music files tags, playing of those
 songs and use less system resources.
 
+
 Supported Clients
 =================
 These are the clients that are known to work well:
@@ -36,6 +35,7 @@ These are the clients that are known to work well:
 
 These clients sort of work with isues:
   * Clementine (Linux desktop)
+
 
 Installation
 ============
@@ -59,11 +59,13 @@ Installation
 ### Tests
   * make tests
 
+
 Manual Installation
 -------------------
 
 ## Building
   * make
+
 
 Running
 -------
@@ -71,9 +73,11 @@ Running
   * ./bin/unsonic -c <config.ini> adduser name pass
   * ./bin/unsonic -c <config.ini> serve [--reload]
 
+
 Manual Testing
 --------------
   * ./test/bin/tester getArtists
+
 
 Installing a Web Client
 -----------------------
@@ -91,6 +95,7 @@ Installing a Web Client
   * Jamstash is very picky about the server URL in it's configuration. Make sure
     there is no trailing '/' character otherwise Jamstash will not be able to
     build the path correctly.
+
 
 Docker Installation
 -------------------
@@ -130,6 +135,7 @@ $ make MUSIC_DIR=~/music/ docker-sqlite
 See docker/Dockerfile for details about the ``unsonic`` image. The container details are 
 defined ``docker/docker-compose.yml``. The files ``docker/config.ini`` and ``docker/unsonic-init``
 can be used to tweak the Unsonic process itself.
+
 
 Adjusting the configuration
 ===========================

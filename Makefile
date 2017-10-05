@@ -51,7 +51,7 @@ $(FLAKE8):
 
 devel: $(PY_LIB)/unsonic.egg-link flake8
 
-$(PY_LIB)/unsonic.egg-link: build/venv/bin/python setup.py setup.cfg README.rst 
+$(PY_LIB)/unsonic.egg-link: build/venv/bin/python setup.py setup.cfg README.md 
 $(PY_LIB)/unsonic.egg-link: development.ini
 $(PY_LIB)/unsonic.egg-link:
 	$(PYTHON) setup.py develop

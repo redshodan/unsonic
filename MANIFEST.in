@@ -1,4 +1,4 @@
-include setup.cfg README.rst LICENSE CHANGES.rst requirements.txt production.ini 
+include setup.cfg README.md LICENSE CHANGES.md requirements.txt production.ini 
 recursive-include unsonic *.ico *.png *.css *.gif *.pt *.mako *.html *.ini
 recursive-include unsonic/alembic/ *.py *.ini
 global-exclude __pycache__
