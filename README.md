@@ -130,15 +130,15 @@ Adjusting the configuration
 The main configuration settings are the location of the database
 
 ```
-  [mishmash]
-      sqlalchemy.url = sqlite:///%(here)s/build/development.sqlite
+[mishmash]
+sqlalchemy.url = sqlite:///%(here)s/build/development.sqlite
 ```
 
 and the location of the music directory
 
 ```
-  [mishmash]
-      paths = Music: /%(here)s/test/music
+[mishmash]
+paths = Music: /%(here)s/test/music
 ```
 
 Adjust them to fit your deployment needs. The mishmash.paths can have multiple 
