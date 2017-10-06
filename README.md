@@ -146,16 +146,60 @@ The main configuration settings are the location of the database
 sqlalchemy.url = sqlite:///%(here)s/build/development.sqlite
 ```
 
-and the location of the music directory
+and the location of the music libraries
 
 ```
-[mishmash]
-paths = Music: /%(here)s/test/music
+[library:Music]
+paths = ~/music
+sync = true
+
+[library:More Music]
+paths = /data/music
+sync = true
+
 ```
 
 Adjust them to fit your deployment needs. The mishmash.paths can have multiple 
 music directories, one per line. %(here)s refers to the location of the 
 configuration file itself.
+
+
+Running with TLS
+================
+Unsonic itself doesn't handle TLS, but can easily be run behind a reverse proxy
+that does. The following example shows how to configure nginx to reverse proxy
+to a local Unsonic instance. Replace example.com with your domain name/IP. You
+may change the path portion of the url from "unsonic" to whatever you wish, or
+remove it completely.
+
+This would go into your /etc/nginx/nginx.conf or its own file in
+/etc/nginx/sites-available depending on how your distro is setup.
+
+```
+server {
+    listen       80;
+    server_name  example.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen       443 ssl http2;
+    server_name  example.com;
+
+    ssl config...
+
+    # Your Unsonic is located on https://example.com/unsonic/
+    location / {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_buffers 16 4k;
+        proxy_buffer_size 2k;
+        proxy_pass http://localhost:6543;
+        proxy_read_timeout 90;
+    }
+```
 
 
 License
