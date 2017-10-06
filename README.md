@@ -188,7 +188,7 @@ server {
 
     ssl config...
 
-    # Your Unsonic is located on https://example.com/unsonic/
+    # Your Unsonic is located on https://example.com/
     location / {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
