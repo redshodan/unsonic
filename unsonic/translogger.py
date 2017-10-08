@@ -7,7 +7,7 @@ from nicfit.console.ansi import Fg
 
 class ColorTransLogger(TransLogger):
 
-    format = ('%(REMOTE_ADDR)s - %(REMOTE_USER)s [%(time)s] '
+    format = ('%(REMOTE_ADDR)s [%(time)s] '
               '"%(REQUEST_METHOD)s %(REQUEST_URI)s %(HTTP_VERSION)s" '
               '%(status)s %(bytes)s "%(HTTP_REFERER)s" "%(HTTP_USER_AGENT)s"')
 
@@ -33,9 +33,12 @@ class ColorTransLogger(TransLogger):
         elif environ.get('REMOTE_ADDR'):
             remote_addr = environ['REMOTE_ADDR']
         stat = status.split(None, 1)[0]
+        user = environ.get("webob._parsed_query_vars")[0].get("u")
+        user = environ.get('REMOTE_USER') or user or None
+        if user:
+            remote_addr = "%s@%s" % (user, remote_addr)
         d = {
             'REMOTE_ADDR': remote_addr,
-            'REMOTE_USER': environ.get('REMOTE_USER') or '-',
             'REQUEST_METHOD': method,
             'REQUEST_URI': req_uri,
             'HTTP_VERSION': environ.get('SERVER_PROTOCOL'),
