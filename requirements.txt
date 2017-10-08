@@ -12,4 +12,4 @@ psycopg2==2.7.3.1
 xmltodict==0.11.0
 mishmash[postgres]==0.3b4
 sphinx==1.6.4
-recommonmark
+recommonmark==0.4.0
