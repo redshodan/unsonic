@@ -1,7 +1,5 @@
 include setup.cfg README.md LICENSE CHANGES.md requirements.txt production.ini 
-recursive-include unsonic *.ico *.png *.css *.gif *.pt *.mako *.html *.ini
+recursive-include unsonic *.ico *.png *.css *.gif *.pt *.mako *.html *.ini *.js *.txt *.1
 recursive-include unsonic/alembic/ *.py *.ini
-recursive-include html *.html *.png *.js *.css *.gif *.txt
-recursive-include man *.1
 global-exclude __pycache__
 global-exclude *.py[co]

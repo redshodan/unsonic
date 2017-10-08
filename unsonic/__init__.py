@@ -13,4 +13,5 @@ from .web import main, webServe
 
 import os
 HERE = os.getcwd()
+INSTALL = "/".join(os.path.dirname(__file__).split("/"))
 del os
