@@ -10,6 +10,8 @@ PIP=$(VBIN)/pip
 FLAKE8=$(VBIN)/flake8
 PY_LIB=$(VLIB)/python*/site-packages
 
+# Files to be staged for the dist build.
+PKG_FILES=unsonic build/docs/html build/docs/man setup.py setup.cfg requirements.txt production.ini README.md MANIFEST.in LICENSE CHANGES.md
 
 all: venv bins external devel
 
@@ -73,9 +75,18 @@ check: $(FLAKE8)
 tests: $(PYTEST) tests-clean
 	$(PYTHON) setup.py test $(FTF)
 
+docs:
+	make -C docs man html
+
+# Stage the files for sdist because setuptools doesn't let me filter enough
+pkg-copy: $(PKG_FILES)
+	rm -rf build/pkg
+	mkdir build/pkg
+	for F in $^; do cp -r $$F build/pkg/`basename $$F`; done
+
 dist: sdist
-sdist:
-	$(PYTHON) setup.py sdist
+sdist: pkg-copy
+	(cd build/pkg; $(PYTHON) setup.py sdist)
 
 clean:
 	find unsonic external -name '*.pyc' | xargs rm -f
@@ -111,4 +122,4 @@ docker-clean:
 	-docker rmi -f unsonic
 
 .PHONY: devel db pyramid paste sqlalchemy psycopg2 run test tests clean mishmash mishmash.egg
-.PHONY: dist-clean external docker
+.PHONY: dist-clean external docker docs pkg-copy

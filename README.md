@@ -138,7 +138,7 @@ can be used to tweak the Unsonic process itself.
 
 
 Adjusting the configuration
-===========================
+---------------------------
 The main configuration settings are the location of the database
 
 ```
@@ -165,7 +165,7 @@ configuration file itself.
 
 
 Running with TLS
-================
+----------------
 Unsonic itself doesn't handle TLS, but can easily be run behind a reverse proxy
 that does. The following example shows how to configure nginx to reverse proxy
 to a local Unsonic instance. Replace example.com with your domain name/IP. You
@@ -203,6 +203,6 @@ server {
 
 
 License
-=======
+-------
 Unsonic is licensed under the GPL v2 license. See the COPYING file for details or
 http://www.gnu.org/licenses/gpl-2.0.html#SEC1
