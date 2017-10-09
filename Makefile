@@ -88,6 +88,7 @@ pkg-copy: pkg-clean
 	mkdir build/pkg/unsonic/docs
 	cp -ar build/docs/html build/pkg/unsonic/docs
 	cp -ar build/docs/man build/pkg/unsonic/docs
+	cp -a production.ini build/pkg/unsonic/etc/unsonic.ini.in
 
 dist: sdist
 sdist: docs pkg-copy

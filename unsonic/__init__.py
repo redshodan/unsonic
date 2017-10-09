@@ -12,6 +12,9 @@ from .web import main, webServe
 
 
 import os
+import sys
 HERE = os.getcwd()
 INSTALL = "/".join(os.path.dirname(__file__).split("/"))
+CMD = os.path.abspath(sys.argv[0])
 del os
+del sys

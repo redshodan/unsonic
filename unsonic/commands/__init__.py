@@ -18,3 +18,4 @@ from .listusers import ListUsers
 from .password import Password
 from .serve import Serve
 from .man import Man
+from .install import Install

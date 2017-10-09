@@ -1,0 +1,9 @@
+# Unsonic service configuration
+
+CONFIG="/etc/unsonic.ini"
+
+# Arguments for unsonic serve command
+ARGS=
+
+# Arguments for pyramid pserve command. Must start with a --
+# PSERVE_ARGS="--"
