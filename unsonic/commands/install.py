@@ -1,7 +1,4 @@
 import os
-import sys
-import argparse
-import shutil
 
 import unsonic
 from . import Command, register
