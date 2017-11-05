@@ -11,7 +11,7 @@ FLAKE8=$(VBIN)/flake8
 PY_LIB=$(VLIB)/python*/site-packages
 
 # Files to be staged for the dist build.
-PKG_FILES=unsonic setup.py setup.cfg requirements.txt production.ini README.md MANIFEST.in LICENSE CHANGES.md
+PKG_FILES=unsonic setup.py setup.cfg requirements.txt README.md MANIFEST.in LICENSE CHANGES.md
 
 all: venv bins external devel
 
@@ -54,7 +54,7 @@ $(FLAKE8):
 devel: $(PY_LIB)/unsonic.egg-link flake8
 
 $(PY_LIB)/unsonic.egg-link: build/venv/bin/python setup.py setup.cfg README.md 
-$(PY_LIB)/unsonic.egg-link: development.ini
+$(PY_LIB)/unsonic.egg-link: unsonic/etc/development.ini
 $(PY_LIB)/unsonic.egg-link:
 	$(PYTHON) setup.py develop
 	touch $@
@@ -62,12 +62,12 @@ $(PY_LIB)/unsonic.egg-link:
 db: devel-db
 devel-db: devel build/development.sqlite
 build/development.sqlite:
-	bin/unsonic -c development.ini sync
-	bin/unsonic -c development.ini adduser test test
+	bin/unsonic -c unsonic/etc/development.ini sync
+	bin/unsonic -c unsonic/etc/development.ini adduser test test
 
 run: devel-run
 devel-run: bin/unsonic build/development.sqlite
-	bin/unsonic -c development.ini serve -- --reload
+	bin/unsonic -c unsonic/etc/development.ini serve -- --reload
 
 check: $(FLAKE8)
 	$(FLAKE8)
@@ -88,7 +88,6 @@ pkg-copy: pkg-clean
 	mkdir build/pkg/unsonic/docs
 	cp -ar build/docs/html build/pkg/unsonic/docs
 	cp -ar build/docs/man build/pkg/unsonic/docs
-	cp -a production.ini build/pkg/unsonic/etc/unsonic.ini.in
 
 dist: sdist
 sdist: docs pkg-copy

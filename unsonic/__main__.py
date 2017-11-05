@@ -1,7 +1,8 @@
+import sys
 import argparse
 import unsonic
 import unsonic.commands         # noqa: F401
-from unsonic import version
+from unsonic import version, config
 from nicfit import Command
 
 import mishmash
@@ -37,13 +38,28 @@ def buildApp():
     return Unsonic()
 
 
+def adjustCmdline(parser):
+    path = config.findConfig(parser)
+    if path is False:
+        print("Could not find a standardly located config. "
+              "You must specify the config file with -c argument, "
+              "example: unsonic -c /etc/unsonic.ini ...")
+        sys.exit(-1)
+    elif path is not True:
+        # Append the found config file
+        sys.argv = sys.argv[:1] + ["-c", path] + sys.argv[1:]
+    # else its already supplied, just carry on
+
+
 def run(args=None):
     app = buildApp()
+    adjustCmdline(app.arg_parser)
     return app.run(args)
 
 
 def main(args=None):
     app = buildApp()
+    adjustCmdline(app.arg_parser)
     return app.main(args)
 
 
