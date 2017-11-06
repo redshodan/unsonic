@@ -11,7 +11,7 @@ FLAKE8=$(VBIN)/flake8
 PY_LIB=$(VLIB)/python*/site-packages
 
 # Files to be staged for the dist build.
-PKG_FILES=unsonic setup.py setup.cfg requirements.txt README.md MANIFEST.in LICENSE CHANGES.md
+PKG_FILES=unsonic setup.py setup.cfg requirements.txt AUTHORS CHANGES.md CODE_OF_CONDUCT.md CONTRIBUTING.md COPYING LICENSE MANIFEST.in README.md
 
 all: venv bins external devel
 
