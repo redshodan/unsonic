@@ -34,8 +34,8 @@ class HereConfig(MishConfig):
         CONFIG = self
         # %(install)s
         self.set(configparser.DEFAULTSECT, "install", INSTALL)
+        # %(here)s
         if filename:
-            # %(here)s
             here = os.path.dirname(os.path.abspath(filename))
             self.set(configparser.DEFAULTSECT, "here", here)
         else:
@@ -45,16 +45,36 @@ class HereConfig(MishConfig):
     def get(self, section, key, **kwargs):
         val = super().get(section, key, **kwargs)
         if val and "%(here)s" in val:
-            return val.replace("%(here)s",
-                               super().get(configparser.DEFAULTSECT, "here"))
+            return collapseRelativePaths(
+                val.replace("%(here)s", super().get(configparser.DEFAULTSECT,
+                                                    "here")))
         elif val and "%(install)s" in val:
-            return val.replace("%(install)s",
-                               super().get(configparser.DEFAULTSECT, "install"))
+            return collapseRelativePaths(
+                val.replace("%(install)s", super().get(configparser.DEFAULTSECT,
+                                                       "install")))
         else:
             return val
 
 
 mishmash.config.Config = HereConfig
+
+
+def collapseRelativePaths(path):
+    output = []
+    skip = 0
+    bits = path.split("/")
+    bits.reverse()
+    for bit in bits:
+        if bit == "..":
+            skip += 1
+        else:
+            if skip > 0:
+                skip -= 1
+                continue
+            else:
+                output.append(bit)
+    output.reverse()
+    return "/".join(output)
 
 
 # Try to find a standard config file if not specified on the cmdline
@@ -66,7 +86,6 @@ def findConfig(parser):
 
     for path in DEF_LOCS:
         if os.path.isfile(path):
-            print("PATH", path)
             log.debug("No config specified, found config file: " +
                       os.path.abspath(path))
             return path
