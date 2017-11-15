@@ -1,5 +1,5 @@
 flake8==3.5.0
 WebTest==2.0.29
-pytest==3.2.3
+pytest==3.2.4
 pytest-cov==2.5.1
 pytest-runner==3.0
