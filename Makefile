@@ -38,7 +38,7 @@ build: venv bins
 
 devel: devel-external $(PY_LIB)/unsonic.egg-link $(FLAKE8)
 
-devel-external: bins devel-eyed3 devel-mishmash
+devel-external: bins build devel-eyed3 devel-mishmash
 
 devel-eyed3: $(PY_LIB)/eyeD3.egg-link
 $(PY_LIB)/eyeD3.egg-link: venv
@@ -73,10 +73,11 @@ devel-run: bin/unsonic $(VENV)/development.sqlite
 check: $(FLAKE8)
 	$(FLAKE8)
 
-tests: $(PYTEST) tests-clean
+tests: pytest tests-clean
 	$(PYTHON) setup.py test $(FTF)
 	rm -rf unsonic.egg-info
 
+pytest: $(PYTEST)
 $(PYTEST): requirements-test.txt
 	$(PIP) install -r requirements-test.txt
 

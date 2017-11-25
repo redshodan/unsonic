@@ -20,14 +20,8 @@ before_install:
 
 # command to install dependencies
 install:
-  - git clone 'https://github.com/nicfit/mishmash.git' mishmash
-  - cd mishmash
-  - pip install -e .
-  - cd ..
-  - pip install -r requirements.txt
-  - pip install -r requirements-test.txt
-  - pip install coveralls
-  - pip install .
+  - make devel
+  - make pytest
 
 # command to run tests
 script:
