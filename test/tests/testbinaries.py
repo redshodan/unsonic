@@ -9,7 +9,7 @@ from unsonic.models import User
 
 @pytest.fixture()
 def lsession():
-    db = Path("build/testing2.sqlite")
+    db = Path("venv/testing2.sqlite")
     if db.exists():
         db.unlink()
 
@@ -24,7 +24,7 @@ def lsession():
     yield session
     session.close()
 
-    db = Path("build/testing2.sqlite")
+    db = Path("venv/testing2.sqlite")
     db.unlink()
 
 

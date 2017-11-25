@@ -49,7 +49,7 @@ def bootstrap(dbinfo):
 def database(request):
     if request.param == "sqlite":
         topdir = "/".join(os.path.dirname(__file__).split("/")[:-2])
-        dbname = os.path.abspath(os.path.join(topdir, "build/testing.sqlite"))
+        dbname = os.path.abspath(os.path.join(topdir, "venv/testing.sqlite"))
         db = Path(dbname)
         if db.exists():
             db.unlink()

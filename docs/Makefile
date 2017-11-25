@@ -3,10 +3,10 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
-SPHINXBUILD   = ../build/venv/bin/python -msphinx
+SPHINXBUILD   = ../venv/bin/python -msphinx
 SPHINXPROJ    = Unsonic
 SOURCEDIR     = .
-BUILDDIR      = ../build/docs
+BUILDDIR      = ../venv/docs
 
 # Put it first so that "make" without argument is like "make help".
 help:
