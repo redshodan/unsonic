@@ -20,7 +20,7 @@ all: venv bins build
 
 venv: $(VENV)/bin/python
 $(VENV)/bin/python:
-	virtualenv -p python3 venv
+	virtualenv -p python3 $(VENV)
 
 bins: bin/unsonic bin/unsonic-server
 
@@ -110,6 +110,7 @@ clean:
 devel-clean:
 	rm $(VENV)/development.sqlite
 
+# Only remove local files, not provided VIRTUAL_ENV var
 dist-clean: clean
 	rm -rf venv bin/unsonic bin/unsonic-server build dist unsonic.egg-info
 

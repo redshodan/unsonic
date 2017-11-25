@@ -40,6 +40,13 @@ class HereConfig(MishConfig):
             self.set(configparser.DEFAULTSECT, "here", here)
         else:
             self.set(configparser.DEFAULTSECT, "here", INSTALL)
+        # %(venv)s
+        if "VIRTUAL_ENV" in os.environ:
+            self.set(configparser.DEFAULTSECT, "venv",
+                     os.path.abspath(os.environ["VIRTUAL_ENV"]))
+        else:
+            self.set(configparser.DEFAULTSECT, "venv",
+                     os.path.abspath("venv"))
 
 
     def get(self, section, key, **kwargs):
@@ -52,8 +59,21 @@ class HereConfig(MishConfig):
             return collapseRelativePaths(
                 val.replace("%(install)s", super().get(configparser.DEFAULTSECT,
                                                        "install")))
+        elif val and "%(venv)s" in val:
+            return collapseRelativePaths(
+                val.replace("%(venv)s", super().get(configparser.DEFAULTSECT,
+                                                       "venv")))
         else:
             return val
+
+    def here(self):
+        return self.get(configparser.DEFAULTSECT, "here")
+
+    def install(self):
+        return self.get(configparser.DEFAULTSECT, "install")
+
+    def venv(self):
+        return self.get(configparser.DEFAULTSECT, "venv")
 
 
 mishmash.config.Config = HereConfig
