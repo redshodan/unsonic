@@ -33,6 +33,7 @@ bin/unsonic-server: bin/unsonic-server.in
 	chmod +x $@
 
 build: venv bins
+	$(PIP) install setuptools
 	$(PIP) install .
 	rm -rf unsonic.egg-info
 
