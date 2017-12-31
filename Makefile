@@ -36,9 +36,9 @@ build: venv bins
 	$(PIP) install .
 	rm -rf unsonic.egg-info
 
-devel: devel-external $(PY_LIB)/unsonic.egg-link $(FLAKE8)
+devel: build $(PY_LIB)/unsonic.egg-link $(FLAKE8)
 
-devel-external: bins build devel-eyed3 devel-mishmash
+devel-external: build devel-eyed3 devel-mishmash
 
 devel-eyed3: $(PY_LIB)/eyeD3.egg-link
 $(PY_LIB)/eyeD3.egg-link: venv
@@ -60,14 +60,20 @@ $(PY_LIB)/unsonic.egg-link:
 	rm -rf unsonic.egg-info
 	touch $@
 
-db: devel-db
-devel-db: bin/unsonic $(VENV)/development.sqlite
-$(VENV)/development.sqlite:
+db: $(VENV)/production.sqlite
+$(VENV)/production.sqlite: bin/unsonic
+	bin/unsonic -c unsonic/etc/production.ini sync
+	bin/unsonic -c unsonic/etc/production.ini adduser test test
+
+devel-db: $(VENV)/development.sqlite
+$(VENV)/development.sqlite: bin/unsonic
 	bin/unsonic -c unsonic/etc/development.ini sync
 	bin/unsonic -c unsonic/etc/development.ini adduser test test
 
-run: devel-run
-devel-run: bin/unsonic $(VENV)/development.sqlite
+run: $(VENV)/production.sqlite
+	bin/unsonic -c unsonic/etc/production.ini serve -- --reload
+
+devel-run: $(VENV)/development.sqlite
 	bin/unsonic -c unsonic/etc/development.ini serve -- --reload
 
 check: $(FLAKE8)

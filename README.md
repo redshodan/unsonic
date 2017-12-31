@@ -40,31 +40,28 @@ These clients sort of work with isues:
 Installation
 ============
 
-## TLDR: The uber short version
+## Install Unsonic as a system service via pip
+  * pip3 install unsonic
+  * sudo unsonic install
+  * <Edit /etc/unsonic.ini and update database and music libraries>
+  * systemctl start unsonic
+
+
+## Running Unsonic from source
+  * make build
   * make run
 
-## The longer version
 
+Developing Unsonic
+==================
 
 ### Development build
   * make devel
-  * make devel-db
   * make devel-run
 
-### Release build
-  * make release
-  * make release-db
-  * make release-run
 
 ### Tests
   * make tests
-
-
-Manual Installation
--------------------
-
-## Building
-  * make
 
 
 Running
