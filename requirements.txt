@@ -1,5 +1,5 @@
 pyramid==1.9.1
-SQLAlchemy==1.2.0
+SQLAlchemy==1.2.1
 alembic==0.9.7
 transaction==2.1.2
 pyramid_tm==2.2
@@ -11,5 +11,5 @@ paste==2.0.3
 psycopg2==2.7.3.2
 xmltodict==0.11.0
 mishmash[postgres]==0.3b5
-sphinx==1.6.5
+sphinx==1.6.6
 recommonmark==0.4.0
