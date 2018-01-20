@@ -11,6 +11,7 @@ class Man(Command):
     HELP = "Show the manpages for Unsonic."
     DESC = HELP
     INSTALL = os.path.join(unsonic.INSTALL, "docs/man")
+    CFG_NEEDED = False
 
 
     def _initArgParser(self, parser):
@@ -21,6 +22,7 @@ class Man(Command):
 
 
     def run(self, args, config):
+        super()._run()
         if args.list:
             files = glob.glob(os.path.join(self.INSTALL, "*.1"))
             files = [".".join(f.split(".")[:-1]) for f in files]

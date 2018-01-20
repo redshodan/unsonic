@@ -23,6 +23,7 @@ class Serve(Command):
 
 
     def run(self, args, config):
+        super()._run()
         pargs = args.pserve_args
 
         if not config.filename:

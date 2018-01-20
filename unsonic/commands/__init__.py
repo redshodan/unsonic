@@ -1,12 +1,24 @@
 # flake8: noqa: F401
 
+import sys
+
 from nicfit.command import register
 from mishmash import core
 
+from unsonic import __main__
+
 
 class Command(core.Command):
+    CFG_NEEDED = True
+    
     def _run(self, args=None):
-        initAlembic(self.config.get("mishmash", "sqlalchemy.url"))
+        if self.CFG_NEEDED:
+            if not __main__.APP.cfg_found:
+                print("Could not find a standardly located config. "
+                      "You must specify the config file with -c argument, "
+                      "example: unsonic -c /etc/unsonic.ini ...")
+                sys.exit(-1)
+            initAlembic(self.config.get("mishmash", "sqlalchemy.url"))
 
 
 from ..models import initAlembic

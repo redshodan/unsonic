@@ -17,7 +17,7 @@ class Install(Command):
     NAME = "install"
     HELP = "Install the Unsonic service."
     DESC = "Install the Unsonic service. Requires root permissions."
-
+    CFG_NEEDED = False
 
     def _initArgParser(self, parser):
         parser.add_argument("-u", "--user", default="unsonic",
@@ -28,6 +28,7 @@ class Install(Command):
 
 
     def run(self, args, config):
+        super()._run()
         cmd = "/bin/bash %s %s %s %s %s" % (
             os.path.join(unsonic.INSTALL, "etc/install.sh"),
             unsonic.CMD, unsonic.INSTALL, args.user, args.rundir)

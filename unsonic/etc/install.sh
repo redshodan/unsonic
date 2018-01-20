@@ -5,6 +5,17 @@ DIST="$2"
 USER="$3"
 HOME="$4"
 
+echo "*******************************************************"
+echo "  This will install Unsonic as a service."
+read -p "  Do you wish to continue? (Y/y) " CONTINUE
+
+if [[ "$CONTINUE" != "y" && "$CONTINUE" != "Y" ]]; then
+    echo "Exiting..."
+    exit -1
+fi
+
+echo
+
 grep -sq $USER /etc/passwd
 if [ $? != 0 ]; then
     echo "** Adding user $USER as a service account"
