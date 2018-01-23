@@ -7,7 +7,7 @@ HOME="$4"
 
 echo "*******************************************************"
 echo "  This will install Unsonic as a service."
-read -p "  Do you wish to continue? (Y/y) " CONTINUE
+read -p "  Do you wish to continue? (N/y) " CONTINUE
 
 if [[ "$CONTINUE" != "y" && "$CONTINUE" != "Y" ]]; then
     echo "Exiting..."
@@ -35,6 +35,18 @@ if [ ! -d $HOME ]; then
     chmod 0755 $HOME
 else
     echo "** User's home dir, $HOME, already exists"
+fi
+
+if [ ! -d $HOME/music ]; then
+    echo "** Creating music directory: $HOME/music"
+    echo mkdir -p $HOME/music
+    mkdir -p $HOME/music
+    echo chown $USER $HOME/music
+    chown $USER $HOME/music
+    echo chmod 0755 $HOME.music
+    chmod 0755 $HOME/music
+else
+    echo "** User's home dir, $HOME/music, already exists"
 fi
 
 if [ ! -d /var/log/unsonic ]; then
@@ -88,5 +100,7 @@ echo
 echo "Now edit /etc/unsonic.ini and update the database location"
 echo "and the music libraries. Then sync the music directory with:"
 echo "    su unsonic -c 'unsonic sync'"
+echo "Add a user to unsonic with:"
+echo "    su unsonic -c 'unsonic adduser <username> <password>'"
 echo "Now you may start unsonic with:"
 echo "    systemctl start unsonic"

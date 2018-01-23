@@ -39,41 +39,20 @@ These clients sort of work with isues:
 
 Installation
 ============
+Unsonic requires Python 3.6 or greater to work.
 
 ## Install Unsonic as a system service via pip
   * pip3 install unsonic
   * sudo unsonic install
   * <Edit /etc/unsonic.ini and update database and music libraries>
+  * su unsonic -c 'unsonic sync'
+  * su unsonic -c 'unsonic adduser <username> <password>'
   * systemctl start unsonic
 
 
 ## Running Unsonic from source
   * make build
   * make run
-
-
-Developing Unsonic
-==================
-
-### Development build
-  * make devel
-  * make devel-run
-
-
-### Tests
-  * make tests
-
-
-Running
--------
-  * ./bin/unsonic -c <config.ini> sync
-  * ./bin/unsonic -c <config.ini> adduser name pass
-  * ./bin/unsonic -c <config.ini> serve [--reload]
-
-
-Manual Testing
---------------
-  * ./test/bin/tester getArtists
 
 
 Installing a Web Client
@@ -197,6 +176,29 @@ server {
         proxy_read_timeout 90;
     }
 ```
+
+Developing Unsonic
+==================
+
+### Development build
+  * make devel
+  * make devel-run
+
+
+### Tests
+  * make tests
+
+
+Running
+-------
+  * ./bin/unsonic -c <config.ini> sync
+  * ./bin/unsonic -c <config.ini> adduser name pass
+  * ./bin/unsonic -c <config.ini> serve [--reload]
+
+
+Manual Testing
+--------------
+  * ./test/bin/tester getArtists
 
 
 License
