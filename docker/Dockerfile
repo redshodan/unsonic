@@ -1,42 +1,48 @@
-FROM greyltc/archlinux
-MAINTAINER Travis Shirk <travis@pobox.com>
-
-EXPOSE 6543
-
-RUN curl -o /etc/pacman.d/mirrorlist \
-            "https://www.archlinux.org/mirrorlist/?country=US&protocol=https&use_mirror_status=on" && \
-    sed -i 's/^#//' /etc/pacman.d/mirrorlist
-RUN pacman -Syu --noconfirm
-RUN pacman -S --noconfirm python python-virtualenv python-pip \
-                          postgresql-libs python-psycopg2 git
+FROM python:3.6-alpine3.7
+MAINTAINER Ben Schumacher <me@benschumacher.com>
 
 ENV HOME=/home/unsonic \
-    APP_DIR=/unsonic
+    APP_DIR=/unsonic \
+    LANG=en_US.UTF-8
 
 # Default is SQLite but can be overridden.
 ARG MISHMASH_DBURL=sqlite:///${APP_DIR}/var/music.db
 ENV MISHMASH_DBURL=${MISHMASH_DBURL} \
     UNSONIC_CONFIG=${APP_DIR}/etc/config.ini
 
-RUN useradd -m unsonic -d ${HOME} -u 6543
-RUN echo "source ${APP_DIR}/bin/activate" >> ${HOME}/.bashrc && \
-    echo "alias ll='ls -l'" >> ${HOME}/.bashrc
+RUN set -ex; \
+       apk add --no-cache \
+          bash \
+          ca-certificates \
+          curl \
+          libmagic \
+          postgresql-libs \
+    && apk add --no-cache --virtual=.build-deps \
+          gcc \
+          linux-headers \
+          postgresql-dev \
+          musl-dev
 
-RUN mkdir -p ${APP_DIR} && chown unsonic:unsonic ${APP_DIR}
-WORKDIR $APP_DIR
-CMD ["/unsonic/bin/unsonic-init"]
+COPY . /usr/src/unsonic
+RUN set -ex; \
+       cd //usr/src/unsonic \
+    && pip3 install -r requirements.txt \
+    && python3 setup.py build \
+    && python3 setup.py install --prefix=/usr/local \
+    && apk del .build-deps \
+    && rm -rf /usr/src/unsonic /home/unsonic
+
+RUN set -ex; \
+       apk add --no-cache shadow \
+    && useradd -m unsonic -d ${HOME} -u 6543 \
+    && apk del shadow \
+    && mkdir -p ${APP_DIR}/var/log \
+    && chown -R unsonic:unsonic ${APP_DIR}/var \
+    && rm -rf /var/cache/apk/*
 
 USER unsonic
-ENV LANG en_US.UTF-8
+WORKDIR ${APP_DIR}
 
-RUN mkdir -p ${APP_DIR}/etc ${APP_DIR}/var/log && \
-    virtualenv ${APP_DIR}
-
-RUN source ${APP_DIR}/bin/activate && \
-    pip install git+https://github.com/redshodan/unsonic.git
-#RUN source ${APP_DIR}/bin/activate && \
-#    pip install unsonic
-
-COPY unsonic-init ${APP_DIR}/bin/
-COPY config.ini ${APP_DIR}/etc/config.ini
-#CMD ["/bin/bash"]
+CMD ["/unsonic/bin/unsonic-init"]
+COPY docker/unsonic-init ${APP_DIR}/bin/
+COPY docker/config.ini ${APP_DIR}/etc/config.ini
