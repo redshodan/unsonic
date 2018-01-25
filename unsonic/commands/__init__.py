@@ -10,6 +10,7 @@ from unsonic import __main__
 
 class Command(core.Command):
     CFG_NEEDED = True
+    DB_NEEDED = True
     
     def _run(self, args=None):
         if self.CFG_NEEDED:
@@ -18,7 +19,8 @@ class Command(core.Command):
                       "You must specify the config file with -c argument, "
                       "example: unsonic -c /etc/unsonic.ini ...")
                 sys.exit(-1)
-            initAlembic(self.config.get("mishmash", "sqlalchemy.url"))
+            if self.DB_NEEDED:
+                initAlembic(self.config.get("mishmash", "sqlalchemy.url"))
 
 
 from ..models import initAlembic
