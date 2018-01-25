@@ -14,6 +14,7 @@ class Serve(Command):
     DESC = ("Run the Unsonic web interface using the Pyramid pserve script. "
             "This interface is HTTP only and can not do HTTPS. Please read the "
             "documentation for instructions on how to run Unsonic with HTTPS.")
+    DB_NEEDED = False
 
 
     def _initArgParser(self, parser):

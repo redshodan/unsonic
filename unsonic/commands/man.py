@@ -12,6 +12,7 @@ class Man(Command):
     DESC = HELP
     INSTALL = os.path.join(unsonic.INSTALL, "docs/man")
     CFG_NEEDED = False
+    DB_NEEDED = False
 
 
     def _initArgParser(self, parser):

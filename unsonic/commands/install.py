@@ -18,6 +18,8 @@ class Install(Command):
     HELP = "Install the Unsonic service."
     DESC = "Install the Unsonic service. Requires root permissions."
     CFG_NEEDED = False
+    DB_NEEDED = False
+
 
     def _initArgParser(self, parser):
         parser.add_argument("-u", "--user", default="unsonic",
