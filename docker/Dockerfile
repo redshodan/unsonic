@@ -17,32 +17,43 @@ RUN set -ex; \
           curl \
           libmagic \
           postgresql-libs \
+          pwgen \
     && apk add --no-cache --virtual=.build-deps \
           gcc \
           linux-headers \
           postgresql-dev \
           musl-dev
 
-COPY . /usr/src/unsonic
+COPY requirements.txt /usr/src/unsonic/
+WORKDIR /usr/src/unsonic
 RUN set -ex; \
-       cd //usr/src/unsonic \
-    && pip3 install -r requirements.txt \
-    && python3 setup.py build \
+       pip3 install -r requirements.txt
+
+COPY . /usr/src/unsonic/
+RUN set -ex; \
+       python3 setup.py build \
     && python3 setup.py install --prefix=/usr/local \
     && apk del .build-deps \
+    && if [ -d docker/Jamstash/dist ]; then \
+           mkdir -p ${APP_DIR}/ui; \
+           cp -pR docker/Jamstash/dist/* ${APP_DIR}/ui; \
+       fi \
     && rm -rf /usr/src/unsonic /home/unsonic
 
-RUN set -ex; \
-       apk add --no-cache shadow \
-    && useradd -m unsonic -d ${HOME} -u 6543 \
-    && apk del shadow \
-    && mkdir -p ${APP_DIR}/var/log \
-    && chown -R unsonic:unsonic ${APP_DIR}/var \
-    && rm -rf /var/cache/apk/*
+#RUN set -ex; \
+#       apk add --no-cache shadow \
+#    && useradd -m unsonic -d ${HOME} -u 6543 \
+#    && apk del shadow \
+#    && mkdir -p ${APP_DIR}/var/log \
+#    && chown -R unsonic:unsonic ${APP_DIR}/var \
 
-USER unsonic
+RUN set -ex; rm -vrf /var/cache/apk/*
+
+#USER unsonic
 WORKDIR ${APP_DIR}
+VOLUME ${APP_DIR}/var
 
 CMD ["/unsonic/bin/unsonic-init"]
 COPY docker/unsonic-init ${APP_DIR}/bin/
 COPY docker/config.ini ${APP_DIR}/etc/config.ini
+
