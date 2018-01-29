@@ -111,7 +111,8 @@ sdist: venv build docs pkg-copy
 	cp -af $(VENV)/pkg/dist/* dist
 
 clean:
-	find unsonic -name '*.pyc' | xargs rm -f
+	find unsonic test -name '__pycache__' -type d | xargs rm -rf
+	find unsonic test -name '*.pyc' | xargs rm -f
 
 devel-clean:
 	rm $(VENV)/development.sqlite
