@@ -1,5 +1,7 @@
 bin/unsonic
 bin/unsonic-server
+venv
+venv/.*
 .*\.pyc
 */__pycache__
 */*/__pycache__

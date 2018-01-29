@@ -87,8 +87,22 @@ class Config(Base, OrmObject):
 
     key = Column(String, nullable=False, primary_key=True)
     value = Column(String, nullable=False)
+    modified = sqlalchemy.Column(sqlalchemy.DateTime(), nullable=False,
+                                 default=datetime.datetime.now)
+
+
+    @staticmethod
+    def loadTable(session):
+        pass
+
+
+class UserConfig(Base, OrmObject):
+    __tablename__ = 'un_userconfig'
+
     user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
-                     nullable=True)
+                     nullable=False, primary_key=True)
+    key = Column(String, nullable=False, primary_key=True)
+    value = Column(String, nullable=False)
     modified = sqlalchemy.Column(sqlalchemy.DateTime(), nullable=False,
                                  default=datetime.datetime.now)
 
@@ -574,6 +588,6 @@ def updatePseudoRatings(session, user_id=None, album_id=ALL, artist_id=ALL):
 from . import auth, web   # noqa: E402
 
 
-UN_TYPES = [DBInfo, Config, User, Role, PlayQueue, PlayList, PlayListUser,
-            PlayListTrack, ArtistRating, AlbumRating, TrackRating,
+UN_TYPES = [DBInfo, Config, UserConfig, User, Role, PlayQueue, PlayList,
+            PlayListUser, PlayListTrack, ArtistRating, AlbumRating, TrackRating,
             PlayCount, Scrobble]

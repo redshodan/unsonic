@@ -1,7 +1,7 @@
 import pytest
 
 from unsonic.auth import Roles
-from unsonic.models import (Config, User, Role, PlayQueue, PlayList,
+from unsonic.models import (Config, UserConfig, User, Role, PlayQueue, PlayList,
                             PlayListUser, PlayListTrack, ArtistRating,
                             AlbumRating, TrackRating, PlayCount, Scrobble)
 
@@ -135,7 +135,7 @@ def testConfig(session):
 
     cfg = Config(key="key1", value="value1")
     session.add(cfg)
-    cfg = Config(key="key2", value="value2", user_id=user.id)
+    cfg = Config(key="key2", value="value2")
     session.add(cfg)
     session.flush()
 
@@ -144,12 +144,31 @@ def testConfig(session):
     res = session.query(Config).filter(Config.key == "key2")
     assert res.count() == 1
 
-    res = session.query(User).filter(User.id == user.id)
+
+def testUserConfig(session):
+    user1 = User(name="test1Config", password="secretz")
+    user2 = User(name="test2Config", password="secretz")
+    session.add(user1)
+    session.add(user2)
+    session.flush()
+
+    cfg = UserConfig(key="key1", value="value1", user_id=user1.id)
+    session.add(cfg)
+    cfg = UserConfig(key="key2", value="value2", user_id=user2.id)
+    session.add(cfg)
+    session.flush()
+
+    res = session.query(UserConfig).filter(UserConfig.key == "key1")
+    assert res.count() == 1
+    res = session.query(UserConfig).filter(UserConfig.key == "key2")
+    assert res.count() == 1
+
+    res = session.query(User).filter(User.id == user2.id)
     assert res.count() == 1
     res.delete()
     session.flush()
 
-    res = session.query(Config).filter(Config.key == "key1")
+    res = session.query(UserConfig).filter(UserConfig.key == "key1")
     assert res.count() == 1
-    res = session.query(Config).filter(Config.key == "key2")
+    res = session.query(UserConfig).filter(UserConfig.key == "key2")
     assert res.count() == 0

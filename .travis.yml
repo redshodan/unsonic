@@ -1,7 +1,7 @@
 language: python
 python:
   - "3.6"
-  - "3.7-dev" # 3.7 development branch
+#  - "3.7-dev" # 3.7 development branch
 
 # Use containers on travis-ci
 sudo: false
@@ -14,16 +14,13 @@ before_cache:
 env:
   - UN_TEST_NO_CLEANUP=1
 
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y libxml2-utils
+
 # command to install dependencies
 install:
-  - git clone 'https://github.com/nicfit/mishmash.git' mishmash
-  - cd mishmash
-  - pip install -e .
-  - cd ..
-  - pip install -r requirements.txt
-  - pip install -r requirements-test.txt
-  - pip install coveralls
-  - pip install .
+  - make devel
 
 # command to run tests
 script:

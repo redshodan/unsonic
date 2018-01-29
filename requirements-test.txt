@@ -1,4 +1,5 @@
-flake8
-pytest
-pytest-cov
-pytest-runner
+flake8==3.5.0
+WebTest==2.0.29
+pytest==3.3.2
+pytest-cov==2.5.1
+pytest-runner==3.0

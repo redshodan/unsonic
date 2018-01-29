@@ -1,0 +1,14 @@
+[Unit]
+Description=Unsonic music server
+After=network.target
+
+[Service]
+Type=simple
+User=
+EnvironmentFile=CONFD/unsonic
+WorkingDirectory=
+ExecStart=CMD -c $CONFIG serve $ARGS $PSERVE_ARGS
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target

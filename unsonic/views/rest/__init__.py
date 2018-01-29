@@ -1,6 +1,7 @@
 import os
 import json
 import xmltodict
+import logging
 from collections import OrderedDict
 from datetime import datetime
 import xml.etree.ElementTree as ET
@@ -151,20 +152,27 @@ class Command(object):
         elif isinstance(body, ET.Element):
             body = "%s%s" % (XML_HEADER, ET.tostring(body).decode("utf-8"))
         resp = self.req.response
+        pretty = None
         if "f" in self.req.params:
             if self.req.params["f"] == "jsonp" and "callback" in self.req.params:
                 dct = self.toDict(body)
-                pretty = "%s(%s)" % (self.req.params["callback"],
-                                     json.dumps(dct, indent=3))
+                if log.isEnabledFor(logging.DEBUG):
+                    pretty = "%s(%s)" % (self.req.params["callback"],
+                                         json.dumps(dct, indent=3))
+                else:
+                    pretty = body
                 txt = "%s(%s)" % (self.req.params["callback"], json.dumps(dct))
                 resp.text = txt
                 resp.content_type = "application/javascript"
             elif self.req.params["f"] == "json":
                 dct = self.toDict(body)
-                pretty = json.dumps(dct, indent=3)
+                if log.isEnabledFor(logging.DEBUG):
+                    pretty = json.dumps(dct, indent=3)
+                else:
+                    pretty = body
                 resp.text = json.dumps(dct)
                 resp.content_type = "application/json"
-        else:
+        if not pretty:
             pretty = body
             resp.text = body
             resp.content_type = "text/xml"

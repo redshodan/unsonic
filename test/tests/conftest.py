@@ -8,6 +8,7 @@ from sqlalchemy import create_engine
 import mishmash
 
 from unsonic import __main__, web, models, auth
+from unsonic.config import CONFIG
 
 
 DatabaseInfo = namedtuple("TestDatabase", ["url", "engine", "SessionMaker",
@@ -27,7 +28,7 @@ def bootstrap(dbinfo):
     settings = config.get_settings()
     here = "/".join(os.path.dirname(__file__).split("/")[:-2])
     global_settings = {"__file__": os.path.join(here, "test/testing.ini"),
-                       "here": here}
+                       "here": here, "venv":CONFIG.venv()}
     web.init(global_settings, settings, dbinfo)
 
     # Sync the database with mishmash
@@ -49,7 +50,7 @@ def bootstrap(dbinfo):
 def database(request):
     if request.param == "sqlite":
         topdir = "/".join(os.path.dirname(__file__).split("/")[:-2])
-        dbname = os.path.abspath(os.path.join(topdir, "build/testing.sqlite"))
+        dbname = os.path.abspath(os.path.join(CONFIG.venv(), "testing.sqlite"))
         db = Path(dbname)
         if db.exists():
             db.unlink()
