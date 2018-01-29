@@ -47,21 +47,22 @@ RUN set -ex; \
     && python3 setup.py install --prefix=/usr/local \
     && apk del .build-deps \
     && if [ -d docker/Jamstash/dist ]; then \
-           mkdir -p ${APP_DIR}/ui; \
-           cp -pR docker/Jamstash/dist/* ${APP_DIR}/ui; \
+           mkdir -p "${APP_DIR}/ui"; \
+           cp -pR docker/Jamstash/dist/* "${APP_DIR}/ui"; \
        fi \
     && rm -rf /usr/src/unsonic /home/unsonic
 
-#RUN set -ex; \
-#       apk add --no-cache shadow \
-#    && useradd -m unsonic -d ${HOME} -u 6543 \
-#    && apk del shadow \
-#    && mkdir -p ${APP_DIR}/var/log \
-#    && chown -R unsonic:unsonic ${APP_DIR}/var \
+# add 'unsonic' user
+RUN set -ex; \
+       apk add --no-cache shadow \
+    && useradd -m unsonic -d "${HOME}" -u 6543 \
+    && apk del shadow \
+    && mkdir -p ${APP_DIR}/var/log \
+    && chown -R unsonic:unsonic "${APP_DIR}/var"
 
+# cleanup
 RUN set -ex; rm -rf /var/cache/apk/*
 
-#USER unsonic
 WORKDIR ${APP_DIR}
 VOLUME ${APP_DIR}/var
 
