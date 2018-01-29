@@ -11,7 +11,7 @@ ENV MISHMASH_DBURL=${MISHMASH_DBURL} \
     UNSONIC_CONFIG=${APP_DIR}/etc/config.ini
 
 RUN set -ex; \
-       apk add --no-cache \
+       apk add -Uv --no-cache \
           bash \
           ca-certificates \
           curl \
@@ -21,8 +21,20 @@ RUN set -ex; \
     && apk add --no-cache --virtual=.build-deps \
           gcc \
           linux-headers \
+          musl-dev \
           postgresql-dev \
-          musl-dev
+          tar \
+          xz
+
+ARG FFMPEG_CHANNEL=release
+ARG FFMPEG_URL=https://johnvansickle.com/ffmpeg/releases/ffmpeg-${FFMPEG_CHANNEL}-64bit-static.tar.xz
+ARG FFMPEG_MD5=d027382742314ed2ea03551c802c1369
+RUN set -ex; \
+       cd /usr/src \
+    && curl -fSL -o ffmpeg.tar.xz "${FFMPEG_URL}" \
+    && echo "${FFMPEG_MD5}  ffmpeg.tar.xz" | md5sum -c \
+    && tar -xf ffmpeg.tar.xz  -C /usr/local/bin --strip=1 --no-anchored ffmpeg \
+    && rm -f /usr/src/ffmpeg.tar.xz
 
 COPY requirements.txt /usr/src/unsonic/
 WORKDIR /usr/src/unsonic
@@ -47,7 +59,7 @@ RUN set -ex; \
 #    && mkdir -p ${APP_DIR}/var/log \
 #    && chown -R unsonic:unsonic ${APP_DIR}/var \
 
-RUN set -ex; rm -vrf /var/cache/apk/*
+RUN set -ex; rm -rf /var/cache/apk/*
 
 #USER unsonic
 WORKDIR ${APP_DIR}
