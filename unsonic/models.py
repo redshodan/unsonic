@@ -236,10 +236,6 @@ class PlayListTrack(Base, OrmObject):
     playlist = relation("PlayList")
 
 
-# Modify the Track to include a relation to PlayListTrack
-Track.playlist = relation("PlayListTrack")
-
-
 class ArtistRating(Base, OrmObject):
     __tablename__ = "un_artistratings"
 
@@ -255,9 +251,6 @@ class ArtistRating(Base, OrmObject):
                             nullable=False)
     artist = relation("Artist")
     user = relation("User")
-
-
-Artist.rating = relation("ArtistRating")
 
 
 class AlbumRating(Base, OrmObject):
@@ -277,9 +270,6 @@ class AlbumRating(Base, OrmObject):
     user = relation("User")
 
 
-Album.rating = relation("AlbumRating")
-
-
 class TrackRating(Base, OrmObject):
     __tablename__ = "un_trackratings"
 
@@ -293,9 +283,6 @@ class TrackRating(Base, OrmObject):
     user = relation("User")
 
 
-Track.rating = relation("TrackRating")
-
-
 class PlayCount(Base, OrmObject):
     __tablename__ = "un_playcounts"
 
@@ -306,9 +293,6 @@ class PlayCount(Base, OrmObject):
     count = Column(Integer, default=1, nullable=False)
     track = relation("Track")
     user = relation("User")
-
-
-Track.play_count = relation("PlayCount")
 
 
 class Scrobble(Base, OrmObject):
@@ -326,9 +310,6 @@ class Scrobble(Base, OrmObject):
     @declared_attr
     def __table_args__(cls):
         return (Index("scrobble_user_index", "user_id"), )
-
-
-Track.scrobbles = relation("Scrobble")
 
 
 def _dbUrl(config):
@@ -376,6 +357,16 @@ def initAlembic(url):
     alembic_cfg = AlemConfig(str(alembic_d / "alembic.ini"))
     alembic_cfg.set_main_option("sqlalchemy.url", url)
     command.upgrade(alembic_cfg, "head")
+
+    # Modify some mishmash tables to have unsonic relations
+    # Test code calls this twice, so check for that
+    if not hasattr(Artist, "rating"):
+        Artist.rating = relation("ArtistRating")
+        Album.rating = relation("AlbumRating")
+        Track.rating = relation("TrackRating")
+        Track.playlist = relation("PlayListTrack")
+        Track.play_count = relation("PlayCount")
+        Track.scrobbles = relation("Scrobble")
 
 
 def load():
