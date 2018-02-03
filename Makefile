@@ -44,13 +44,13 @@ devel-eyed3: $(PY_LIB)/eyeD3.egg-link
 $(PY_LIB)/eyeD3.egg-link: venv
 	[ -f $(VENV)/lib/python3.6/site-packages/eyed3 ] && $(PIP) uninstall eyeD3 || true
 	$(PIP) install -e git+git://github.com/nicfit/eyeD3.git#egg=eyeD3
-	cd $(PY_LIB); ln -sf ../../../src/eyed3/src/eyed3
+	cd $(PY_LIB); rm -rf eyed3; ln -sf ../../../src/eyed3/src/eyed3
 
 devel-mishmash: $(PY_LIB)/MishMash.egg-link
 $(PY_LIB)/MishMash.egg-link: venv
 	[ -f $(VENV)/lib/python3.6/site-packages/mishmash ] && $(PIP) uninstall mishmash || true
 	$(PIP) install -e git+git://github.com/nicfit/mishmash.git#egg=mishmash
-	cd $(PY_LIB); ln -sf ../../../src/mishmash/mishmash
+	cd $(PY_LIB); rm -rf mishmash; ln -sf ../../../src/mishmash/mishmash
 
 $(PY_LIB)/unsonic.egg-link: $(VENV)/bin/python setup.py setup.cfg README.md
 $(PY_LIB)/unsonic.egg-link: unsonic/etc/development.ini
