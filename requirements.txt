@@ -4,7 +4,7 @@ alembic==0.9.7
 transaction==2.1.2
 pyramid_tm==2.2
 pyramid_debugtoolbar==4.3
-zope.sqlalchemy==0.7.7
+zope.sqlalchemy==1.0
 waitress==1.1.0
 pastedeploy==1.5.2
 paste==2.0.3
