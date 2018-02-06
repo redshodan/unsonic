@@ -13,12 +13,15 @@ ID3 = "build/venv/bin/python3 -m eyed3.main"
 # eyed3 arguments, used as keys to the TRACKS structure
 ARTIST = "-a"
 ALBUM = "-A"
+ALBUM_ARTIST = "-b"
 TITLE = "-t"
 GENRE = "-G"
 YEAR = "-Y"
 RELDATE = "--release-date"
 ORGDATE = "--orig-release-date"
 RECDATE = "--recording-date"
+ALBUM_TYPE = "--user-text-frame"
+
 
 # [{attributes to apply to all tracks}, [{track}, {track}, {track}]]
 TRACKS = \
@@ -66,7 +69,15 @@ TRACKS = \
          [{TITLE: "song 1"}, {TITLE: "song 2"}]],
     [{ARTIST: "artist 6", ALBUM: "re-release", ORGDATE: "1952", RELDATE: "2005"},
          [{TITLE: "song 1"}, {TITLE: "song 2"}]],
-        
+
+    # Collection album
+    [{ARTIST: "album-artist 1", ALBUM_ARTIST: "album-artist 1 & 2",
+      ALBUM_TYPE: "various"},
+         [{TITLE: "song 1"}, {TITLE: "song 2"}]],
+    [{ARTIST: "album-artist 2", ALBUM_ARTIST: "album-artist 1 & 2",
+      ALBUM_TYPE: "various"},
+         [{TITLE: "song 3"}, {TITLE: "song 4"}]],
+
     # two songs with no album or artist
     [{},
         [{TITLE: "no album-artist 1"}, {TITLE:"no album-artist 2"}]],
