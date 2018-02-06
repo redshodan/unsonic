@@ -13,7 +13,7 @@ from unsonic.models import Session
 
 
 class User():
-    def __init__(self, db_user):
+    def __init__(self, db_user, db_user_config):
         self.id = db_user.id
         self.name = db_user.name
         self.password = db_user.password

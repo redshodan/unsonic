@@ -427,7 +427,8 @@ def getUserByName(session, username, wrap=True):
     try:
         urow = session.query(User).filter(User.name == username).one()
         if wrap:
-            return auth.User(urow)
+            ucrow = getUserConfigById(session, urow.id)
+            return auth.User(urow, ucrow)
         else:
             return urow
     except NoResultFound:
@@ -439,6 +440,87 @@ def getUserByID(session, id):
         return auth.User(session.query(User).filter(User.id == id).one())
     except NoResultFound:
         return None
+
+
+def getGlobalConfig(session, key=None):
+    try:
+        query = session.query(Config)
+        if key:
+            return query.filter(Config.key == key).one_or_none()
+        else:
+            return query.all()
+    except NoResultFound:
+        return []
+
+
+def getUserConfigById(session, id):
+    try:
+        return session.query(UserConfig).filter(UserConfig.user_id == id).all()
+    except NoResultFound:
+        return []
+
+
+def getUserConfig(session, username, key=None):
+    try:
+        user = getUserByName(session, username)
+        if not user:
+            return None
+        query = session.query(UserConfig).filter(UserConfig.user_id == user.id)
+        if key:
+            return query.filter(UserConfig.key == key).one_or_none()
+        else:
+            return query.all()
+    except NoResultFound:
+        return []
+
+
+def setGlobalConfig(session, key, value):
+    cfg = session.query(Config).filter(Config.key == key).one_or_none()
+    if cfg:
+        cfg.value = value
+        cfg.modified = datetime.datetime.now()
+    else:
+        cfg = Config(key=key, value=value)
+    session.add(cfg)
+    session.flush()
+    return cfg
+
+
+def setUserConfig(session, username, key, value):
+    user = getUserByName(session, username)
+    cfg = session.query(UserConfig).filter(
+        UserConfig.user_id == user.id).one_or_none()
+    if cfg:
+        cfg.value = value
+        cfg.modified = datetime.datetime.now()
+    else:
+        cfg = UserConfig(user_id=user.id, key=key, value=value)
+    session.add(cfg)
+    session.flush()
+    return cfg
+
+
+def delGlobalConfig(session, key):
+    query = session.query(Config).filter(Config.key == key)
+    if query.one_or_none() is not None:
+        query.delete()
+        session.flush()
+        return True
+    else:
+        return False
+
+
+def delUserConfig(session, username, key):
+    user = getUserByName(session, username)
+    if not user:
+        return False
+    query = session.query(UserConfig).filter(UserConfig.user_id == user.id)
+    if query.one_or_none() is not None:
+        query.delete()
+        session.flush()
+        return True
+    else:
+        return False
 
 
 def rateItem(session, user_id, item_id, rating=None, starred=None):

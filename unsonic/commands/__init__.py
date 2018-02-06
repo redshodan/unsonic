@@ -11,7 +11,7 @@ from unsonic import __main__
 class Command(core.Command):
     CFG_NEEDED = True
     DB_NEEDED = True
-    
+
     def _run(self, args=None):
         if self.CFG_NEEDED:
             if not __main__.APP.cfg_found:
