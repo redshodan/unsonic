@@ -8,7 +8,7 @@ zope.sqlalchemy==1.0
 waitress==1.1.0
 pastedeploy==1.5.2
 paste==2.0.3
-psycopg2==2.7.3.2
+psycopg2==2.7.4
 xmltodict==0.11.0
 mishmash[postgres]==0.3b5
 sphinx==1.6.7
