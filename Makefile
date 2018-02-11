@@ -80,7 +80,11 @@ check: $(FLAKE8)
 	$(FLAKE8)
 
 tests: pytest tests-clean
-	$(PYTHON) setup.py test $(FTF)
+ifdef FTF
+	$(PYTHON) setup.py test --addopts "-k $(FTF)"
+else
+	$(PYTHON) setup.py test
+endif
 	rm -rf unsonic.egg-info
 
 pytest: $(PYTEST)

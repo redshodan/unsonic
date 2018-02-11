@@ -1,5 +1,5 @@
 from . import Command, register
-from unsonic import models
+from unsonic.config import CONFIG, ConfigException
 
 
 @register
@@ -7,7 +7,6 @@ class Config(Command):
     NAME = "config"
     HELP = "See/edit the Unsonic configuration."
     DESC = "A general interface for various configurable toggles."
-
 
     def _initArgParser(self, parser):
         parser.add_argument("-l", "--list", dest="list", action="store_true",
@@ -22,64 +21,68 @@ class Config(Command):
                             help=("user name for user specific configuration, "
                                   "leave empty for global configuration"))
 
-
     def _run(self, args=None):
         super()._run()
+
+        try:
+            return self._run2(args=args)
+        except ConfigException as e:
+            print(e)
+            return -1
+
+    def _run2(self, args=None):
+        from unsonic.config import CONFIG
 
         args = args or self.args
 
         if args.list or (not args.set and not args.get and not args.delete):
             if args.username:
-                rows = models.getUserConfig(self.db_session, args.username)
-                if rows is None:
-                    print("User not found")
-                    return
-                print("User Configuration:")
-                for row in rows:
+                print(f"User Configuration for: {args.username}")
+                for row in CONFIG.getDbValue(self.db_session,
+                                             username=args.username):
                     print(f"  {row.key} = {row.value}   modified={row.modified}")
             else:
                 print("Global Configuration:")
-                for row in models.getGlobalConfig(self.db_session):
+                for row in CONFIG.getDbValue(self.db_session):
                     print(f"  {row.key} = {row.value}   modified={row.modified}")
-            return
+            return 0
         elif args.set:
             words = args.set.split("=")
             if len(words) != 2:
                 print("Invalid argument for --set. "
                       "Use like: --set lastfm.user=myname")
-                return
+                return -1
             if args.username:
-                models.setUserConfig(self.db_session, args.username,
-                                     words[0], words[1])
+                CONFIG.setDbValue(self.db_session, words[0], words[1],
+                                  username=args.username,)
                 print(f"Set {words[0]} for {args.username}")
             else:
-                models.setGlobalConfig(self.db_session, words[0], words[1])
+                CONFIG.setDbValue(self.db_session, words[0], words[1])
                 print(f"Set {words[0]}")
+            return 0
         elif args.get:
             if args.username:
-                row = models.getUserConfig(self.db_session, args.username,
-                                           key=args.get)
+                row = CONFIG.getDbValue(self.db_session, key=args.get,
+                                        username=args.username)
                 if row is None:
-                    print("Users configuration not found")
-                    return
+                    print(f"User configuration {args.get} not found")
+                    return -1
                 print(row.value)
             else:
-                row = models.getGlobalConfig(self.db_session, key=args.get)
+                row = CONFIG.getDbValue(self.db_session, key=args.get)
                 if row is None:
-                    print("Global configuration not found")
-                    return
+                    print(f"Global configuration {args.get} not found")
+                    return -1
                 print(row.value)
-            return
+            return 0
         elif args.delete:
-            if args.username:
-                if models.delUserConfig(self.db_session, args.username,
-                                        key=args.delete):
-                    print("Deleted")
-                else:
-                    print("Users configuration not found")
+            if CONFIG.delDbValue(self.db_session, args.delete,
+                                 username=args.username):
+                print("Deleted")
+                return 0
             else:
-                if models.delGlobalConfig(self.db_session, key=args.delete):
-                    print("Deleted")
+                if args.username:
+                    print("Users configuration not found")
                 else:
                     print("Global configuration not found")
-            return
+                return -1

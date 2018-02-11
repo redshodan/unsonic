@@ -24,7 +24,22 @@ DEF_LOCS = [
     # Dev paths
     os.path.join(HERE, "development.ini"),
     os.path.join(HERE, "unsonic/etc/development.ini")
-    ]
+]
+CFG_KEYS = [
+    # Test keys
+    "test1",
+]
+USER_CFG_KEYS = [
+    "lastfm.user",
+    "lastfm.password",
+
+    # Test keys
+    "test1",
+]
+
+
+class ConfigException(Exception):
+    pass
 
 
 class HereConfig(MishConfig):
@@ -48,7 +63,6 @@ class HereConfig(MishConfig):
             self.set(configparser.DEFAULTSECT, "venv",
                      os.path.abspath("venv"))
 
-
     def get(self, section, key, **kwargs):
         val = super().get(section, key, **kwargs)
         if val and "%(here)s" in val:
@@ -62,7 +76,7 @@ class HereConfig(MishConfig):
         elif val and "%(venv)s" in val:
             return collapseRelativePaths(
                 val.replace("%(venv)s", super().get(configparser.DEFAULTSECT,
-                                                       "venv")))
+                                                    "venv")))
         else:
             return val
 
@@ -74,6 +88,43 @@ class HereConfig(MishConfig):
 
     def venv(self):
         return self.get(configparser.DEFAULTSECT, "venv")
+
+    # TODO: Refactor these db values with the uber config
+
+    def checkValue(self, key, val=None, username=None):
+        if username and key not in USER_CFG_KEYS:
+            raise ConfigException(f"Invalid user config key: {key}")
+        elif key not in CFG_KEYS:
+            raise ConfigException(f"Invalid global config key: {key}")
+
+    def setDbValue(self, session, key, val, username=None):
+        from unsonic import models
+        self.checkValue(key, val=val, username=username)
+        if username:
+            return models.setUserConfig(session, username, key, val)
+        else:
+            return models.setGlobalConfig(session, key, val)
+
+    def getDbValue(self, session, key=None, username=None):
+        from unsonic import models
+        if not key:
+            if username:
+                return models.getUserConfig(session, username)
+            else:
+                return models.getGlobalConfig(session)
+        else:
+            self.checkValue(key, username=username)
+            if username:
+                return models.getUserConfig(session, username, key=key)
+            else:
+                return models.getGlobalConfig(session, key=key)
+
+    def delDbValue(self, session, key, username=None):
+        from unsonic import models
+        if username:
+            return models.delUserConfig(session, username, key=key)
+        else:
+            return models.delGlobalConfig(session, key=key)
 
 
 mishmash.config.Config = HereConfig
