@@ -70,7 +70,6 @@ class DBInfo(Base, OrmObject):
     version = Column(String(32), nullable=False, primary_key=True)
     last_sync = Column(DateTime)
 
-
     @staticmethod
     def loadTable(session):
         dbinfo.version = None
@@ -90,7 +89,6 @@ class Config(Base, OrmObject):
     modified = sqlalchemy.Column(sqlalchemy.DateTime(), nullable=False,
                                  default=datetime.datetime.now)
 
-
     @staticmethod
     def loadTable(session):
         pass
@@ -105,7 +103,6 @@ class UserConfig(Base, OrmObject):
     value = Column(String, nullable=False)
     modified = sqlalchemy.Column(sqlalchemy.DateTime(), nullable=False,
                                  default=datetime.datetime.now)
-
 
     @staticmethod
     def loadTable(session):
@@ -135,7 +132,7 @@ class User(Base, OrmObject):
 
     # Relations
     roles = relation("Role", cascade="all, delete-orphan",
-                      passive_deletes=True)
+                     passive_deletes=True)
     playqueue = relation("PlayQueue", cascade="all, delete-orphan",
                          passive_deletes=True)
     playlists = relation("PlayList", cascade="all, delete-orphan",
@@ -143,8 +140,7 @@ class User(Base, OrmObject):
     playcounts = relation("PlayCount", cascade="all, delete-orphan",
                           passive_deletes=True)
     scrobbles = relation("Scrobble", cascade="all, delete-orphan",
-                          passive_deletes=True)
-
+                         passive_deletes=True)
 
     @staticmethod
     def loadTable(session):
@@ -194,7 +190,7 @@ class PlayList(Base, OrmObject):
 
     id = Column(Integer, Sequence("un_playlists_id_seq"), primary_key=True)
     user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
-                      nullable=False)
+                     nullable=False)
     name = Column(Text)
     comment = Column(Text)
     public = Column(Integer, default=0)
@@ -227,9 +223,10 @@ class PlayListUser(Base, OrmObject):
 class PlayListTrack(Base, OrmObject):
     __tablename__ = 'un_playlisttracks'
 
-    id = Column(Integer, Sequence("un_playlisttracks_id_seq"), primary_key=True)
+    id = Column(Integer, Sequence(
+        "un_playlisttracks_id_seq"), primary_key=True)
     playlist_id = Column(Integer, ForeignKey("un_playlists.id",
-                         ondelete='CASCADE'), nullable=False)
+                                             ondelete='CASCADE'), nullable=False)
     track_id = Column(Integer, ForeignKey("tracks.id", ondelete='CASCADE'),
                       nullable=False)
     track = relation("Track")
@@ -489,7 +486,8 @@ def setGlobalConfig(session, key, value):
 def setUserConfig(session, username, key, value):
     user = getUserByName(session, username)
     cfg = session.query(UserConfig).filter(
-        UserConfig.user_id == user.id).one_or_none()
+        UserConfig.user_id == user.id,
+        UserConfig.key == key).one_or_none()
     if cfg:
         cfg.value = value
         cfg.modified = datetime.datetime.now()
@@ -588,7 +586,7 @@ def updatePseudoRatings(session, user_id=None, album_id=ALL, artist_id=ALL):
                 alrating = AlbumRating(album_id=album.id, user_id=user_id)
                 session.add(alrating)
             tracks = session.query(Track). \
-                         filter(Track.album_id == album.id).all()
+                filter(Track.album_id == album.id).all()
             pseudo = 0
             count = 0
             starred = None
@@ -623,15 +621,15 @@ def updatePseudoRatings(session, user_id=None, album_id=ALL, artist_id=ALL):
     if artists:
         for artist in artists:
             arrating = session.query(ArtistRating).filter(
-                    ArtistRating.artist_id == artist.id,
-                    ArtistRating.user_id == user_id).one_or_none()
+                ArtistRating.artist_id == artist.id,
+                ArtistRating.user_id == user_id).one_or_none()
             if arrating is None:
                 arrating = ArtistRating(user_id=user_id, artist_id=artist.id)
                 session.add(arrating)
             if arrating.rating is None or not arrating.pseudo_rating:
                 continue
             albums = session.query(Album). \
-                         filter(Album.artist_id == artist.id).all()
+                filter(Album.artist_id == artist.id).all()
             pseudo = 0
             count = 0
             starred = None

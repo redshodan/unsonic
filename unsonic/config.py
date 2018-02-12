@@ -89,7 +89,7 @@ class HereConfig(MishConfig):
     def checkValue(self, key, val=None, username=None):
         if username and key not in USER_CFG_KEYS:
             raise ConfigException(f"Invalid user config key: {key}")
-        elif key not in CFG_KEYS:
+        elif not username and key not in CFG_KEYS:
             raise ConfigException(f"Invalid global config key: {key}")
 
     def setDbValue(self, session, key, val, username=None):
