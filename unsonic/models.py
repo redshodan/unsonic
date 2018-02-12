@@ -424,7 +424,8 @@ def getUserByName(session, username, wrap=True):
     try:
         urow = session.query(User).filter(User.name == username).one()
         if wrap:
-            ucrow = getUserConfigById(session, urow.id)
+            ucrow = session.query(UserConfig).filter(
+                UserConfig.user_id == urow.id).all()
             return auth.User(urow, ucrow)
         else:
             return urow
@@ -446,13 +447,6 @@ def getGlobalConfig(session, key=None):
             return query.filter(Config.key == key).one_or_none()
         else:
             return query.all()
-    except NoResultFound:
-        return []
-
-
-def getUserConfigById(session, id):
-    try:
-        return session.query(UserConfig).filter(UserConfig.user_id == id).all()
     except NoResultFound:
         return []
 

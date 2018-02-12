@@ -8,7 +8,7 @@ from pyramid.security import forget
 from pyramid.view import forbidden_view_config
 
 import unsonic
-from unsonic import models
+from unsonic import models, lastfm
 from unsonic.models import Session
 
 
@@ -25,18 +25,30 @@ class User():
         for role in db_user.roles:
             self.roles.append(role.name)
         self.avatar = db_user.avatar
-
+        for row in db_user_config:
+            key = row.key.replace(".", "_")
+            setattr(self, key, row.value)
+        self.lastfm = None
+        if hasattr(self, "lastfm_user") and hasattr(self, "lastfm_password"):
+            self.lastfm = lastfm.makeUserClient(self.lastfm_user,
+                                                self.lastfm_password)
+        self.listening = None
 
     def isAdmin(self):
         return Roles.ADMIN in self.roles
 
-
     def isUser(self):
         return Roles.USERS in self.roles
 
-
     def isRest(self):
         return Roles.REST in self.roles
+
+    def __repr__(self):
+        msg = []
+        for attr, val in self.__dict__.items():
+            if not attr.startswith("_"):
+                msg.append(f"{attr}: {val}")
+        return "User(" + ", ".join(msg) + ")"
 
 
 class Roles(object):
@@ -114,7 +126,7 @@ class SubsonicAuth(BasicAuthAuthenticationPolicy):
             if not user or user and not user.password:
                 return
             if ("t" in list(req.params.keys()) and
-                  "s" in list(req.params.keys())):
+                    "s" in list(req.params.keys())):
                 sum = hashlib.md5()
                 sum.update(user.password.encode("utf-8"))
                 sum.update(req.params["s"].encode("utf-8"))

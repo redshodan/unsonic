@@ -4,10 +4,9 @@ import logging
 
 from sqlalchemy.orm.exc import NoResultFound
 
-from . import Command, registerCmd, bool_t, track_t, NotFound
+from . import Command, registerCmd, bool_t, track_t, int_t, NotFound
 from ...models import PlayCount, Track, dbinfo
 from ...models import Scrobble as DBScrobble
-from ...lastfm import lastfm as LastFm
 
 log = logging.getLogger(__name__)
 
@@ -17,17 +16,10 @@ class Scrobble(Command):
     name = "scrobble.view"
     param_defs = {
         "id": {"required": True, "type": track_t},
-        "time": {},
+        "time": {"type": int_t},
         "submission": {"type": bool_t, "default": True},
-        }
+    }
     dbsess = True
-    try:
-        lastfm = LastFm(os.environ["LASTFM_USERNAME"],
-                        os.environ["LASTFM_PASSWD"])
-    except KeyError:
-        log.debug("Skipping last.fm scrobbler, "
-                  " LASTFM_USERNAME/LASTFM_PASSWD not set")
-        lastfm = None
 
     def handleReq(self, session):
         # Check track id
@@ -37,25 +29,26 @@ class Scrobble(Command):
         except NoResultFound:
             raise NotFound("Track not found")
 
+        lastfm = self.req.authed_user.lastfm
         if not self.params["submission"]:
             # User is listening, not scrobbling yet
             dbinfo.users[self.req.authed_user.name]\
                   .listening = self.params["id"]
 
-            if self.lastfm:
+            if lastfm:
                 log.info(f"last.fm now playing: {track.artist} - {track.title}")
-                self.lastfm.update_now_playing(track.artist, track.title,
-                                               album=track.album.title,
-                                               album_artist=track.album_artist,
-                                               duration=track.time_secs,
-                                               track_number=track.track_num)
+                lastfm.update_now_playing(track.artist, track.title,
+                                          album=track.album.title,
+                                          album_artist=track.album_artist,
+                                          duration=track.time_secs,
+                                          track_number=track.track_num)
         else:
             # Inc play count
             try:
                 pcount = session.query(PlayCount). \
-                           filter(PlayCount.track_id == self.params["id"],
-                                  PlayCount.user_id ==
-                                  self.req.authed_user.id).one()
+                    filter(PlayCount.track_id == self.params["id"],
+                           PlayCount.user_id ==
+                           self.req.authed_user.id).one()
                 pcount.count = pcount.count + 1
             except NoResultFound:
                 pcount = PlayCount(track_id=self.params["id"],
@@ -69,13 +62,13 @@ class Scrobble(Command):
                                   track_id=self.params["id"])
             session.add(scrobble)
 
-            if self.lastfm:
+            if lastfm:
                 log.info(f"last.fm scrobbling: {track.artist} - {track.title}")
-                self.lastfm.scrobble(track.artist.name, track.title,
-                                     int(time.time()),
-                                     album=track.album.title,
-                                     album_artist=track.album_artist,
-                                     track_number=track.track_num,
-                                     duration=track.time_secs)
+                lastfm.scrobble(track.artist.name, track.title,
+                                int(time.time()),
+                                album=track.album.title,
+                                album_artist=track.album.artist.name,
+                                track_number=track.track_num,
+                                duration=track.time_secs)
 
         return self.makeResp()
