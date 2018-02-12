@@ -11,6 +11,10 @@ class Config(Command):
     def _initArgParser(self, parser):
         parser.add_argument("-l", "--list", dest="list", action="store_true",
                             help="list the configurables available")
+        parser.add_argument("-L", "--list-all", dest="list_all",
+                            action="store_true",
+                            help=("list all of the possible configurables "
+                                  "available"))
         parser.add_argument("-s", "--set", dest="set", metavar="KEY=VALUE",
                             help="set the named configurable to VALUE")
         parser.add_argument("-g", "--get", dest="get", metavar="KEY",
@@ -35,7 +39,15 @@ class Config(Command):
 
         args = args or self.args
 
-        if args.list or (not args.set and not args.get and not args.delete):
+        if args.list_all:
+            print("Global configuration values:")
+            for key, desc in CONFIG.getDbValueKeys().items():
+                print(key, ":", desc)
+            print()
+            print("User configuration values:")
+            for key, desc in CONFIG.getDbValueUserKeys().items():
+                print("    ", key, ":", desc)
+        elif args.list or (not args.set and not args.get and not args.delete):
             if args.username:
                 print(f"User Configuration for: {args.username}")
                 for row in CONFIG.getDbValue(self.db_session,

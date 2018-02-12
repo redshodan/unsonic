@@ -5,8 +5,13 @@ import pytest
 from pyramid import testing
 
 from unsonic import __main__, web, models
-from unsonic.config import CONFIG
+from unsonic.config import CONFIG, CFG_KEYS, USER_CFG_KEYS
 from unsonic.models import User, Config, UserConfig
+
+
+# Inject some test config key names
+CFG_KEYS["test1"] = "Test key"
+USER_CFG_KEYS["test1"] = "Test key"
 
 
 @pytest.fixture()

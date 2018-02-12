@@ -12,7 +12,7 @@ def makeUserLastFM():
                         os.environ["LASTFM_PASSWD"])
     except KeyError:
         log.debug("Skipping last.fm scrobbler, "
-                  " LASTFM_USERNAME/LASTFM_PASSWD not set")
+                  "LASTFM_USERNAME/LASTFM_PASSWD not set")
         lastfm = None
 
 

@@ -25,17 +25,12 @@ DEF_LOCS = [
     os.path.join(HERE, "development.ini"),
     os.path.join(HERE, "unsonic/etc/development.ini")
 ]
-CFG_KEYS = [
-    # Test keys
-    "test1",
-]
-USER_CFG_KEYS = [
-    "lastfm.user",
-    "lastfm.password",
-
-    # Test keys
-    "test1",
-]
+CFG_KEYS = {
+}
+USER_CFG_KEYS = {
+    "lastfm.user": "Username for your LastFM account",
+    "lastfm.password": "Password for your LastFM account",
+}
 
 
 class ConfigException(Exception):
@@ -125,6 +120,12 @@ class HereConfig(MishConfig):
             return models.delUserConfig(session, username, key=key)
         else:
             return models.delGlobalConfig(session, key=key)
+
+    def getDbValueKeys(self):
+        return CFG_KEYS
+
+    def getDbValueUserKeys(self):
+        return USER_CFG_KEYS
 
 
 mishmash.config.Config = HereConfig
