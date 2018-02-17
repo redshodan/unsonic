@@ -506,7 +506,8 @@ def delUserConfig(session, username, key):
     user = getUserByName(session, username)
     if not user:
         return False
-    query = session.query(UserConfig).filter(UserConfig.user_id == user.id)
+    query = session.query(UserConfig).filter(UserConfig.user_id == user.id,
+                                             UserConfig.key == key)
     if query.one_or_none() is not None:
         query.delete()
         session.flush()

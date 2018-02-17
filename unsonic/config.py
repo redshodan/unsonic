@@ -1,6 +1,7 @@
 import os
 import configparser
 import logging
+import pylast
 
 # This needs to be very early in the import sequence so the monkeypatch
 # works right.
@@ -10,8 +11,7 @@ from mishmash.config import Config as MishConfig
 from unsonic import HERE, INSTALL
 
 
-import nicfit
-log = nicfit.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 CONFIG = None
@@ -25,12 +25,22 @@ DEF_LOCS = [
     os.path.join(HERE, "development.ini"),
     os.path.join(HERE, "unsonic/etc/development.ini")
 ]
+
+
+# Config keys
+DESC = "desc"
+SETTER = "setter"
+
 CFG_KEYS = {
 }
+CFG_DESCS = {k: v[DESC] for k, v in CFG_KEYS.items()}
+
 USER_CFG_KEYS = {
-    "lastfm.user": "Username for your LastFM account",
-    "lastfm.password": "Password for your LastFM account",
+    "lastfm.user": {DESC: "Username for your LastFM account"},
+    "lastfm.password": {DESC: "Hashed password for your LastFM account",
+                        SETTER: lambda v: pylast.md5(v)},
 }
+USER_CFG_DESCS = {k: v[DESC] for k, v in USER_CFG_KEYS.items()}
 
 
 class ConfigException(Exception):
@@ -96,6 +106,8 @@ class HereConfig(MishConfig):
         from unsonic import models
         self.checkValue(key, val=val, username=username)
         if username:
+            if SETTER in USER_CFG_KEYS[key]:
+                val = USER_CFG_KEYS[key][SETTER](val)
             return models.setUserConfig(session, username, key, val)
         else:
             return models.setGlobalConfig(session, key, val)
@@ -122,10 +134,10 @@ class HereConfig(MishConfig):
             return models.delGlobalConfig(session, key=key)
 
     def getDbValueKeys(self):
-        return CFG_KEYS
+        return CFG_DESCS
 
     def getDbValueUserKeys(self):
-        return USER_CFG_KEYS
+        return USER_CFG_DESCS
 
 
 mishmash.config.Config = HereConfig

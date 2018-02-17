@@ -28,11 +28,16 @@ class User():
         for row in db_user_config:
             key = row.key.replace(".", "_")
             setattr(self, key, row.value)
-        self.lastfm = None
-        if hasattr(self, "lastfm_user") and hasattr(self, "lastfm_password"):
-            self.lastfm = lastfm.makeUserClient(self.lastfm_user,
-                                                self.lastfm_password)
+        self._lastfm = None
         self.listening = None
+
+    @property
+    def lastfm(self):
+        if (not self._lastfm and
+                hasattr(self, "lastfm_user") and hasattr(self, "lastfm_password")):
+            self._lastfm = lastfm.makeUserClient(self.lastfm_user,
+                                                 self.lastfm_password)
+        return self._lastfm
 
     def isAdmin(self):
         return Roles.ADMIN in self.roles
