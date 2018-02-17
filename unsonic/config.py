@@ -1,14 +1,14 @@
 import os
 import configparser
 import logging
-import pylast
+
 
 # This needs to be very early in the import sequence so the monkeypatch
 # works right.
 import mishmash
 from mishmash.config import Config as MishConfig
 
-from unsonic import HERE, INSTALL
+from unsonic import HERE, INSTALL, lastfm
 
 
 log = logging.getLogger(__name__)
@@ -38,7 +38,7 @@ CFG_DESCS = {k: v[DESC] for k, v in CFG_KEYS.items()}
 USER_CFG_KEYS = {
     "lastfm.user": {DESC: "Username for your LastFM account"},
     "lastfm.password": {DESC: "Hashed password for your LastFM account",
-                        SETTER: lambda v: pylast.md5(v)},
+                        SETTER: lambda v: lastfm.hashPassword(v)},
 }
 USER_CFG_DESCS = {k: v[DESC] for k, v in USER_CFG_KEYS.items()}
 
