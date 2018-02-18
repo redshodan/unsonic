@@ -4,6 +4,7 @@ import unsonic
 import unsonic.commands         # noqa: F401
 from unsonic import version, config
 
+import mishmash
 from mishmash.__main__ import MishMash
 from mishmash import __about__
 from mishmash.core import Command as MishMashCommand
