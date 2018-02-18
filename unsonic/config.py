@@ -29,7 +29,9 @@ DEF_LOCS = [
 
 # Config keys
 DESC = "desc"
+DEFAULT = "default"
 SETTER = "setter"
+VALUES = "values"
 
 CFG_KEYS = {
 }
@@ -39,8 +41,13 @@ USER_CFG_KEYS = {
     "lastfm.user": {DESC: "Username for your LastFM account"},
     "lastfm.password": {DESC: "Hashed password for your LastFM account",
                         SETTER: lambda v: lastfm.hashPassword(v)},
+    "lastfm.lang": {DESC: "Language for LastFM queries",
+                    DEFAULT: "english",
+                    VALUES: lastfm.LANGUAGES},
 }
 USER_CFG_DESCS = {k: v[DESC] for k, v in USER_CFG_KEYS.items()}
+USER_CFG_DEFS = {
+    k: v[DEFAULT] if DEFAULT in v else None for k, v in USER_CFG_KEYS.items()}
 
 
 class ConfigException(Exception):
@@ -97,10 +104,21 @@ class HereConfig(MishConfig):
     # TODO: Refactor these db values with the uber config
 
     def checkValue(self, key, val=None, username=None):
-        if username and key not in USER_CFG_KEYS:
-            raise ConfigException(f"Invalid user config key: {key}")
-        elif not username and key not in CFG_KEYS:
-            raise ConfigException(f"Invalid global config key: {key}")
+        if username:
+            if key not in USER_CFG_KEYS:
+                raise ConfigException(f"Invalid user config key: {key}")
+            else:
+                def_ = USER_CFG_KEYS[key]
+        else:
+            if key not in CFG_KEYS:
+                raise ConfigException(f"Invalid global config key: {key}")
+            else:
+                def_ = USER_CFG_KEYS[key]
+        if val and VALUES in def_:
+            if val not in def_[VALUES]:
+                raise ConfigException(
+                    f"Invalid value '{val}' for key '{key}'. Must be one of: " +
+                    ", ".join(def_[VALUES]))
 
     def setDbValue(self, session, key, val, username=None):
         from unsonic import models
@@ -122,9 +140,16 @@ class HereConfig(MishConfig):
         else:
             self.checkValue(key, username=username)
             if username:
-                return models.getUserConfig(session, username, key=key)
+                val = models.getUserConfig(session, username, key=key)
+                if not val and DEFAULT in USER_CFG_KEYS[key]:
+                    return models.UserConfig(key=key,
+                                             value=USER_CFG_KEYS[key][DEFAULT])
             else:
-                return models.getGlobalConfig(session, key=key)
+                val = models.getGlobalConfig(session, key=key)
+                if not val and DEFAULT in CFG_KEYS[key]:
+                    return models.UserConfig(key=key,
+                                             value=CFG_KEYS[key][DEFAULT])
+            return val
 
     def delDbValue(self, session, key, username=None):
         from unsonic import models
@@ -138,6 +163,9 @@ class HereConfig(MishConfig):
 
     def getDbValueUserKeys(self):
         return USER_CFG_DESCS
+
+    def getDbValueUserDefaults(self):
+        return USER_CFG_DEFS
 
 
 mishmash.config.Config = HereConfig

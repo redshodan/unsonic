@@ -25,18 +25,25 @@ class User():
         for role in db_user.roles:
             self.roles.append(role.name)
         self.avatar = db_user.avatar
-        for row in db_user_config:
-            key = row.key.replace(".", "_")
-            setattr(self, key, row.value)
+        self.db_user_config = {u.key: u.value for u in db_user_config}
         self._lastfm = None
         self.listening = None
 
+    def __getattr__(self, name):
+        from .config import CONFIG
+        mangled = name.replace("_", ".")
+        if mangled in self.db_user_config:
+            return self.db_user_config[mangled]
+        elif mangled in CONFIG.getDbValueUserDefaults():
+            return CONFIG.getDbValueUserDefaults()[mangled]
+        else:
+            raise AttributeError()
+
     @property
     def lastfm(self):
-        if (not self._lastfm and
-                hasattr(self, "lastfm_user") and hasattr(self, "lastfm_password")):
-            self._lastfm = lastfm.makeUserClient(self.lastfm_user,
-                                                 self.lastfm_password)
+        if not self._lastfm:
+            self._lastfm = lastfm.makeClient(self.lastfm_user,
+                                             self.lastfm_password)
         return self._lastfm
 
     def isAdmin(self):

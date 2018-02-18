@@ -435,7 +435,10 @@ def getUserByName(session, username, wrap=True):
 
 def getUserByID(session, id):
     try:
-        return auth.User(session.query(User).filter(User.id == id).one())
+        urow = session.query(User).filter(User.id == id).one()
+        ucrow = session.query(UserConfig).filter(
+            UserConfig.user_id == urow.id).all()
+        return auth.User(urow, ucrow)
     except NoResultFound:
         return None
 
