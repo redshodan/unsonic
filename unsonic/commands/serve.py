@@ -4,10 +4,10 @@ import argparse
 import shutil
 
 import unsonic
-from . import Command, register
+from . import Command
 
 
-@register
+@Command.register
 class Serve(Command):
     NAME = "serve"
     HELP = "Run the Unsonic web interface."

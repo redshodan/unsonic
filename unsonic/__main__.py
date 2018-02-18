@@ -3,11 +3,10 @@ import argparse
 import unsonic
 import unsonic.commands         # noqa: F401
 from unsonic import version, config
-from nicfit import Command
 
-import mishmash
 from mishmash.__main__ import MishMash
 from mishmash import __about__
+from mishmash.core import Command as MishMashCommand
 
 
 VERSION = "unsonic (%s, protocol: %s, subsonic protocol: %s) mishmash (%s)" % \
@@ -53,10 +52,10 @@ class Unsonic(MishMash):
 
 def buildApp():
     global APP
-    if "web" in Command._all_commands:
-        del Command._all_commands["web"]
-    if mishmash.commands.web.Web.name in Command._all_commands:
-        del Command._all_commands[mishmash.commands.web.Web.name]
+    for name in [mishmash.commands.web.Web.name()] + \
+                mishmash.commands.web.Web.aliases():
+        if name in MishMashCommand._registered_commands[MishMashCommand]:
+            del MishMashCommand._registered_commands[MishMashCommand][name]
     APP = Unsonic()
     return APP
 
@@ -82,6 +81,7 @@ def run(args=None):
 
 def main(args=None):
     app = buildApp()
+    unsonic.commands.Command.loadCommandMap(app.arg_subparsers)
     adjustCmdline(app.arg_parser)
     return app.main(args)
 

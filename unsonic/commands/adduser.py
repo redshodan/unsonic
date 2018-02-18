@@ -1,11 +1,11 @@
 import argparse
 
-from . import Command, register
+from . import Command
 from .. import models, auth
 from ..models import User
 
 
-@register
+@Command.register
 class AddUser(Command):
     NAME = "adduser"
     HELP = "Add a user to the database."
