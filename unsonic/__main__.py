@@ -66,7 +66,7 @@ def buildApp():
 
 def adjustCmdline(parser, args):
     args = args or sys.argv
-    path = config.findConfig(parser, args)
+    path = config.findConfig(parser, args[1:])
     if path is False:
         APP.cfg_found = False
     elif path is not True:
@@ -76,18 +76,17 @@ def adjustCmdline(parser, args):
     else:
         # its already supplied, just carry on
         APP.cfg_found = True
+    return args[1:]
 
 
 def run(args=None):
     app = buildApp()
-    adjustCmdline(app.arg_parser, args)
-    return app.run(args)
+    return app.run(adjustCmdline(app.arg_parser, args))
 
 
 def main(args=None):
     app = buildApp()
-    adjustCmdline(app.arg_parser, args)
-    return app.main(args)
+    return app.main(adjustCmdline(app.arg_parser, args))
 
 
 if __name__ == "__main__":

@@ -1,6 +1,5 @@
 import os
 import configparser
-import logging
 
 # This needs to be very early in the import sequence so the monkeypatch
 # works right.
