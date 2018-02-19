@@ -65,12 +65,13 @@ def buildApp():
 
 
 def adjustCmdline(parser, args):
+    args = args or sys.argv
     path = config.findConfig(parser, args)
     if path is False:
         APP.cfg_found = False
     elif path is not True:
         # Append the found config file
-        sys.argv = sys.argv[:1] + ["-c", path] + sys.argv[1:]
+        args = args[:1] + ["-c", path] + args[1:]
         APP.cfg_found = True
     else:
         # its already supplied, just carry on
