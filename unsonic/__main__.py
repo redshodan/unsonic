@@ -53,16 +53,19 @@ class Unsonic(MishMash):
 
 def buildApp():
     global APP
+
     for name in [mishmash.commands.web.Web.name()] + \
                 mishmash.commands.web.Web.aliases():
         if name in MishMashCommand._registered_commands[MishMashCommand]:
             del MishMashCommand._registered_commands[MishMashCommand][name]
+
     APP = Unsonic()
+    unsonic.commands.Command.loadCommandMap(APP.arg_subparsers)
     return APP
 
 
-def adjustCmdline(parser):
-    path = config.findConfig(parser)
+def adjustCmdline(parser, args):
+    path = config.findConfig(parser, args)
     if path is False:
         APP.cfg_found = False
     elif path is not True:
@@ -76,14 +79,13 @@ def adjustCmdline(parser):
 
 def run(args=None):
     app = buildApp()
-    adjustCmdline(app.arg_parser)
+    adjustCmdline(app.arg_parser, args)
     return app.run(args)
 
 
 def main(args=None):
     app = buildApp()
-    unsonic.commands.Command.loadCommandMap(app.arg_subparsers)
-    adjustCmdline(app.arg_parser)
+    adjustCmdline(app.arg_parser, args)
     return app.main(args)
 
 
