@@ -10,6 +10,6 @@ pastedeploy==1.5.2
 paste==2.0.3
 psycopg2==2.7.4
 xmltodict==0.11.0
-mishmash[postgres]==0.3b5
+mishmash[postgres]==0.3b6
 sphinx==1.7.0
 recommonmark==0.4.0
