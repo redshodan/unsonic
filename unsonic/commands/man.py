@@ -2,10 +2,10 @@ import os
 import glob
 
 import unsonic
-from . import Command, register
+from . import Command
 
 
-@register
+@Command.register
 class Man(Command):
     NAME = "man"
     HELP = "Show the manpages for Unsonic."

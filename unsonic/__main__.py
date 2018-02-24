@@ -3,11 +3,11 @@ import argparse
 import unsonic
 import unsonic.commands         # noqa: F401
 from unsonic import version, config
-from nicfit import Command
 
 import mishmash
 from mishmash.__main__ import MishMash
 from mishmash import __about__
+from mishmash.core import Command as MishMashCommand
 
 
 VERSION = "unsonic (%s, protocol: %s, subsonic protocol: %s) mishmash (%s)" % \
@@ -53,37 +53,40 @@ class Unsonic(MishMash):
 
 def buildApp():
     global APP
-    if "web" in Command._all_commands:
-        del Command._all_commands["web"]
-    if mishmash.commands.web.Web.name in Command._all_commands:
-        del Command._all_commands[mishmash.commands.web.Web.name]
+
+    for name in [mishmash.commands.web.Web.name()] + \
+                mishmash.commands.web.Web.aliases():
+        if name in MishMashCommand._registered_commands[MishMashCommand]:
+            del MishMashCommand._registered_commands[MishMashCommand][name]
+
     APP = Unsonic()
+    unsonic.commands.Command.loadCommandMap(APP.arg_subparsers)
     return APP
 
 
-def adjustCmdline(parser):
-    path = config.findConfig(parser)
+def adjustCmdline(parser, args):
+    assert args
+    path = config.findConfig(parser, args)
     if path is False:
         APP.cfg_found = False
     elif path is not True:
         # Append the found config file
-        sys.argv = sys.argv[:1] + ["-c", path] + sys.argv[1:]
+        args = ["-c", path] + args
         APP.cfg_found = True
     else:
         # its already supplied, just carry on
         APP.cfg_found = True
+    return args
 
 
 def run(args=None):
     app = buildApp()
-    adjustCmdline(app.arg_parser)
-    return app.run(args)
+    return app.run(adjustCmdline(app.arg_parser, args or sys.argv[1:]))
 
 
 def main(args=None):
     app = buildApp()
-    adjustCmdline(app.arg_parser)
-    return app.main(args)
+    return app.main(adjustCmdline(app.arg_parser, args or sys.argv[1:]))
 
 
 if __name__ == "__main__":
