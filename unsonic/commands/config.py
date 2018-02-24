@@ -1,7 +1,7 @@
-from . import Command, register
+from . import Command
 
 
-@register
+@Command.register
 class Config(Command):
     NAME = "config"
     HELP = "See/edit the Unsonic configuration."

@@ -1,7 +1,7 @@
 import os
 
 import unsonic
-from . import Command, register
+from . import Command
 
 
 ###
@@ -12,7 +12,7 @@ from . import Command, register
 ###
 
 
-@register
+@Command.register
 class Install(Command):
     NAME = "install"
     HELP = "Install the Unsonic service."
