@@ -1,32 +1,53 @@
 import xml.etree.ElementTree as ET
+import pylast
 
-from . import BACON_IPSUM, Command, registerCmd, playable_id_t
+from . import Command, NotFound, MissingParam, registerCmd, playable_id_t
+from ... import lastfm
+from ...models import Artist, Album, Track, getPlayable
 
 
-# TODO: Actually implement
 @registerCmd
 class GetAlbumInfo(Command):
     name = "getAlbumInfo.view"
     param_defs = {
         "id": {"required": True, "type": playable_id_t},
-        }
+    }
     dbsess = True
 
-
-    # Actually do this for realz once last.fm stuff is hooked up
     def handleReq(self, session):
+        album = getPlayable(session, self.params["id"])
+        if not album:
+            raise NotFound("Item not found")
+        if isinstance(album, Artist):
+            raise MissingParam("id must be an album or song")
+        if not isinstance(album, Album):
+            album = session.query(Album).filter(
+                Album.id == album.album_id).one_or_none()
+        if not album:
+            raise NotFound("Item not found")
+
+        lang = lastfm.getDomain(self.req.authed_user.lastfm_lang)
+        lf_client = self.req.authed_user.lastfm
+        lf_album = lf_client.get_album(album.artist.name, album.title)
+
         ainfo = ET.Element("albumInfo")
         notes = ET.Element("notes")
-        notes.text = BACON_IPSUM
+        notes.text = lf_album.get_wiki_summary()
         ainfo.append(notes)
         mbid = ET.Element("musicBrainzId")
-        mbid.text = "1234567890"
+        mbid.text = lf_album.get_mbid()
         ainfo.append(mbid)
-
-        for name in ["lastFmUrl", "smallImageUrl", "mediumImageUrl",
-                     "largeImageUrl"]:
-            url = ET.Element(name)
-            url.text = "https://foo.com/foo"
-            ainfo.append(url)
+        url = ET.Element("lastFmUrl")
+        url.text = lf_album.get_url(lang)
+        ainfo.append(url)
+        url = ET.Element("smallImageUrl")
+        url.text = lf_album.get_cover_image(pylast.SIZE_SMALL)
+        ainfo.append(url)
+        url = ET.Element("mediumImageUrl")
+        url.text = lf_album.get_cover_image(pylast.SIZE_MEDIUM)
+        ainfo.append(url)
+        url = ET.Element("largeImageUrl")
+        url.text = lf_album.get_cover_image(pylast.SIZE_EXTRA_LARGE)
+        ainfo.append(url)
 
         return self.makeResp(child=ainfo)
