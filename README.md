@@ -179,6 +179,7 @@ server {
 
 Developing Unsonic
 ==================
+Running tests requires docker.
 
 ### Development build
   * make devel
