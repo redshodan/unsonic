@@ -1,8 +1,8 @@
-from . import Command, register
+from . import Command
 from ..models import User
 
 
-@register
+@Command.register
 class DelUser(Command):
     NAME = "deluser"
     HELP = "Delete a user from the database."

@@ -1,8 +1,8 @@
-from . import Command, register
-from unsonic.config import CONFIG, ConfigException
+from . import Command
+from unsonic.config import ConfigException
 
 
-@register
+@Command.register
 class Config(Command):
     NAME = "config"
     HELP = "See/edit the Unsonic configuration."

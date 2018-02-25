@@ -1,6 +1,5 @@
 import os
 import configparser
-import logging
 
 
 # This needs to be very early in the import sequence so the monkeypatch
@@ -190,8 +189,8 @@ def collapseRelativePaths(path):
 
 
 # Try to find a standard config file if not specified on the cmdline
-def findConfig(parser):
-    args, unknown = parser.parse_known_args()
+def findConfig(parser, args):
+    args, unknown = parser.parse_known_args(args)
     if args.config is not parser.get_default("config"):
         log.debug("Using user specified config file")
         return True

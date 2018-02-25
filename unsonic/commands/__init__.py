@@ -2,7 +2,6 @@
 
 import sys
 
-from nicfit.command import register
 from mishmash import core
 
 from unsonic import __main__
