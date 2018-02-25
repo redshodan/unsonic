@@ -24,13 +24,12 @@ class Unsonic(MishMash):
         self._orig_main_func = self._main_func
         self._main_func = self.mainWrapper
 
-
     def mainWrapper(self, args):
         # Handle mishmash commands which assume a default config
         # Unsonic commands are handled in the unsonic base command class
         need_cfg = False
         if (hasattr(self.args, "command_func") and
-            hasattr(self.args.command_func, "__self__")):
+                hasattr(self.args.command_func, "__self__")):
             need_cfg = ("mishmash.commands" in
                         self.args.command_func.__self__.__module__)
         if not self.cfg_found and need_cfg:
@@ -40,7 +39,6 @@ class Unsonic(MishMash):
             sys.exit(-1)
 
         return self._orig_main_func(args)
-
 
     # hack in the unsonic version
     def _addArguments(self, parser):
@@ -55,7 +53,7 @@ def buildApp():
     global APP
 
     for name in [mishmash.commands.web.Web.name()] + \
-                mishmash.commands.web.Web.aliases():
+            mishmash.commands.web.Web.aliases():
         if name in MishMashCommand._registered_commands[MishMashCommand]:
             del MishMashCommand._registered_commands[MishMashCommand][name]
 
@@ -65,7 +63,7 @@ def buildApp():
 
 
 def adjustCmdline(parser, args):
-    assert args
+    assert args is not None
     path = config.findConfig(parser, args)
     if path is False:
         APP.cfg_found = False
