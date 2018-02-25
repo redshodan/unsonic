@@ -79,8 +79,10 @@ devel-run: $(VENV)/development.sqlite
 check: $(FLAKE8)
 	$(FLAKE8)
 
+#TEST_POSTGRES_OPTS=--pg-image postgres:9.6-alpine
+TEST_POSTGRES_OPTS=--pg-image postgres:10.0-alpine
 tests: pytest tests-clean
-	$(PYTHON) setup.py test $(FTF)
+	PYTEST_ADDOPTS="${TEST_POSTGRES_OPTS}" $(PYTHON) setup.py test $(FTF)
 	rm -rf unsonic.egg-info
 
 pytest: $(PYTEST)
