@@ -519,6 +519,17 @@ def delUserConfig(session, username, key):
         return False
 
 
+def getPlayable(session, id):
+    num = int(id[3:])
+    if id.startswith("ar"):
+        return session.query(Artist).filter(Artist.id == num).one_or_none()
+    elif id.startswith("al"):
+        return session.query(Album).filter(Album.id == num).one_or_none()
+    elif id.startswith("tr"):
+        return session.query(Track).filter(Track.id == num).one_or_none()
+    return None
+
+
 def rateItem(session, user_id, item_id, rating=None, starred=None):
     num = int(item_id[3:])
     artist_id = None

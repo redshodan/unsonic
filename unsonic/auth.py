@@ -44,6 +44,9 @@ class User():
         if not self._lastfm:
             self._lastfm = lastfm.makeClient(self.lastfm_user,
                                              self.lastfm_password)
+            # FIXME: more proper cache file name? ~/.cache?
+            # self._lastfm.enable_caching("/tmp/unsonic-lastfm.cache")
+            self._lastfm.enable_caching()
         return self._lastfm
 
     def isAdmin(self):

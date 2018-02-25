@@ -12,6 +12,25 @@ LANGUAGES = ["english", "german", "spanish", "french", "italian", "polish",
              "portuguese", "swedish", "turkish", "russian", "japanese",
              "chinese"]
 
+LANG_TO_DOMAIN = {
+    "english": pylast.DOMAIN_ENGLISH,
+    "german": pylast.DOMAIN_GERMAN,
+    "spanish": pylast.DOMAIN_SPANISH,
+    "french": pylast.DOMAIN_FRENCH,
+    "italian": pylast.DOMAIN_ITALIAN,
+    "polish": pylast.DOMAIN_POLISH,
+    "portuguese": pylast.DOMAIN_PORTUGUESE,
+    "swedish": pylast.DOMAIN_SWEDISH,
+    "turkish": pylast.DOMAIN_TURKISH,
+    "russian": pylast.DOMAIN_RUSSIAN,
+    "japanese": pylast.DOMAIN_JAPANESE,
+    "chinese": pylast.DOMAIN_CHINESE
+}
+
+
+def getDomain(lang):
+    return LANG_TO_DOMAIN[lang]
+
 
 def hashPassword(password):
     return pylast.md5(password)

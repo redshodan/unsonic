@@ -87,7 +87,10 @@ Missing
 - deletePodcastEpisode:
 - downloadPodcastEpisode:
 - jukeboxControl:
-- getInternetRadioStations:
+- getInternetRadioStations: 1.16 version added RadioStations
+- createInternetRadioStation:
+- updateInternetRadioStation:
+- deleteInternetRadioStation:
 - getBookmarks:
 - createBookmark:
 - deleteBookmark:
