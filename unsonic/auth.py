@@ -156,7 +156,7 @@ class SubsonicAuth(BasicAuthAuthenticationPolicy):
                     decode_hex = codecs.getdecoder("hex_codec")
                     password = decode_hex(password[4:])[0]
                     password = password.decode("utf-8")
-                except:
+                except Exception:
                     return
             if user and password == user.password:
                 # Stash the user for easy access

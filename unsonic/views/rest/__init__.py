@@ -17,15 +17,6 @@ from ...models import Session, ArtistRating, AlbumRating, TrackRating, Track
 from ...auth import Roles
 
 
-BACON_IPSUM = (
-"Bacon ipsum dolor amet biltong sausage ribeye pancetta salami pork chop. Short "
-"loin sirloin burgdoggen, turducken kielbasa corned beef landjaeger chicken "
-"short ribs capicola. Drumstick turkey jerky, cow shankle flank pork loin ball "
-"tip. Meatball shoulder landjaeger jerky. Bresaola prosciutto alcatra venison, "
-"meatloaf pork belly ball tip tail cupim porchetta. Chuck alcatra leberkas tail "
-"flank. Kevin chicken strip steak meatball ground round cow.")
-
-
 XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>'
 
 commands = {}
@@ -66,14 +57,12 @@ class Command(object):
     # 60, trial period over, intentionally skipped, cause screw that noise.
     E_NOT_FOUND = ("70", "Requsted data not found")
 
-
     def __init__(self, route, req, session=None):
         self.req = req
         self.route = route
         self.params = {}
         # For testing
         self.session = session
-
 
     def __call__(self):
         try:
@@ -95,10 +84,8 @@ class Command(object):
         except NoPerm as e:
             return self.makeResp(status=(Command.E_PERM, str(e)))
 
-
     def handleReq(self, session=None):
         raise Exception("Command must implement handleReq()")
-
 
     def makeBody(self, attrs, child, status):
         body = ET.Element("subsonic-response")
@@ -122,7 +109,6 @@ class Command(object):
             body.append(child)
         return "%s%s\n" % (XML_HEADER, ET.tostring(body).decode("utf-8"))
 
-
     def toDict(self, body):
         root = xmltodict.parse(body, attr_prefix="")
 
@@ -144,7 +130,6 @@ class Command(object):
 
         walker(root)
         return root
-
 
     def makeResp(self, attrs={}, child=None, status=True, body=None):
         if body is None:
@@ -180,7 +165,6 @@ class Command(object):
         log.debug("Response(%s): %s" % (self.name, Fg.blue(pretty)))
         return resp
 
-
     def makeBinaryResp(self, binary, mimetype, md5=None):
         resp = self.req.response
         resp.content_type = mimetype
@@ -188,7 +172,6 @@ class Command(object):
             resp.content_md5 = md5
         resp.body = binary
         return resp
-
 
     def parseParams(self):
         mparams = self.req.params.mixed()
@@ -235,7 +218,7 @@ def str_t(value):
 def int_t(value):
     try:
         return int(value)
-    except:
+    except ValueError:
         raise MissingParam("Invalid number parameter")
 
 
@@ -298,7 +281,7 @@ def folder_t(value):
 def datetime_t(tstamp):
     try:
         return datetime.utcfromtimestamp(int(tstamp) / 1000)
-    except:
+    except Exception:
         raise MissingParam(
             "Invalid type for param. '%s' is not a timestamp" % tstamp)
 
@@ -306,14 +289,14 @@ def datetime_t(tstamp):
 def year_t(year):
     try:
         return Eyed3Date(int(year), 1, 1)
-    except:
+    except Exception:
         raise MissingParam("Invalid type for param. '%s' is not a year" % year)
 
 
 def bitrate_t(value):
     try:
         i = int(value)
-    except:
+    except ValueError:
         raise MissingParam("Invalid type for param. '%s' is not a number" %
                            value)
     if i in [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320]:
@@ -357,9 +340,9 @@ def fillArtistUser(session, artist_row, rating_row, user, name="artist"):
     artist = fillArtist(session, artist_row, name=name)
     if not rating_row:
         rating_row = session.query(ArtistRating).\
-                         filter(ArtistRating.artist_id == artist_row.id,
-                                ArtistRating.user_id == user.id).\
-                         one_or_none()
+            filter(ArtistRating.artist_id == artist_row.id,
+                   ArtistRating.user_id == user.id).\
+            one_or_none()
     if rating_row and rating_row.starred:
         artist.set("starred", rating_row.starred.isoformat())
     return artist
@@ -388,8 +371,8 @@ def fillAlbumUser(session, album_row, rating_row, user, name="album"):
     album = fillAlbum(session, album_row, name=name)
     if not rating_row:
         rating_row = session.query(AlbumRating).\
-                         filter(AlbumRating.album_id == album_row.id,
-                                AlbumRating.user_id == user.id).one_or_none()
+            filter(AlbumRating.album_id == album_row.id,
+                   AlbumRating.user_id == user.id).one_or_none()
     if rating_row and rating_row.starred and not rating_row.pseudo_starred:
         album.set("starred", rating_row.starred.isoformat())
     return album
@@ -470,8 +453,8 @@ def fillTrackUser(session, song_row, rating_row, user, name="song"):
     song = fillTrack(session, song_row, name=name)
     if not rating_row:
         rating_row = session.query(TrackRating).\
-                         filter(TrackRating.track_id == song_row.id,
-                                TrackRating.user_id == user.id).one_or_none()
+            filter(TrackRating.track_id == song_row.id,
+                   TrackRating.user_id == user.id).one_or_none()
     if rating_row and rating_row.starred:
         song.set("starred", rating_row.starred.isoformat())
     return song

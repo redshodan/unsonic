@@ -24,7 +24,7 @@ def lsession():
     settings = config.get_settings()
     here = "/".join(os.path.dirname(__file__).split("/")[:-2])
     global_settings = {"__file__": os.path.join(here, "test/testing2.ini"),
-                       "here": here,  "venv": CONFIG.venv()}
+                       "here": here, "venv": CONFIG.venv()}
     web.init(global_settings, settings, None)
 
     session = models.session_maker()
@@ -68,8 +68,8 @@ def testAddUserTwice(lsession):
 
 
 def testDelUser(lsession):
-    sys.argv = ["unsonic", "-c", "test/testing2.ini", "adduser", "sue", "pass", "role1",
-                "role2"]
+    sys.argv = ["unsonic", "-c", "test/testing2.ini", "adduser", "sue", "pass",
+                "role1", "role2"]
     ret = __main__.main()
     assert ret == 0
     sys.argv = ["unsonic", "-c", "test/testing2.ini", "deluser", "sue"]

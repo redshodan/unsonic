@@ -1,10 +1,8 @@
 import os
-import uuid
 import pytest
 from pathlib import Path
 from collections import namedtuple
 from pyramid import testing
-from sqlalchemy import create_engine
 import mishmash
 
 from unsonic import __main__, web, models, auth
@@ -16,7 +14,7 @@ DatabaseInfo = namedtuple("TestDatabase", ["url", "engine", "SessionMaker",
 
 
 PSQL_KILL = \
-"""SELECT pg_terminate_backend(pg_stat_activity.pid)
+    """SELECT pg_terminate_backend(pg_stat_activity.pid)
    FROM pg_stat_activity
    WHERE pg_stat_activity.datname = '%s'
      AND pid <> pg_backend_pid();"""
@@ -28,7 +26,7 @@ def bootstrap(dbinfo):
     settings = config.get_settings()
     here = "/".join(os.path.dirname(__file__).split("/")[:-2])
     global_settings = {"__file__": os.path.join(here, "test/testing.ini"),
-                       "here": here, "venv":CONFIG.venv()}
+                       "here": here, "venv": CONFIG.venv()}
     web.init(global_settings, settings, dbinfo)
 
     # Sync the database with mishmash

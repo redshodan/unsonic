@@ -11,12 +11,11 @@ class GetCoverArt(Command):
     param_defs = {"id": {"required": True}}
     dbsess = True
 
-
     def handleReq(self, session):
         id = self.params["id"]
         try:
             num = int(id[3:])
-        except:
+        except ValueError:
             raise MissingParam("Invalid id: %s" % id)
         if id.startswith("ar-") or id.startswith("al-"):
             image = session.query(Image).filter_by(id=num).all()

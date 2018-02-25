@@ -3,7 +3,7 @@ import pylast
 
 from . import Command, NotFound, MissingParam, registerCmd, playable_id_t
 from ... import lastfm
-from ...models import Artist, Album, Track, getPlayable
+from ...models import Artist, Album, getPlayable
 
 
 @registerCmd

@@ -51,7 +51,7 @@ def Session():
             session.rollback()
         else:
             session.commit()
-    except:
+    except Exception:
         session.rollback()
         raise
     finally:
@@ -337,7 +337,7 @@ def init(settings, webapp=False, db_info=None):
     if not db_info:
         config = Namespace()
         config.db_url = db_url
-        config.various_artists_name =  VARIOUS_ARTISTS_NAME
+        config.various_artists_name = VARIOUS_ARTISTS_NAME
         db_info = dbinit(config.db_url)
     db_engine = db_info.engine
     session_maker = db_info.SessionMaker
