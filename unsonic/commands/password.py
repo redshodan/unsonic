@@ -1,8 +1,8 @@
-from . import Command, register
+from . import Command
 from ..models import setUserPassword
 
 
-@register
+@Command.register
 class Password(Command):
     NAME = "password"
     HELP = "Change a users password."
