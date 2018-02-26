@@ -66,7 +66,6 @@ Missing
 - getVideoInfo
 - getSimilarSongs: lastfm similar matching
 - getSimilarSongs2: id3 version of getSimilarSongs
-- getTopSongs: Returns top songs for the given artist, using data from last.fm.
 - getNowPlaying:
 - hls:
 - getCaptions:
