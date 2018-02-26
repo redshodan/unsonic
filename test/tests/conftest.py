@@ -47,19 +47,17 @@ def bootstrap(dbinfo):
 
 
 @pytest.fixture(scope="session", params=["sqlite", "postgresql"])
-def database(request):
+def database(request, pg_server):
     if request.param == "sqlite":
-        topdir = "/".join(os.path.dirname(__file__).split("/")[:-2])
         dbname = os.path.abspath(os.path.join(CONFIG.venv(), "testing.sqlite"))
         db = Path(dbname)
         if db.exists():
             db.unlink()
         db_url = f"sqlite:///{dbname}"
     elif request.param == "postgresql":
-        uid = str(uuid.uuid4())
-        uid = uid.replace("-", "")
-        dbname = f"untest_{uid}"
-        db_url = f"postgresql:///{dbname}"
+        dbname = pg_server["params"]["database"]
+        db_url = "postgresql://{user}:{password}@{host}:{port}/{database}" \
+                 .format(**pg_server["params"])
     else:
         assert not("unhandled db: " + request.param)
 
@@ -85,12 +83,6 @@ def database(request):
         connection.execute(PSQL_KILL % dbname)
         connection.close()
         engine.dispose()
-        # Connect to another database and drop the used one
-        engine = create_engine("postgresql:///template1")
-        conn = engine.connect()
-        conn.connection.set_isolation_level(0)
-        conn.execute(f"DROP DATABASE {dbname};")
-        conn.close()
 
 
 @pytest.fixture()

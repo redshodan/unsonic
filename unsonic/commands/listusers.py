@@ -1,8 +1,8 @@
-from . import Command, register
+from . import Command
 from ..models import listUsers
 
 
-@register
+@Command.register
 class ListUsers(Command):
     NAME = "listusers"
     HELP = "List users in the database"
