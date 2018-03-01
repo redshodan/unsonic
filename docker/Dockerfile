@@ -39,4 +39,3 @@ RUN source ${APP_DIR}/bin/activate && \
 
 COPY unsonic-init ${APP_DIR}/bin/
 COPY config.ini ${APP_DIR}/etc/config.ini
-#CMD ["/bin/bash"]

@@ -1,20 +1,37 @@
 import xml.etree.ElementTree as ET
 
-from . import Command, registerCmd, int_t
+from . import Command, NotFound, registerCmd, int_t, str_t, fillTrackUser
+from ...models import Artist, Track
 
 
-# TODO: Actually implement
 @registerCmd
 class GetTopSongs(Command):
     name = "getTopSongs.view"
     param_defs = {
-        "artist": {"required": True},
+        "artist": {"required": True, "type": str_t},
         "count": {"default": 50, "type": int_t},
-        }
+    }
     dbsess = True
 
-
-    # Actually do this for realz once last.fm stuff is hooked up
     def handleReq(self, session):
         songs = ET.Element("topSongs")
+
+        lf_client = self.req.authed_user.lastfm
+        lf_artist = lf_client.get_artist(self.params["artist"])
+        if not lf_artist:
+            raise NotFound("Artist not found")
+        lf_tops = lf_artist.get_top_tracks(limit=self.params["count"])
+        if lf_tops:
+            for top in lf_tops:
+                artist = session.query(Artist).filter(
+                    Artist.name ==
+                    top.item.get_artist().get_name()).one_or_none()
+                if artist:
+                    track = session.query(Track).filter(
+                        Track.artist_id == artist.id,
+                        Track.title == top.item.get_title()).one_or_none()
+                    if track:
+                        songs.append(fillTrackUser(session, track, None,
+                                                   self.req.authed_user))
+
         return self.makeResp(child=songs)

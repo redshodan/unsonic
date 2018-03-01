@@ -5,7 +5,7 @@ from unsonic.views.rest import Command
 from . import buildCmd, checkResp
 
 
-def testArtistOneAlbum(session, ptesting):
+def testArtistOneAlbum(session):
     aid = "ar-4"
     cmd = buildCmd(session, GetMusicDirectory, {"id": aid})
     sub_resp = checkResp(cmd.req, cmd())
@@ -22,7 +22,7 @@ def testArtistOneAlbum(session, ptesting):
 
 
 @unittest.skip("Find better way to map db items")
-def testArtistNoAlbums(session, ptesting):
+def testArtistNoAlbums(session):
     aid = "ar-2"
     cmd = buildCmd(session, GetMusicDirectory, {"id": aid})
     sub_resp = checkResp(cmd.req, cmd())
@@ -36,7 +36,7 @@ def testArtistNoAlbums(session, ptesting):
 
 
 @unittest.skip("Find better way to map db items")
-def testAlbum(session, ptesting):
+def testAlbum(session):
     aid = "al-3"
     cmd = buildCmd(session, GetMusicDirectory, {"id": aid})
     sub_resp = checkResp(cmd.req, cmd())
@@ -54,21 +54,21 @@ def testAlbum(session, ptesting):
         assert child.get("parent") == directory.get("id")
 
 
-def testArtistNotFound(session, ptesting):
+def testArtistNotFound(session):
     cmd = buildCmd(session, GetMusicDirectory, {"id": "ar-1000000000000"})
     checkResp(cmd.req, cmd(), Command.E_NOT_FOUND)
 
 
-def testAlbumNotFound(session, ptesting):
+def testAlbumNotFound(session):
     cmd = buildCmd(session, GetMusicDirectory, {"id": "ar-1000000000000"})
     checkResp(cmd.req, cmd(), Command.E_NOT_FOUND)
 
 
-def testBadID(session, ptesting):
+def testBadID(session):
     cmd = buildCmd(session, GetMusicDirectory, {"id": "foobar"})
     checkResp(cmd.req, cmd(), Command.E_MISSING_PARAM)
 
 
-def testNoID(session, ptesting):
+def testNoID(session):
     cmd = buildCmd(session, GetMusicDirectory)
     checkResp(cmd.req, cmd(), Command.E_MISSING_PARAM)

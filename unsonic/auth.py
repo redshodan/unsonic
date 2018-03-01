@@ -8,12 +8,12 @@ from pyramid.security import forget
 from pyramid.view import forbidden_view_config
 
 import unsonic
-from unsonic import models
+from unsonic import models, lastfm
 from unsonic.models import Session
 
 
 class User():
-    def __init__(self, db_user):
+    def __init__(self, db_user, db_user_config):
         self.id = db_user.id
         self.name = db_user.name
         self.password = db_user.password
@@ -25,18 +25,45 @@ class User():
         for role in db_user.roles:
             self.roles.append(role.name)
         self.avatar = db_user.avatar
+        self.db_user_config = {u.key: u.value for u in db_user_config}
+        self._lastfm = None
+        self.listening = None
 
+    def __getattr__(self, name):
+        from .config import CONFIG
+        mangled = name.replace("_", ".")
+        if mangled in self.db_user_config:
+            return self.db_user_config[mangled]
+        elif mangled in CONFIG.getDbValueUserDefaults():
+            return CONFIG.getDbValueUserDefaults()[mangled]
+        else:
+            raise AttributeError()
+
+    @property
+    def lastfm(self):
+        if not self._lastfm:
+            self._lastfm = lastfm.makeClient(self.lastfm_user,
+                                             self.lastfm_password)
+            # FIXME: more proper cache file name? ~/.cache?
+            # self._lastfm.enable_caching("/tmp/unsonic-lastfm.cache")
+            self._lastfm.enable_caching()
+        return self._lastfm
 
     def isAdmin(self):
         return Roles.ADMIN in self.roles
 
-
     def isUser(self):
         return Roles.USERS in self.roles
 
-
     def isRest(self):
         return Roles.REST in self.roles
+
+    def __repr__(self):
+        msg = []
+        for attr, val in self.__dict__.items():
+            if not attr.startswith("_"):
+                msg.append(f"{attr}: {val}")
+        return "User(" + ", ".join(msg) + ")"
 
 
 class Roles(object):
@@ -114,7 +141,7 @@ class SubsonicAuth(BasicAuthAuthenticationPolicy):
             if not user or user and not user.password:
                 return
             if ("t" in list(req.params.keys()) and
-                  "s" in list(req.params.keys())):
+                    "s" in list(req.params.keys())):
                 sum = hashlib.md5()
                 sum.update(user.password.encode("utf-8"))
                 sum.update(req.params["s"].encode("utf-8"))
@@ -129,7 +156,7 @@ class SubsonicAuth(BasicAuthAuthenticationPolicy):
                     decode_hex = codecs.getdecoder("hex_codec")
                     password = decode_hex(password[4:])[0]
                     password = password.decode("utf-8")
-                except:
+                except Exception:
                     return
             if user and password == user.password:
                 # Stash the user for easy access

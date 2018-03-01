@@ -4,7 +4,7 @@ from unsonic.models import Image
 from . import buildCmd, checkResp
 
 
-def testBasic(session, ptesting):
+def testBasic(session):
     cmd = buildCmd(session, GetCoverArt, {"id": "al-1"})
     resp = cmd()
     image = session.query(Image).filter_by(id=1).one_or_none()
@@ -12,6 +12,6 @@ def testBasic(session, ptesting):
     assert resp.body == image.data
 
 
-def testNoID(session, ptesting):
+def testNoID(session):
     cmd = buildCmd(session, GetCoverArt)
     checkResp(cmd.req, cmd(), Command.E_MISSING_PARAM)

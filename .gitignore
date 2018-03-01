@@ -16,6 +16,8 @@ dist
 dist/.*
 .cache
 .cache/.*
+.pytest_cache
+.pytest_cache/.*
 .eggs
 .eggs/.*
 tags

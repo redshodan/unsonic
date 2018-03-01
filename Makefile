@@ -82,7 +82,11 @@ check: $(FLAKE8)
 #TEST_POSTGRES_OPTS=--pg-image postgres:9.6-alpine
 TEST_POSTGRES_OPTS=--pg-image postgres:10.0-alpine
 tests: pytest tests-clean
-	PYTEST_ADDOPTS="${TEST_POSTGRES_OPTS}" $(PYTHON) setup.py test $(FTF)
+ifdef FTF
+	PYTEST_ADDOPTS="${TEST_POSTGRES_OPTS}" $(PYTHON) setup.py test --addopts "-k $(FTF)"
+else
+	PYTEST_ADDOPTS="${TEST_POSTGRES_OPTS}" $(PYTHON) setup.py test
+endif
 	rm -rf unsonic.egg-info
 
 pytest: $(PYTEST)
@@ -113,7 +117,8 @@ sdist: venv build docs pkg-copy
 	cp -af $(VENV)/pkg/dist/* dist
 
 clean:
-	find unsonic -name '*.pyc' | xargs rm -f
+	find unsonic test -name '__pycache__' -type d | xargs rm -rf
+	find unsonic test -name '*.pyc' | xargs rm -f
 
 devel-clean:
 	rm $(VENV)/development.sqlite
@@ -126,9 +131,11 @@ tests-clean:
 	rm -f $(VENV)/testing.sqlite $(VENV)/testing.sqlite.org
 
 DOCKER_COMPOSE := docker-compose -f docker/docker-compose.yml
-docker:
-	@test -n "${MUSIC_DIR}" || (echo "MUSIC_DIR volume directy required" && false)
+image:
 	@$(DOCKER_COMPOSE) build
+
+docker: image
+	@test -n "${MUSIC_DIR}" || (echo "MUSIC_DIR volume directy required" && false)
 	@$(DOCKER_COMPOSE) create --no-recreate
 
 docker-sqlite: docker

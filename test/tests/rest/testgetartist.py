@@ -3,7 +3,7 @@ from unsonic.views.rest import Command
 from . import buildCmd, checkResp
 
 
-def testNoAlbums(session, ptesting):
+def testNoAlbums(session):
     aid = "ar-1"
     cmd = buildCmd(session, GetArtist, {"id": aid})
     sub_resp = checkResp(cmd.req, cmd())
@@ -11,7 +11,7 @@ def testNoAlbums(session, ptesting):
     assert artist.get("id") == aid
 
 
-def testTwoAlbums(session, ptesting):
+def testTwoAlbums(session):
     aid = "ar-2"
     cmd = buildCmd(session, GetArtist, {"id": aid})
     sub_resp = checkResp(cmd.req, cmd())
@@ -25,16 +25,16 @@ def testTwoAlbums(session, ptesting):
         assert int(album.get("duration")) >= 0
 
 
-def testNotFound(session, ptesting):
+def testNotFound(session):
     cmd = buildCmd(session, GetArtist, {"id": "ar-1000000000000"})
     checkResp(cmd.req, cmd(), Command.E_NOT_FOUND)
 
 
-def testBadID(session, ptesting):
+def testBadID(session):
     cmd = buildCmd(session, GetArtist, {"id": "foobar"})
     checkResp(cmd.req, cmd(), Command.E_MISSING_PARAM)
 
 
-def testNoID(session, ptesting):
+def testNoID(session):
     cmd = buildCmd(session, GetArtist)
     checkResp(cmd.req, cmd(), Command.E_MISSING_PARAM)
