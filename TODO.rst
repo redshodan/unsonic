@@ -64,8 +64,6 @@ Missing
 -------
 - getVideo
 - getVideoInfo
-- getSimilarSongs: lastfm similar matching
-- getSimilarSongs2: id3 version of getSimilarSongs
 - getNowPlaying:
 - hls:
 - getCaptions:
