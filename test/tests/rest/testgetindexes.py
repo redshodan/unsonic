@@ -5,7 +5,7 @@ from . import buildCmd, checkResp
 
 
 @unittest.skip("Fix the extra protocol bits")
-def testBasic(session, ptesting):
+def testBasic(session):
     cmd = buildCmd(session, GetIndexes)
     sub_resp = checkResp(cmd.req, cmd())
     indexes = sub_resp.find("{http://subsonic.org/restapi}indexes")

@@ -2,7 +2,7 @@ from unsonic.views.rest.getalbum import GetAlbum
 from . import buildCmd, checkResp
 
 
-def testGetAlbum(session, ptesting):
+def testGetAlbum(session):
     alid = "al-1"
     cmd = buildCmd(session, GetAlbum, {"id": alid})
     sub_resp = checkResp(cmd.req, cmd())

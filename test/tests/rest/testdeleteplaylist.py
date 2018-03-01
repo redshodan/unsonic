@@ -4,7 +4,7 @@ from unsonic.views.rest.deleteplaylist import DeletePlayList
 from . import buildCmd, checkResp
 
 
-def testDeletePlayList(session, ptesting):
+def testDeletePlayList(session):
     pname = "playlist1"
     plist = ["tr-1", "tr-2", "tr-3"]
     cmd = buildCmd(session, CreatePlayList, {"name": pname, "songId": plist})
@@ -12,7 +12,7 @@ def testDeletePlayList(session, ptesting):
     sub_resp = checkResp(cmd.req, resp)
 
     row = session.query(PlayList).\
-              filter(PlayList.name == pname).one_or_none()
+        filter(PlayList.name == pname).one_or_none()
     assert row is not None
 
     pl = sub_resp.find("{http://subsonic.org/restapi}playlist")
@@ -21,5 +21,5 @@ def testDeletePlayList(session, ptesting):
     checkResp(cmd.req, cmd())
 
     row = session.query(PlayList).\
-              filter(PlayList.name == pname).one_or_none()
+        filter(PlayList.name == pname).one_or_none()
     assert row is None
