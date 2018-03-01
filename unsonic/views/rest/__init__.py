@@ -5,6 +5,7 @@ import logging
 from collections import OrderedDict
 from datetime import datetime
 import xml.etree.ElementTree as ET
+import pylast
 
 from pyramid.security import Allow, Authenticated, DENY_ALL
 
@@ -56,6 +57,7 @@ class Command(object):
     E_PERM = ("50", "Permission denied for this operation")
     # 60, trial period over, intentionally skipped, cause screw that noise.
     E_NOT_FOUND = ("70", "Requsted data not found")
+    E_LASTFM = ("0", "LastFM error")
 
     def __init__(self, route, req, session=None):
         self.req = req
@@ -83,6 +85,8 @@ class Command(object):
             return self.makeResp(status=(Command.E_GENERIC, str(e)))
         except NoPerm as e:
             return self.makeResp(status=(Command.E_PERM, str(e)))
+        except pylast.WSError as e:
+            return self.makeResp(status=(Command.E_LASTFM, str(e)))
 
     def handleReq(self, session=None):
         raise Exception("Command must implement handleReq()")

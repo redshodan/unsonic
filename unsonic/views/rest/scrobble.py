@@ -34,13 +34,15 @@ class Scrobble(Command):
             dbinfo.users[self.req.authed_user.name]\
                   .listening = self.params["id"]
 
-            if lastfm:
+            if lastfm.is_user:
                 log.info(f"last.fm now playing: {track.artist} - {track.title}")
                 lastfm.update_now_playing(track.artist, track.title,
                                           album=track.album.title,
                                           album_artist=track.album_artist,
                                           duration=track.time_secs,
                                           track_number=track.track_num)
+            else:
+                log.info(f"No LastFM user, skipping LastFM")
         else:
             # Inc play count
             try:
@@ -61,7 +63,7 @@ class Scrobble(Command):
                                   track_id=self.params["id"])
             session.add(scrobble)
 
-            if lastfm:
+            if lastfm.is_user:
                 log.info(f"last.fm scrobbling: {track.artist} - {track.title}")
                 lastfm.scrobble(track.artist.name, track.title,
                                 int(time.time()),
@@ -69,5 +71,7 @@ class Scrobble(Command):
                                 album_artist=track.album.artist.name,
                                 track_number=track.track_num,
                                 duration=track.time_secs)
+            else:
+                log.info(f"No LastFM user, skipping LastFM")
 
         return self.makeResp()

@@ -38,5 +38,10 @@ def hashPassword(password):
 
 def makeClient(user=None, password=None):
     log.debug(f"Creating LastFM client for {user}")
-    return pylast.LastFMNetwork(api_key=API_KEY, api_secret=API_SECRET,
-                                username=user, password_hash=password)
+    client = pylast.LastFMNetwork(api_key=API_KEY, api_secret=API_SECRET,
+                                  username=user, password_hash=password)
+    if user and password:
+        client.is_user = True
+    else:
+        client.is_user = False
+    return client
