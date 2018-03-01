@@ -15,6 +15,13 @@ class GetSimilarSongs(Command):
     }
     dbsess = True
 
+    def __init__(self, route, req, session=None):
+        super().__init__(route, req, session)
+        self.setParams()
+
+    def setParams(self, tag_name="similarSongs"):
+        self.tag_name = tag_name
+
     def handleReq(self, session):
         row = session.query(Track).filter(Track.id == self.params["id"]).one()
         if row is None:
@@ -30,7 +37,7 @@ class GetSimilarSongs(Command):
         else:
             lf_ssongs = lf_track.get_similar()
 
-        ssong = ET.Element("similarSongs")
+        ssong = ET.Element(self.tag_name)
 
         for lf_song in lf_ssongs:
             lf_track = session.query(Track).filter(
