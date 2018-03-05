@@ -6,7 +6,7 @@ UNSONIC_USER="${UNSONIC_USER:-admin}"
 UNSONIC_PASSWORD="${UNSONIC_PASSWORD:-$(pwgen 12)}"
 
 unsonic_set_password() (
-    set -eu -o pipefail
+    set -eu
     local user="$1"; shift
     local pass="$1"; shift
 
@@ -14,7 +14,7 @@ unsonic_set_password() (
     $UNSONIC password "$user" "$pass"
 )
 
-UNSONIC="unsonic -c /unsonic/etc/config.ini"
+UNSONIC="unsonic"
 if [[ -z $MISHMASH_DBURL ]]; then
     echo "MISHMASH_DBURL environment variable required."
     exit 1

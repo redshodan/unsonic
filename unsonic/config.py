@@ -18,12 +18,12 @@ CONFIG = None
 DEF_LOCS = [
     # Production paths
     "/etc/unsonic.ini",
-    os.path.join(INSTALL, "etc/unsonic.ini"),
-    os.path.join(HERE, "unsonic.ini"),
+    os.path.join(INSTALL, "etc", "unsonic.ini"),
+    os.path.join(HERE, "var", "unsonic.ini"),
     os.path.join(HERE, "unsonic.ini"),
     # Dev paths
     os.path.join(HERE, "development.ini"),
-    os.path.join(HERE, "unsonic/etc/development.ini")
+    os.path.join(HERE, "unsonic", "etc", "development.ini")
 ]
 
 
