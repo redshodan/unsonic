@@ -4,7 +4,7 @@ from unsonic.views.rest import Command
 from . import buildCmd, checkResp
 
 
-def testChangePassword(session, ptesting):
+def testChangePassword(session):
     row = session.query(User).filter(User.name == "test").one_or_none()
     assert row.password == "test"
     cmd = buildCmd(session, ChangePassword,
@@ -14,14 +14,14 @@ def testChangePassword(session, ptesting):
     assert row.password == "newpass"
 
 
-def testChangeSelfPassword(session, ptesting):
+def testChangeSelfPassword(session):
     cmd = buildCmd(session, ChangePassword, {"password": "newpass"})
     checkResp(cmd.req, cmd())
     row = session.query(User).filter(User.name == "test").one_or_none()
     assert row.password == "newpass"
 
 
-def testChangeOtherPasswordNonAdmin(session, ptesting):
+def testChangeOtherPasswordNonAdmin(session):
     cmd = buildCmd(session, ChangePassword, {"username": "admin",
                                              "password": "newpass"})
     checkResp(cmd.req, cmd(), Command.E_PERM)
@@ -29,7 +29,7 @@ def testChangeOtherPasswordNonAdmin(session, ptesting):
     assert row.password is None
 
 
-def testChangeOtherPasswordAdmin(session, ptesting):
+def testChangeOtherPasswordAdmin(session):
     cmd = buildCmd(session, ChangePassword, {"username": "test",
                                              "password": "newpass"}, "admin")
     checkResp(cmd.req, cmd())

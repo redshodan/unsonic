@@ -140,6 +140,17 @@ music directories, one per line. %(here)s refers to the location of the
 configuration file itself.
 
 
+Setting up LastFM
+-----------------
+Unsonic includes support for querying LastFM for artist/album information out of
+the box. In addition, you can configure Unsonic with your LastFM account to enable
+scrobbling.
+
+```
+$ unsonic config -s "lastfm.user=lastfm-user" unsonic-user
+$ unsonic config -s "lastfm.password=lastfm-password" unsonic-user
+```
+
 Running with TLS
 ----------------
 Unsonic itself doesn't handle TLS, but can easily be run behind a reverse proxy
@@ -179,6 +190,7 @@ server {
 
 Developing Unsonic
 ==================
+Running tests requires docker.
 
 ### Development build
   * make devel

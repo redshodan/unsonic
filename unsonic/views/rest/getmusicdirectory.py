@@ -8,21 +8,19 @@ from ...models import Artist, Album, Track
 @registerCmd
 class GetMusicDirectory(Command):
     name = "getMusicDirectory.view"
+    # FIXME: use playable_id_t?
     param_defs = {"id": {"required": True}}
     dbsess = True
-
 
     def __init__(self, route, req, session=None):
         super(GetMusicDirectory, self).__init__(route, req, session)
         self.setParams()
-
 
     def setParams(self, dir_param="directory", album_param="child",
                   track_param="child"):
         self.dir_param = dir_param
         self.album_param = album_param
         self.track_param = track_param
-
 
     def handleReq(self, session):
         directory = ET.Element(self.dir_param)

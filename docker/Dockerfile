@@ -69,4 +69,3 @@ VOLUME ${APP_DIR}/var
 CMD ["/unsonic/bin/unsonic-init"]
 COPY docker/unsonic-init ${APP_DIR}/bin/
 COPY docker/config.ini ${APP_DIR}/etc/config.ini
-

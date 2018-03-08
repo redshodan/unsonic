@@ -4,7 +4,7 @@ import logging
 try:
     # Location of setup_logging in older pyramid versions
     from pyramid.scripts.common import setup_logging
-except:
+except ImportError:
     from pyramid.paster import setup_logging
 
 import eyed3.utils.console

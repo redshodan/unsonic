@@ -4,7 +4,7 @@ from unsonic.views.rest import Command
 from . import buildCmd, checkResp
 
 
-def testDownload(session, ptesting):
+def testDownload(session):
     cmd = buildCmd(session, Download, {"id": "tr-1"})
     resp = cmd()
     row = session.query(Track).filter(Track.id == 1).all()[0]
@@ -15,6 +15,6 @@ def testDownload(session, ptesting):
     assert resp.body == streamed
 
 
-def testDownloadNoID(session, ptesting):
+def testDownloadNoID(session):
     cmd = buildCmd(session, Download)
     checkResp(cmd.req, cmd(), Command.E_MISSING_PARAM)

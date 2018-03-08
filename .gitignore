@@ -17,5 +17,6 @@ dist/
 .cache/
 .eggs/
 .vscode/
+ter
 tags
 .idea/

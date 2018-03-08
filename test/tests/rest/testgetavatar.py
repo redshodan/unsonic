@@ -4,7 +4,7 @@ from unsonic.models import Image
 from . import buildCmd, checkResp
 
 
-def testGetAvatar(session, ptesting):
+def testGetAvatar(session):
     cmd = buildCmd(session, GetAvatar, {"username": "test"})
     resp = cmd()
     image = session.query(Image).filter_by(id=3).one_or_none()
@@ -12,16 +12,16 @@ def testGetAvatar(session, ptesting):
     assert resp.body == image.data
 
 
-def testGetAvatarNoAvatar(session, ptesting):
+def testGetAvatarNoAvatar(session):
     cmd = buildCmd(session, GetAvatar, {"username": "admin"})
     checkResp(cmd.req, cmd(), Command.E_NOT_FOUND)
 
 
-def testGetAvatarBadUser(session, ptesting):
+def testGetAvatarBadUser(session):
     cmd = buildCmd(session, GetAvatar, {"username": "nosuchuser"})
     checkResp(cmd.req, cmd(), Command.E_NOT_FOUND)
 
 
-def testGetAvatarNoID(session, ptesting):
+def testGetAvatarNoID(session):
     cmd = buildCmd(session, GetAvatar)
     checkResp(cmd.req, cmd(), Command.E_MISSING_PARAM)

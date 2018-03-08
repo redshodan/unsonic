@@ -51,7 +51,7 @@ def Session():
             session.rollback()
         else:
             session.commit()
-    except:
+    except Exception:
         session.rollback()
         raise
     finally:
@@ -70,7 +70,6 @@ class DBInfo(Base, OrmObject):
 
     version = Column(String(32), nullable=False, primary_key=True)
     last_sync = Column(DateTime)
-
 
     @staticmethod
     def loadTable(session):
@@ -91,7 +90,6 @@ class Config(Base, OrmObject):
     modified = sqlalchemy.Column(sqlalchemy.DateTime(), nullable=False,
                                  default=datetime.datetime.now)
 
-
     @staticmethod
     def loadTable(session):
         pass
@@ -106,7 +104,6 @@ class UserConfig(Base, OrmObject):
     value = Column(String, nullable=False)
     modified = sqlalchemy.Column(sqlalchemy.DateTime(), nullable=False,
                                  default=datetime.datetime.now)
-
 
     @staticmethod
     def loadTable(session):
@@ -136,7 +133,7 @@ class User(Base, OrmObject):
 
     # Relations
     roles = relation("Role", cascade="all, delete-orphan",
-                      passive_deletes=True)
+                     passive_deletes=True)
     playqueue = relation("PlayQueue", cascade="all, delete-orphan",
                          passive_deletes=True)
     playlists = relation("PlayList", cascade="all, delete-orphan",
@@ -144,8 +141,7 @@ class User(Base, OrmObject):
     playcounts = relation("PlayCount", cascade="all, delete-orphan",
                           passive_deletes=True)
     scrobbles = relation("Scrobble", cascade="all, delete-orphan",
-                          passive_deletes=True)
-
+                         passive_deletes=True)
 
     @staticmethod
     def loadTable(session):
@@ -195,7 +191,7 @@ class PlayList(Base, OrmObject):
 
     id = Column(Integer, Sequence("un_playlists_id_seq"), primary_key=True)
     user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
-                      nullable=False)
+                     nullable=False)
     name = Column(Text)
     comment = Column(Text)
     public = Column(Integer, default=0)
@@ -228,9 +224,10 @@ class PlayListUser(Base, OrmObject):
 class PlayListTrack(Base, OrmObject):
     __tablename__ = 'un_playlisttracks'
 
-    id = Column(Integer, Sequence("un_playlisttracks_id_seq"), primary_key=True)
+    id = Column(Integer, Sequence(
+        "un_playlisttracks_id_seq"), primary_key=True)
     playlist_id = Column(Integer, ForeignKey("un_playlists.id",
-                         ondelete='CASCADE'), nullable=False)
+                                             ondelete='CASCADE'), nullable=False)
     track_id = Column(Integer, ForeignKey("tracks.id", ondelete='CASCADE'),
                       nullable=False)
     track = relation("Track")
@@ -340,7 +337,7 @@ def init(settings, webapp=False, db_info=None):
     if not db_info:
         config = Namespace()
         config.db_url = db_url
-        config.various_artists_name =  VARIOUS_ARTISTS_NAME
+        config.various_artists_name = VARIOUS_ARTISTS_NAME
         db_info = dbinit(config.db_url)
     db_engine = db_info.engine
     session_maker = db_info.SessionMaker
@@ -427,7 +424,9 @@ def getUserByName(session, username, wrap=True):
     try:
         urow = session.query(User).filter(User.name == username).one()
         if wrap:
-            return auth.User(urow)
+            ucrow = session.query(UserConfig).filter(
+                UserConfig.user_id == urow.id).all()
+            return auth.User(urow, ucrow)
         else:
             return urow
     except NoResultFound:
@@ -436,9 +435,99 @@ def getUserByName(session, username, wrap=True):
 
 def getUserByID(session, id):
     try:
-        return auth.User(session.query(User).filter(User.id == id).one())
+        urow = session.query(User).filter(User.id == id).one()
+        ucrow = session.query(UserConfig).filter(
+            UserConfig.user_id == urow.id).all()
+        return auth.User(urow, ucrow)
     except NoResultFound:
         return None
+
+
+def getGlobalConfig(session, key=None):
+    try:
+        query = session.query(Config)
+        if key:
+            return query.filter(Config.key == key).one_or_none()
+        else:
+            return query.all()
+    except NoResultFound:
+        return []
+
+
+def getUserConfig(session, username, key=None):
+    try:
+        user = getUserByName(session, username)
+        if not user:
+            return None
+        query = session.query(UserConfig).filter(UserConfig.user_id == user.id)
+        if key:
+            return query.filter(UserConfig.key == key).one_or_none()
+        else:
+            return query.all()
+    except NoResultFound:
+        return []
+
+
+def setGlobalConfig(session, key, value):
+    cfg = session.query(Config).filter(Config.key == key).one_or_none()
+    if cfg:
+        cfg.value = value
+        cfg.modified = datetime.datetime.now()
+    else:
+        cfg = Config(key=key, value=value)
+    session.add(cfg)
+    session.flush()
+    return cfg
+
+
+def setUserConfig(session, username, key, value):
+    user = getUserByName(session, username)
+    cfg = session.query(UserConfig).filter(
+        UserConfig.user_id == user.id,
+        UserConfig.key == key).one_or_none()
+    if cfg:
+        cfg.value = value
+        cfg.modified = datetime.datetime.now()
+    else:
+        cfg = UserConfig(user_id=user.id, key=key, value=value)
+    session.add(cfg)
+    session.flush()
+    return cfg
+
+
+def delGlobalConfig(session, key):
+    query = session.query(Config).filter(Config.key == key)
+    if query.one_or_none() is not None:
+        query.delete()
+        session.flush()
+        return True
+    else:
+        return False
+
+
+def delUserConfig(session, username, key):
+    user = getUserByName(session, username)
+    if not user:
+        return False
+    query = session.query(UserConfig).filter(UserConfig.user_id == user.id,
+                                             UserConfig.key == key)
+    if query.one_or_none() is not None:
+        query.delete()
+        session.flush()
+        return True
+    else:
+        return False
+
+
+def getPlayable(session, id):
+    num = int(id[3:])
+    if id.startswith("ar"):
+        return session.query(Artist).filter(Artist.id == num).one_or_none()
+    elif id.startswith("al"):
+        return session.query(Album).filter(Album.id == num).one_or_none()
+    elif id.startswith("tr"):
+        return session.query(Track).filter(Track.id == num).one_or_none()
+    return None
 
 
 def rateItem(session, user_id, item_id, rating=None, starred=None):
@@ -506,7 +595,7 @@ def updatePseudoRatings(session, user_id=None, album_id=ALL, artist_id=ALL):
                 alrating = AlbumRating(album_id=album.id, user_id=user_id)
                 session.add(alrating)
             tracks = session.query(Track). \
-                         filter(Track.album_id == album.id).all()
+                filter(Track.album_id == album.id).all()
             pseudo = 0
             count = 0
             starred = None
@@ -541,15 +630,15 @@ def updatePseudoRatings(session, user_id=None, album_id=ALL, artist_id=ALL):
     if artists:
         for artist in artists:
             arrating = session.query(ArtistRating).filter(
-                    ArtistRating.artist_id == artist.id,
-                    ArtistRating.user_id == user_id).one_or_none()
+                ArtistRating.artist_id == artist.id,
+                ArtistRating.user_id == user_id).one_or_none()
             if arrating is None:
                 arrating = ArtistRating(user_id=user_id, artist_id=artist.id)
                 session.add(arrating)
             if arrating.rating is None or not arrating.pseudo_rating:
                 continue
             albums = session.query(Album). \
-                         filter(Album.artist_id == artist.id).all()
+                filter(Album.artist_id == artist.id).all()
             pseudo = 0
             count = 0
             starred = None

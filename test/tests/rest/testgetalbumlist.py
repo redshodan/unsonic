@@ -17,20 +17,20 @@ def validate(cmd, resp):
     return count, titles
 
 
-def testRandom(session, ptesting):
+def testRandom(session):
     cmd = buildCmd(session, GetAlbumList, {"type": "random"})
     resp = cmd()
     count1, titles1 = validate(cmd, resp)
 
 
-def testSized(session, ptesting):
+def testSized(session):
     cmd = buildCmd(session, GetAlbumList, {"type": "random", "size": "2"})
     resp = cmd()
     count, titles = validate(cmd, resp)
     assert count == 2
 
 
-def testOffset(session, ptesting):
+def testOffset(session):
     cmd = buildCmd(session, GetAlbumList, {"type": "random", "size": "3",
                                            "offset": "1"})
     resp = cmd()
@@ -38,7 +38,7 @@ def testOffset(session, ptesting):
     assert count == 4
 
 
-def testOffset2(session, ptesting):
+def testOffset2(session):
     cmd = buildCmd(session, GetAlbumList, {"type": "random", "size": "3",
                                            "offset": "2"})
     resp = cmd()
@@ -46,7 +46,7 @@ def testOffset2(session, ptesting):
     assert count == 5
 
 
-def testNewest(session, ptesting):
+def testNewest(session):
     cmd = buildCmd(session, GetAlbumList, {"type": "newest"})
     resp = cmd()
     count1, titles1 = validate(cmd, resp)
@@ -58,19 +58,20 @@ def testNewest(session, ptesting):
     assert titles1 == titles2
 
 
-def testNoType(session, ptesting):
+def testNoType(session):
     cmd = buildCmd(session, GetAlbumList)
     resp = cmd()
     checkResp(cmd.req, resp, Command.E_MISSING_PARAM)
 
 
-def testByGenre(session, ptesting):
-    cmd = buildCmd(session, GetAlbumList, {"type": "byGenre", "genre": "techno"})
+def testByGenre(session):
+    cmd = buildCmd(session, GetAlbumList, {
+                   "type": "byGenre", "genre": "techno"})
     resp = cmd()
     count1, titles1 = validate(cmd, resp)
 
 
-def testByGenreNoGenre(session, ptesting):
+def testByGenreNoGenre(session):
     cmd = buildCmd(session, GetAlbumList, {"type": "byGenre"})
     resp = cmd()
     checkResp(cmd.req, resp, Command.E_MISSING_PARAM)

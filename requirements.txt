@@ -1,7 +1,7 @@
 pyramid==1.9.1
 SQLAlchemy==1.2.4
 alembic==0.9.8
-transaction==2.1.2
+transaction==2.2.0
 pyramid_tm==2.2
 pyramid_debugtoolbar==4.4
 zope.sqlalchemy==1.0
@@ -14,3 +14,4 @@ nicfit.py==0.8
 mishmash[postgres]==0.3b6
 sphinx==1.7.1
 recommonmark==0.4.0
+pylast==2.1.0

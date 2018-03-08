@@ -2,7 +2,7 @@ from unsonic.views.rest.getartists import GetArtists
 from . import buildCmd, checkResp
 
 
-def testBasic(session, ptesting):
+def testBasic(session):
     cmd = buildCmd(session, GetArtists)
     sub_resp = checkResp(cmd.req, cmd())
     artists = sub_resp.find("{http://subsonic.org/restapi}artists")

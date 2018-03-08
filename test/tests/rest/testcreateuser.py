@@ -3,7 +3,7 @@ from unsonic.views.rest.createuser import CreateUser
 from . import buildCmd, checkResp
 
 
-def testCreateUser(session, ptesting):
+def testCreateUser(session):
     cmd = buildCmd(session, CreateUser,
                    {"username": "test2", "password": "test2"}, "admin")
     checkResp(cmd.req, cmd())
