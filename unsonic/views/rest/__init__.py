@@ -399,7 +399,9 @@ def fillAlbumID3(session, row, user, append_tracks):
         album.set("genre", row.tags[0].name)
     track_count = 0
     duration = 0
-    for row in session.query(Track).filter(Track.album_id == row.id).all():
+    for row in session.query(Track)           \
+            .filter(Track.album_id == row.id) \
+            .order_by(Track.media_num, Track.track_num).all():
         track_count += 1
         duration = duration + row.time_secs
         if append_tracks:
@@ -436,6 +438,10 @@ def fillTrack(session, row, name="song"):
         song.set("genre", row.tags[0].name)
     if row.album is not None:
         fillCoverArt(session, row.album, song, "al")
+    if row.media_num:
+        song.set("discNumber", str(row.media_num))
+    else:
+        song.set("discNumber", "1")
     song.set("size", str(row.size_bytes))
     # FIXME
     song.set("contentType", "audio/mpeg")

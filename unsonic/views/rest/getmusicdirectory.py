@@ -60,8 +60,8 @@ class GetMusicDirectory(Command):
             directory.set("name", album.title)
             directory.set("id", self.params["id"])
             song = None
-            for row in session.query(Track).filter(
-                    Track.album_id == album_id).order_by(Track.track_num).all():
+            for row in session.query(Track).filter(Track.album_id == album_id) \
+                    .order_by(Track.media_num, Track.track_num).all():
                 song = fillTrackUser(session, row, None, self.req.authed_user,
                                      self.track_param)
                 directory.append(song)
