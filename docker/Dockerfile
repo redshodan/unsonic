@@ -13,7 +13,6 @@ RUN set -ex; \
        apk add -Uv --no-cache \
           bash \
           ca-certificates \
-          curl \
           libmagic \
           postgresql-libs \
           pwgen \
@@ -22,6 +21,7 @@ RUN set -ex; \
           linux-headers \
           musl-dev \
           postgresql-dev \
+          curl \
           tar \
           xz
 
@@ -40,15 +40,16 @@ WORKDIR /usr/src/unsonic
 RUN set -ex; \
        pip3 install -r requirements.txt
 
+ARG JAMSTASH_URL=https://github.com/tsquillario/Jamstash/archive/master.tar.gz
 COPY . /usr/src/unsonic/
 RUN set -ex; \
        python3 setup.py build \
     && python3 setup.py install --prefix=/usr/local \
+    && cd /usr/src \
+    && curl -fSL -o jamstash.tar.gz "$JAMSTASH_URL" \
+    && mkdir -p "$APP_DIR/ui" \
+    && tar -xf jamstash.tar.gz -C "$APP_DIR/ui" --strip=2 --no-anchored dist \
     && apk del .build-deps \
-    && if [ -d docker/Jamstash/dist ]; then \
-           mkdir -p "$APP_DIR/ui"; \
-           cp -pR docker/Jamstash/dist/* "$APP_DIR/ui"; \
-       fi \
     && rm -rf /usr/src/unsonic /home/unsonic
 
 # add 'unsonic' user
