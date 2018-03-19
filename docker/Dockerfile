@@ -25,6 +25,7 @@ RUN set -ex; \
           tar \
           xz
 
+# Install ffmpeg
 ARG FFMPEG_CHANNEL=release
 ARG FFMPEG_URL=https://johnvansickle.com/ffmpeg/releases/ffmpeg-$FFMPEG_CHANNEL-64bit-static.tar.xz
 ARG FFMPEG_MD5=905cc873e338d26966557986c1db1b19
@@ -35,20 +36,24 @@ RUN set -ex; \
     && tar -xf ffmpeg.tar.xz  -C /usr/local/bin --strip=1 --no-anchored ffmpeg \
     && rm -f /usr/src/ffmpeg.tar.xz
 
+# Install Jamstash
+ARG JAMSTASH_URL=https://github.com/tsquillario/Jamstash/archive/master.tar.gz
+RUN set -ex; \
+       cd /usr/src \
+    && curl -fSL -o jamstash.tar.gz "$JAMSTASH_URL" \
+    && mkdir -p "$APP_DIR/static" \
+    && tar -xf jamstash.tar.gz -C "$APP_DIR/static" --strip=2 --no-anchored dist
+
+# Install dependencies (requirements.txt)
 COPY requirements.txt /usr/src/unsonic/
 WORKDIR /usr/src/unsonic
 RUN set -ex; \
        pip3 install -r requirements.txt
 
-ARG JAMSTASH_URL=https://github.com/tsquillario/Jamstash/archive/master.tar.gz
 COPY . /usr/src/unsonic/
 RUN set -ex; \
        python3 setup.py build \
     && python3 setup.py install --prefix=/usr/local \
-    && cd /usr/src \
-    && curl -fSL -o jamstash.tar.gz "$JAMSTASH_URL" \
-    && mkdir -p "$APP_DIR/ui" \
-    && tar -xf jamstash.tar.gz -C "$APP_DIR/ui" --strip=2 --no-anchored dist \
     && apk del .build-deps \
     && rm -rf /usr/src/unsonic /home/unsonic
 
