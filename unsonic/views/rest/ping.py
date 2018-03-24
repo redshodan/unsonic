@@ -6,5 +6,5 @@ class Ping(Command):
     name = "ping.view"
     param_defs = {}
 
-    def handleReq(self):
+    def handleReq(self, session=None):
         return self.makeResp()

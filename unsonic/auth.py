@@ -1,3 +1,4 @@
+import logging
 import hashlib
 import codecs
 
@@ -10,6 +11,8 @@ from pyramid.view import forbidden_view_config
 import unsonic
 from unsonic import models, lastfm
 from unsonic.models import Session
+
+log = logging.getLogger(__name__)
 
 
 class User():
@@ -139,6 +142,7 @@ class SubsonicAuth(BasicAuthAuthenticationPolicy):
         with Session() as session:
             user = models.getUserByName(session, username)
             if not user or user and not user.password:
+                log.warning(f"User {username} not found, or lacks a password")
                 return
             if ("t" in list(req.params.keys()) and
                     "s" in list(req.params.keys())):
@@ -156,7 +160,8 @@ class SubsonicAuth(BasicAuthAuthenticationPolicy):
                     decode_hex = codecs.getdecoder("hex_codec")
                     password = decode_hex(password[4:])[0]
                     password = password.decode("utf-8")
-                except Exception:
+                except Exception as ex:
+                    log.warning(f"enc password decode error: {ex}")
                     return
             if user and password == user.password:
                 # Stash the user for easy access

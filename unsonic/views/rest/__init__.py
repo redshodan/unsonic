@@ -135,7 +135,8 @@ class Command(object):
         walker(root)
         return root
 
-    def makeResp(self, attrs={}, child=None, status=True, body=None):
+    def makeResp(self, attrs=None, child=None, status=True, body=None):
+        attrs = attrs or {}
         if body is None:
             body = self.makeBody(attrs, child, status)
         elif isinstance(body, ET.Element):
