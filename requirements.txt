@@ -1,7 +1,7 @@
 pyramid==1.9.1
 SQLAlchemy==1.2.5
 alembic==0.9.9
-transaction==2.2.0
+transaction==2.2.1
 pyramid_tm==2.2
 pyramid_debugtoolbar==4.4
 zope.sqlalchemy==1.0
