@@ -47,7 +47,7 @@ class InternalError(Exception):
 
 
 class Command(object):
-    E_GENERIC = ("0", "An unknown error occured")
+    E_GENERIC = ("0", "An unknown error occurred")
     E_MISSING_PARAM = ("10", "Missing a required parameter")
     E_VER_CLIENT = ("20", "Incompatible Subsonic REST protocol version. " +
                           "Client must upgrade.")
@@ -56,7 +56,7 @@ class Command(object):
     E_AUTH = ("40", "Username or password incorrect")
     E_PERM = ("50", "Permission denied for this operation")
     # 60, trial period over, intentionally skipped, cause screw that noise.
-    E_NOT_FOUND = ("70", "Requsted data not found")
+    E_NOT_FOUND = ("70", "Requested data not found")
     E_LASTFM = ("0", "LastFM error")
 
     def __init__(self, route, req, session=None):

@@ -2,6 +2,7 @@ from datetime import datetime
 import xml.etree.ElementTree as ET
 
 from . import Command, registerCmd, fillArtistUser, folder_t, datetime_t
+from .. import DEFAULT_IGNORED_ARTICLES
 from ...models import Artist, Meta
 
 
@@ -29,8 +30,7 @@ class GetIndexes(Command):
         # TODO: Use libraries.last_sync once its done in mishmash
         indexes.set("lastModified",
                     str(int(row.last_sync.timestamp() * 1000)))
-        # TODO: find the actual ignored articles
-        indexes.set("ignoredArticles", "")
+        indexes.set("ignoredArticles", " ".join(DEFAULT_IGNORED_ARTICLES))
 
         q = session.query(Artist)
         if self.params["musicFolderId"]:
