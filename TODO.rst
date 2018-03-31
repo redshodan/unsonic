@@ -93,16 +93,12 @@ Partial
 -------
 - getIndexes:
   resp:
-  - missing ignoredArticles.
-    <indexes ignoredArticles="The El La Los Las Le Les">
   - shortcuts
     <shortcut id="11" name="Audio books"/>
     <shortcut id="10" name="Podcasts"/>
 
 - getArtists:
   resp:
-  - missing ignoredArticles.
-    <artists ignoredArticles="The El La Los Las Le Les">
   - missing covertArt
 
 - getArtist:
