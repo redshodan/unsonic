@@ -1,16 +1,36 @@
 #!/bin/bash
 set -e
 
-source /unsonic/bin/activate
+# default username to 'admin', randomly generated password
+UNSONIC_USER="${UNSONIC_USER:-admin}"
+UNSONIC_PASSWORD="${UNSONIC_PASSWORD:-$(pwgen 12)}"
 
-UNSONIC="unsonic -c /unsonic/etc/config.ini"
-if [ -z $MISHMASH_DBURL ]; then
+unsonic_set_password() (
+    set -eu
+    local user="$1"; shift
+    local pass="$1"; shift
+
+    exec 1>&2
+    $UNSONIC password "$user" "$pass"
+)
+
+UNSONIC="unsonic"
+if [[ -z $MISHMASH_DBURL ]]; then
     echo "MISHMASH_DBURL environment variable required."
     exit 1
 fi
 
-$UNSONIC sync
-$UNSONIC adduser nicfit 'test' || echo "User prolly exists"
-$UNSONIC serve
+if [[ ! -f /unsonic/var/music.db ]]; then
+    echo 1>&2
+    echo 1>&2 "** No database detected. Starting sync..."
+    echo 1>&2
+    $UNSONIC sync
 
-#exec /bin/bash
+    echo 1>&2
+    echo 1>&2 "** Setting default password..."
+    echo 1>&2 "   Username: $UNSONIC_USER"
+    echo 1>&2 "   Password: $UNSONIC_PASSWORD"
+    echo 1>&2
+    unsonic_set_password "$UNSONIC_USER" "$UNSONIC_PASSWORD"
+fi
+$UNSONIC serve
