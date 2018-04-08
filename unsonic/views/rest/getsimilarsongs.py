@@ -31,11 +31,7 @@ class GetSimilarSongs(Command):
         lf_track = lf_client.get_track(row.artist.name, row.title)
         if not lf_track:
             raise NotFound("Item not found in LastFM")
-        # FIXME: Once pylast updates, remove this check. Bound to 2.1.0 by reqs.
-        if pylast.__version__ != "2.1.0":
-            lf_ssongs = lf_track.get_similar(limit=self.params["count"])
-        else:
-            lf_ssongs = lf_track.get_similar()
+        lf_ssongs = lf_track.get_similar(limit=self.params["count"])
 
         ssong = ET.Element(self.tag_name)
 
