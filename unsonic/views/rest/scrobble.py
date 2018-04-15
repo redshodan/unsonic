@@ -37,7 +37,7 @@ class Scrobble(Command):
                 log.info(f"last.fm now playing: {track.artist} - {track.title}")
                 lastfm.update_now_playing(track.artist, track.title,
                                           album=track.album.title,
-                                          album_artist=track.album_artist,
+                                          album_artist=track.album.artist.name,
                                           duration=track.time_secs,
                                           track_number=track.track_num)
             else:
