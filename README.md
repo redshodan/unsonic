@@ -213,6 +213,19 @@ Manual Testing
   * ./test/bin/tester getArtists
 
 
+New DB Version
+--------------
+  * ... Edit schema classes
+  * make devel-clean
+  * make devel-db
+  * ./venv/bin/alembic -c unsonic/alembic/alembic.ini revision --autogenerate -m
+    "comment"
+  * ... DB schema should still be the older version
+  * bin/unsonic -c unsonic/etc/development.ini listusers
+  * ... Check DB schema matches new revision
+  * ... Check in new revision file
+
+
 License
 -------
 Unsonic is licensed under the GPL v2 license. See the COPYING file for details or

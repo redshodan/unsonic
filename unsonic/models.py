@@ -310,6 +310,44 @@ class Scrobble(Base, OrmObject):
         return (Index("scrobble_user_index", "user_id"), )
 
 
+class Share(Base, OrmObject):
+    __tablename__ = "un_shares"
+
+    id = Column(Integer, Sequence("un_shares_id_seq"), primary_key=True)
+    user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
+                     nullable=False)
+    uuid = Column(String(22), nullable=True)
+    description = Column(String, nullable=True)
+    visit_count = Column(Integrat, nullable=False, default=0)
+    created = Column(DateTime, default=datetime.datetime.now, nullable=False)
+    last_visited = Column(DateTime, default=datetime.datetime.now, nullable=False)
+    expires = Column(DateTime, default=datetime.datetime.now, nullable=False)
+    user = relation("User")
+    entries = relation("ShareEntry", cascade="all, delete-orphan",
+                      passive_deletes=True)
+
+    @declared_attr
+    def __table_args__(cls):
+        return (Index("shares_user_index", "user_id"),
+                Index("uuid"))
+
+
+class ShareEntry(Base, OrmObject):
+    __tablename__ = "un_share_entries"
+
+    id = Column(Integer, Sequence("un_share_entries_id_seq"), primary_key=True)
+    share_id = Column(Integer, ForeignKey("un_shares.id", ondelete='CASCADE'),
+                     nullable=False)
+    track_id = Column(Integer, ForeignKey("tracks.id", ondelete='CASCADE'),
+                      nullable=False)
+    share = relation("Share")
+    track = relation("Track")
+
+    @declared_attr
+    def __table_args__(cls):
+        return (Index("share_entries_share_index", "share_id"), )
+
+
 def _dbUrl(config):
     url = (os.environ.get("MISHMASH_DBURL") or
            config.get("mishmash", "sqlalchemy.url"))
@@ -346,9 +384,6 @@ def init(settings, webapp=False, db_info=None):
 
 
 def initAlembic(url):
-    # # Save just for creating new schema revisions
-    # Base.metadata.create_all(db_engine)
-
     # Upgrade to head (i.e. this) revision, or no-op if they match
     alembic_d = Path(__file__).parent / "alembic"
     alembic_cfg = AlemConfig(str(alembic_d / "alembic.ini"))
@@ -670,4 +705,4 @@ from . import auth, web   # noqa: E402
 
 UN_TYPES = [DBInfo, Config, UserConfig, User, Role, PlayQueue, PlayList,
             PlayListUser, PlayListTrack, ArtistRating, AlbumRating, TrackRating,
-            PlayCount, Scrobble]
+            PlayCount, Scrobble, Share, ShareEntry]

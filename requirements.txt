@@ -15,3 +15,4 @@ mishmash[postgres]==0.3b6
 sphinx==1.7.2
 recommonmark==0.4.0
 pylast==2.2.0
+shortuuid==0.5.0

@@ -508,3 +508,7 @@ def fillUser(session, row):
         user.set("%sRole" % role,
                  "true" if role in row.roles else "false")
     return user
+
+
+# def fillShare(session, row):
+    
