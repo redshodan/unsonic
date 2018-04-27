@@ -1,4 +1,4 @@
-pyramid==1.9.1
+pyramid==1.9.2
 SQLAlchemy==1.2.7
 alembic==0.9.9
 transaction==2.2.1
