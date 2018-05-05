@@ -1,49 +1,54 @@
-from . import Command, registerCmd, playable_id_t, datetime_t
-from .getplaylist import GetPlayList
-from ...models import PlayList, PlayListTrack, Track
+import shortuuid
+from . import (Command, registerCmd, playable_id_t, datetime_t, str_t,
+               MissingParam)
+from ...models import Album, Track, PlayList, Share, ShareEntry
 
 
 @registerCmd
 class CreateShare(Command):
     name = "createShare.view"
     param_defs = {
-        "id": {"type": playable_id_t},
-        "name": {},
-        "expires": {"multi": True, "type": datetime_t},
+        "id": {"type": playable_id_t, "required": True},
+        "description": {"type": str_t},
+        "expires": {"type": datetime_t},
         }
     dbsess = True
 
 
     def handleReq(self, session):
-        plid = self.params["playlistId"]
-        if plid and self.params["name"]:
-            raise MissingParam(
-                "Can't supply playlistId and name at the same time")
-        elif (not plid and not self.params["name"]):
-            raise MissingParam("Must supply playlistId or name")
+        pid = self.params["id"]
 
-        if plid:
-            # Update/append case
-            plist = session.query(PlayList).filter(
-                PlayList.id == plid).one_or_none()
-            if plist is None:
-                raise MissingParam("Invalid playlistId: pl-%s" % plid)
+        if pid.startswith("al-"):
+            klass = Album
+        elif pid.startswith("tr-"):
+            klass = Track
+        elif pid.startswith("pl-"):
+            klass = PlayList
         else:
-            # New creation case
-            plist = PlayList(user_id=self.req.authed_user.id,
-                             name=self.params["name"])
-            session.add(plist)
+            raise MissingParam(
+                f"Invalid id, must be an album or track: {pid}")
+        id = int(pid[3:])
+        row = session.query(klass).filter(klass.id == id).one_or_none()
+        if not row:
+            raise NotFound("Invalid id: {pid}")
 
-        # Add tracks
-        for sid in self.params["songId"]:
-            track = session.query(Track).filter(Track.id == sid).one_or_none()
-            if track is None:
-                raise MissingParam("Invalid songId: tr-%s" % sid)
-            pltrack = PlayListTrack(track_id=track.id, playlist_id=plist.id)
-            session.add(pltrack)
+        db_share = Share()
+        db_share.user_id = self.req.authed_user.id
+        db_share.uuid = shortuuid.uuid()
+        db_share.description = self.params["description"]
+        db_share.expires = self.params["expires"]
+        session.add(db_share)
+
+        db_share_entry = ShareEntry()
+        db_share_entry.share_id = db_share.id
+        if pid.startswith("al-"):
+            db_share_entry.album_id = id
+        elif pid.startswith("tr-"):
+            db_share_entry.track_id = id
+        elif pid.startswith("pl-"):
+            db_share_entry.playlist_id = id
 
         session.flush()
 
-        # Fun little hack to return the newly created playlist
-        self.params["id"] = plist.id
-        return GetPlayList.handleReq(self, session)
+        shares = ET.Element("shares")
+        shares.append(fillShare(session, db_share)

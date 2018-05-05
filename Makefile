@@ -121,7 +121,7 @@ clean:
 	find unsonic test -name '*.pyc' | xargs rm -f
 
 devel-clean:
-	rm $(VENV)/development.sqlite
+	rm -f $(VENV)/development.sqlite
 
 # Only remove local files, not provided VIRTUAL_ENV var
 dist-clean: clean

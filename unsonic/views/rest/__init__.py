@@ -14,7 +14,8 @@ from nicfit.console.ansi import Fg
 
 from ...log import log
 from ...version import PROTOCOL_VERSION, UNSONIC_PROTOCOL_VERSION
-from ...models import Session, ArtistRating, AlbumRating, TrackRating, Track
+from ...models import (Session, ArtistRating, AlbumRating, TrackRating, Track,
+                       Artist, Album, Track, PlayList)
 from ...auth import Roles
 
 
@@ -324,6 +325,18 @@ def strDate(d):
 
 
 # Utilities for wrangling data into xml form
+def fillID(row):
+    if isinstance(row, Artist):
+        return f"ar-{row.id}"
+    elif isinstance(row, Album):
+        return f"al-{row.id}"
+    elif isinstance(row, Track):
+        return f"tr-{row.id}"
+    elif isinstance(row, PlayList):
+        return f"pl-{row.id}"
+    else:
+        raise MissingParam(f"Unknown ID type: {type(row)}")
+
 def fillCoverArt(session, row, elem, name):
     if row.images is not None and len(row.images) > 0:
         elem.set("coverArt", "%s-%d" % (name, row.images[0].id))
@@ -334,8 +347,9 @@ def fillCoverArt(session, row, elem, name):
 
 
 def fillArtist(session, row, name="artist"):
+    assert isinstance(row, Artist)
     artist = ET.Element(name)
-    artist.set("id", "ar-%d" % row.id)
+    artist.set("id", fillID(row))
     artist.set("name", row.name)
     fillCoverArt(session, row, artist, "ar")
     return artist
@@ -354,8 +368,9 @@ def fillArtistUser(session, artist_row, rating_row, user, name="artist"):
 
 
 def fillAlbum(session, row, name="album"):
+    assert isinstance(row, Album)
     album = ET.Element(name)
-    album.set("id", "al-%d" % row.id)
+    album.set("id", fillID(row))
     album.set("album", row.title)
     album.set("title", row.title)
     album.set("isDir", "true")
@@ -384,8 +399,9 @@ def fillAlbumUser(session, album_row, rating_row, user, name="album"):
 
 
 def fillAlbumID3(session, row, user, append_tracks):
+    assert isinstance(row, Album)
     album = ET.Element("album")
-    album.set("id", "al-%d" % row.id)
+    album.set("id", fillID(row))
     album.set("name", row.title)
     fillCoverArt(session, row, album, "al")
     if row.date_added:
@@ -414,8 +430,9 @@ def fillAlbumID3(session, row, user, append_tracks):
 
 
 def fillTrack(session, row, name="song"):
+    assert isinstance(row, Track)
     song = ET.Element(name)
-    song.set("id", "tr-%d" % row.id)
+    song.set("id", fillID(row))
     if row.album_id:
         song.set("parent", "al-%d" % row.album_id)
     else:
@@ -472,8 +489,9 @@ def fillTrackUser(session, song_row, rating_row, user, name="song"):
 
 
 def fillPlayList(session, row):
+    assert isinstance(row, PlayList)
     playlist = ET.Element("playlist")
-    playlist.set("id", "pl-%d" % row.id)
+    playlist.set("id", fillID(row))
     playlist.set("name", row.name)
     playlist.set("comment", row.comment if row.comment else "")
     playlist.set("owner", row.owner.name)
@@ -510,5 +528,16 @@ def fillUser(session, row):
     return user
 
 
-# def fillShare(session, row):
-    
+def fillShare(session, row):
+    share = ET.Element("share")
+    share.set("id", fillID(row))
+    share.set("url", "FIXME")
+    share.set("description", row.description if row.description else "")
+    share.set("username", row.user.name)
+    share.set("created", strDate(row.created))
+    share.set("lastVisited", strDate(row.last_visited))
+    share.set("expires", strDate(row.expires))
+    share.set("visitCount", strDate(row.visit_count))
+    # for entry in row.entries:
+    #     if 
+    return share

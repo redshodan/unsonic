@@ -318,10 +318,10 @@ class Share(Base, OrmObject):
                      nullable=False)
     uuid = Column(String(22), nullable=True)
     description = Column(String, nullable=True)
-    visit_count = Column(Integrat, nullable=False, default=0)
+    visit_count = Column(Integer, nullable=False, default=0)
     created = Column(DateTime, default=datetime.datetime.now, nullable=False)
     last_visited = Column(DateTime, default=datetime.datetime.now, nullable=False)
-    expires = Column(DateTime, default=datetime.datetime.now, nullable=False)
+    expires = Column(DateTime, nullable=True)
     user = relation("User")
     entries = relation("ShareEntry", cascade="all, delete-orphan",
                       passive_deletes=True)
@@ -329,7 +329,7 @@ class Share(Base, OrmObject):
     @declared_attr
     def __table_args__(cls):
         return (Index("shares_user_index", "user_id"),
-                Index("uuid"))
+                Index("shares_user_index", "uuid"))
 
 
 class ShareEntry(Base, OrmObject):
@@ -338,10 +338,17 @@ class ShareEntry(Base, OrmObject):
     id = Column(Integer, Sequence("un_share_entries_id_seq"), primary_key=True)
     share_id = Column(Integer, ForeignKey("un_shares.id", ondelete='CASCADE'),
                      nullable=False)
+    album_id = Column(Integer, ForeignKey("albums.id", ondelete='CASCADE'),
+                      nullable=True)
     track_id = Column(Integer, ForeignKey("tracks.id", ondelete='CASCADE'),
-                      nullable=False)
+                      nullable=True)
+    playlist_id = Column(Integer,
+                         ForeignKey("un_playlists.id", ondelete='CASCADE'),
+                         nullable=True)
     share = relation("Share")
+    album = relation("Album")
     track = relation("Track")
+    playlist = relation("PlayList")
 
     @declared_attr
     def __table_args__(cls):
