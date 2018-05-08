@@ -23,10 +23,11 @@ before_install:
 # command to install dependencies
 install:
   - make devel
+  - pip install python-coveralls
 
 # command to run tests
 script:
-  ./venv/bin/coverage run --source=unsonic setup.py test
+  coverage run --source=unsonic setup.py test
 
 after_success:
-  ./venv/bin/coveralls
+  coveralls
