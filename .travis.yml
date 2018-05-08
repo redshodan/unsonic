@@ -26,7 +26,7 @@ install:
 
 # command to run tests
 script:
-  coverage run --source=unsonic setup.py test
+  ./venv/bin/coverage run --source=unsonic setup.py test
 
 after_success:
-  coveralls
+  ./venv/bin/coveralls
