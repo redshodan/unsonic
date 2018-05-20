@@ -10,7 +10,7 @@ pastedeploy==1.5.2
 paste==2.0.3
 psycopg2-binary==2.7.4
 xmltodict==0.11.0
-nicfit.py==0.8
+nicfit.py==0.8.1
 mishmash[postgres]==0.3b6
 sphinx==1.7.4
 recommonmark==0.4.0
