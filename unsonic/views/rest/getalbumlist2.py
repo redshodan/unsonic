@@ -9,8 +9,8 @@ class GetAlbumList2(GetAlbumList):
     dbsess = True
 
 
-    def __init__(self, route, req):
-        super().__init__(route, req)
+    def __init__(self, route, req, session=None):
+        super().__init__(route, req, session)
         self.setParams("albumList2")
 
 

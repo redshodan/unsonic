@@ -19,7 +19,7 @@ class GetPlayQueue(Command):
         playq = ET.Element("playQueue")
         playq.set("username", user.name)
         if user.playqueue_cur:
-            playq.set("current", str(user.playqueue_cur))
+            playq.set("current", "tr-" + str(user.playqueue_cur))
         if user.playqueue_pos:
             playq.set("position", str(user.playqueue_pos))
         playq.set("changed", strDate(user.playqueue_mtime))

@@ -1,5 +1,5 @@
 from . import (Command, registerCmd, fillPlayList, fillTrack, playlist_t,
-               MissingParam)
+               NotFound)
 from ...models import PlayList
 
 
@@ -16,7 +16,7 @@ class GetPlayList(Command):
                     filter(PlayList.user_id == self.req.authed_user.id). \
                     one_or_none()
         if not plrow:
-            raise MissingParam("Invalid playlist id: %s" % self.params["id"])
+            raise NotFound("Playlist id not found: %s" % self.params["id"])
 
         playlist = fillPlayList(session, plrow)
         for pltrack in plrow.tracks:
