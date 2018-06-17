@@ -422,13 +422,24 @@ def setUserPassword(session, uname, password):
 
 def getUserByName(session, username, wrap=True):
     try:
-        urow = session.query(User).filter(User.name == username).one()
-        if wrap:
-            ucrow = session.query(UserConfig).filter(
-                UserConfig.user_id == urow.id).all()
-            return auth.User(urow, ucrow)
+        ret = []
+        if username is None:
+            query = session.query(User).filter()
         else:
-            return urow
+            query = session.query(User).filter(User.name == username)
+        for urow in query:
+            if wrap:
+                ucrow = session.query(UserConfig).filter(
+                    UserConfig.user_id == urow.id).all()
+                ret.append(auth.User(urow, ucrow))
+            else:
+                ret.append(urow)
+        if len(ret) == 0:
+            return None
+        elif len(ret) == 1:
+            return ret[0]
+        else:
+            return ret
     except NoResultFound:
         return None
 

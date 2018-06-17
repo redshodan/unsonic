@@ -70,6 +70,11 @@ TRACKS = \
     [{ARTIST: "artist 6", ALBUM: "re-release", ORGDATE: "1952", RELDATE: "2005"},
          [{TITLE: "song 1"}, {TITLE: "song 2"}]],
 
+    # Artist 7/Daft Punk, 1 album
+    [{ARTIST: "Daft Punk", ALBUM: "Harder, Better, Faster, Stronger",
+      GENRE: "18"},
+        [{TITLE: "Harder, Better, Faster, Stronger"}]],
+
     # Collection album
     [{ARTIST: "album-artist 1", ALBUM_ARTIST: "album-artist 1 & 2",
       ALBUM_TYPE: "various"},
