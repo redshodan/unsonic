@@ -51,4 +51,6 @@ class CreateShare(Command):
         session.flush()
 
         shares = ET.Element("shares")
-        shares.append(fillShare(session, db_share)
+        shares.append(fillShare(session, db_share))
+
+        return self.makeResp(child=playlist)
