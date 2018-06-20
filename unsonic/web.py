@@ -69,18 +69,14 @@ def main(global_config, **settings):
     config.add_route("rest", "/rest", factory="unsonic.views.rest.RouteContext")
     for cmd in rest.commands.values():
         cmd.settings = settings
-        config.add_route(cmd.name, "/rest/" + cmd.name,
-                         factory="unsonic.views.rest.RouteContext")
-        config.add_view(cmd, route_name=cmd.name, permission=auth.Roles.REST)
-        # Clementine calls some API's with the wrong caps.. sigh
-        name = cmd.name[0].upper() + cmd.name[1:]
-        config.add_route(name, "/rest/" + name,
-                         factory="unsonic.views.rest.RouteContext")
-        # And others, like pSub, don't call with trailing .view.. sigh^2
-        name = cmd.name.rstrip(".view")
-        config.add_route(name, "/rest/" + name,
-                         factory="unsonic.views.rest.RouteContext")
-        config.add_view(cmd, route_name=name, permission=auth.Roles.REST)
+        for name in [cmd.name,
+                     # Clementine calls some API's with the wrong caps.. sigh
+                     cmd.name[0].upper() + cmd.name[1:],
+                     # And others, pSub, don't call with trailing .view .. sigh^2
+                     cmd.name.rstrip(".view")]:
+            config.add_route(name, "/rest/" + name,
+                             factory="unsonic.views.rest.RouteContext")
+            config.add_view(cmd, route_name=name, permission=auth.Roles.REST)
 
     # Log requests
     app = config.make_wsgi_app()
