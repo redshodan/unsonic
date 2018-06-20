@@ -76,6 +76,10 @@ def main(global_config, **settings):
         name = cmd.name[0].upper() + cmd.name[1:]
         config.add_route(name, "/rest/" + name,
                          factory="unsonic.views.rest.RouteContext")
+        # And others, like pSub, don't call with trailing .view.. sigh^2
+        name = cmd.name.rstrip(".view")
+        config.add_route(name, "/rest/" + name,
+                         factory="unsonic.views.rest.RouteContext")
         config.add_view(cmd, route_name=name, permission=auth.Roles.REST)
 
     # Log requests
