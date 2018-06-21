@@ -79,8 +79,7 @@ devel-run: $(VENV)/development.sqlite
 check: $(FLAKE8)
 	$(FLAKE8)
 
-#TEST_POSTGRES_OPTS=--pg-image postgres:9.6-alpine
-TEST_POSTGRES_OPTS=--pg-image postgres:10.0-alpine --pg-local
+TEST_POSTGRES_OPTS=--pg-image postgres:9.6-alpine
 tests: pytest tests-clean
 ifdef FTF
 	PYTEST_ADDOPTS="${TEST_POSTGRES_OPTS}" $(PYTHON) setup.py test --addopts "-k $(FTF)"
@@ -88,6 +87,20 @@ else
 	PYTEST_ADDOPTS="${TEST_POSTGRES_OPTS}" $(PYTHON) setup.py test
 endif
 	rm -rf unsonic.egg-info
+
+coverage: pytest tests-clean
+ifdef FTF
+	PYTEST_ADDOPTS="${TEST_POSTGRES_OPTS}" $(VBIN)/coverage run --source=unsonic setup.py test --addopts "-k $(FTF)"
+else
+	PYTEST_ADDOPTS="${TEST_POSTGRES_OPTS}" $(VBIN)/coverage run --source=unsonic setup.py test
+endif
+	rm -rf unsonic.egg-info
+
+coverage-report:
+	 $(VBIN)/coverage report
+
+coverage-clean:
+	 $(VBIN)/coverage erase
 
 pytest: $(PYTEST)
 $(PYTEST): requirements-test.txt

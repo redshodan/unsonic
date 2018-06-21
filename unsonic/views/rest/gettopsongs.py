@@ -21,6 +21,7 @@ class GetTopSongs(Command):
         if not lf_artist:
             raise NotFound("Artist not found")
         lf_tops = lf_artist.get_top_tracks(limit=self.params["count"])
+        print(lf_tops)
         if lf_tops:
             for top in lf_tops:
                 artist = session.query(Artist).filter(

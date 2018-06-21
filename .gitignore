@@ -20,3 +20,4 @@ dist/
 ter
 tags
 .idea/
+.coverage

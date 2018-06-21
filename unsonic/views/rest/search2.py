@@ -21,6 +21,15 @@ class Search2(Command):
     dbsess = True
 
 
+    def __init__(self, route, req, session=None):
+        super().__init__(route, req, session)
+        self.setParams()
+
+
+    def setParams(self, search_param="searchResult2"):
+        self.search_param = search_param
+
+
     def query(self, session, klass):
         if self.params["musicFolderId"]:
             return (session.query(klass).
@@ -38,7 +47,7 @@ class Search2(Command):
         tr_count = self.params["songCount"]
         tr_off = self.params["songOffset"]
 
-        result = ET.Element("searchResult2")
+        result = ET.Element(self.search_param)
         if ar_count:
             for row in self.query(session, Artist). \
                            filter(Artist.name.ilike("%%%s%%" % query)). \

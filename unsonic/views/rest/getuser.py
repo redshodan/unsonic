@@ -13,11 +13,11 @@ class GetUser(Command):
 
     def handleReq(self, session):
         if self.req.authed_user.name == self.params["username"]:
-            db_user = self.req.authed_user
+            user = self.req.authed_user
         elif self.req.authed_user.isAdmin():
-            db_user = getUserByName(session, self.params["username"])
+            user = getUserByName(session, self.params["username"])
         else:
             raise NoPerm("Can not view a user other than yourself unless you "
                          "are an admin")
 
-        return self.makeResp(child=fillUser(session, db_user))
+        return self.makeResp(child=fillUser(session, user))

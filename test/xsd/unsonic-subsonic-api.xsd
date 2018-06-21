@@ -517,7 +517,7 @@
         <xs:sequence>
             <xs:element name="entry" type="sub:Child" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="current" type="xs:int" use="optional"/>   <!-- ID of currently playing track -->
+        <xs:attribute name="current" type="xs:string" use="optional"/>   <!-- ID of currently playing track -->
         <xs:attribute name="position" type="xs:long" use="optional"/> <!-- Position in milliseconds of currently playing track -->
         <xs:attribute name="username" type="xs:string" use="required"/>
         <xs:attribute name="changed" type="xs:dateTime" use="required"/>

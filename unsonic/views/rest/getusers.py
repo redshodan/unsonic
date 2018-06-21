@@ -1,8 +1,7 @@
 import xml.etree.ElementTree as ET
 
 from . import Command, registerCmd, NoPerm, fillUser
-from ...models import User
-from ... import auth
+from ...models import getUserByName
 
 
 @registerCmd
@@ -17,7 +16,7 @@ class GetUsers(Command):
             raise NoPerm("Can not get user list unless you are an admin")
 
         users = ET.Element("users")
-        for db_user in session.query(User):
-            users.append(fillUser(session, auth.User(db_user)))
+        for user in getUserByName(session, None):
+            users.append(fillUser(session, user))
 
         return self.makeResp(child=users)

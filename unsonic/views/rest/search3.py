@@ -7,3 +7,8 @@ class Search3(Search2):
     name = "search3.view"
     param_defs = Search2.param_defs
     dbsess = True
+
+
+    def __init__(self, route, req, session=None):
+        super().__init__(route, req, session)
+        self.setParams("searchResult3")
