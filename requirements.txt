@@ -1,6 +1,6 @@
 pyramid==1.9.2
-SQLAlchemy==1.2.8
-alembic==0.9.9
+SQLAlchemy==1.2.9
+alembic==0.9.10
 pyramid_mako
 zope.sqlalchemy==1.0
 waitress==1.1.0
