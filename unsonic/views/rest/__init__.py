@@ -15,7 +15,7 @@ from nicfit.console.ansi import Fg
 from ...log import log
 from ...version import PROTOCOL_VERSION, UNSONIC_PROTOCOL_VERSION
 from ...models import (Session, ArtistRating, AlbumRating, TrackRating, Track,
-                       Artist, Album, Track, PlayList)
+                       Artist, Album, Track, PlayList, Share)
 from ...auth import Roles
 
 
@@ -193,6 +193,10 @@ class Command(object):
                             lval.append(values["type"](v))
                         val = lval
                     else:
+                        # Be permissive about other protocol, but don't
+                        # let it dork us up
+                        if isinstance(val, list):
+                            val = val[0]
                         val = values["type"](val)
                 self.params[name] = val
                 if "values" in values and val not in values["values"]:
@@ -278,6 +282,12 @@ def playlist_t(value):
     return int(value[3:])
 
 
+def share_t(value):
+    if not value.startswith("sh-"):
+        raise MissingParam("Invalid id")
+    return int(value[3:])
+
+
 def folder_t(value):
     if not value.startswith("fl-"):
         raise MissingParam("Invalid id")
@@ -313,7 +323,9 @@ def bitrate_t(value):
 
 
 def strDate(d):
-    if isinstance(d, Eyed3Date):
+    if d is None:
+        return ""
+    elif isinstance(d, Eyed3Date):
         return datetime(d.year if d.year else 0,
                         d.month if d.month else 0,
                         d.day if d.day else 0,
@@ -334,6 +346,8 @@ def fillID(row):
         return f"tr-{row.id}"
     elif isinstance(row, PlayList):
         return f"pl-{row.id}"
+    elif isinstance(row, Share):
+        return f"sh-{row.id}"
     else:
         raise MissingParam(f"Unknown ID type: {type(row)}")
 
@@ -529,16 +543,16 @@ def fillUser(session, row):
     return user
 
 
-def fillShare(session, row):
+def fillShare(session, req, row):
     share = ET.Element("share")
     share.set("id", fillID(row))
-    share.set("url", "FIXME")
+    share.set("url", f"{req.path_url.rstrip(req.path)}/shares/{row.uuid}")
     share.set("description", row.description if row.description else "")
     share.set("username", row.user.name)
     share.set("created", strDate(row.created))
     share.set("lastVisited", strDate(row.last_visited))
     share.set("expires", strDate(row.expires))
-    share.set("visitCount", strDate(row.visit_count))
+    share.set("visitCount", str(row.visit_count))
     # for entry in row.entries:
     #     if 
     return share

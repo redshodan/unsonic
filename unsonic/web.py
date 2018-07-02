@@ -7,7 +7,7 @@ from pyramid.config import Configurator
 
 import unsonic
 from . import models, auth
-from .views import rest, ui
+from .views import rest, ui, shares
 from .config import HereConfig
 from .translogger import ColorTransLogger
 
@@ -49,7 +49,10 @@ def main(global_config, **settings):
 
     # Pyramid framework
     config = Configurator(settings=settings)
+    config.include('pyramid_mako')
+
     config.add_static_view('static', 'static', cache_max_age=3600,)
+    config.add_view('unsonic.views.faviconView', name='favicon.ico')
     config.add_route('home', '/', factory="unsonic.views.RouteContext")
     config.add_view('unsonic.views.ui.view', route_name='home',
                     permission=auth.Roles.USERS)
@@ -77,6 +80,14 @@ def main(global_config, **settings):
             config.add_route(name, "/rest/" + name,
                              factory="unsonic.views.rest.RouteContext")
             config.add_view(cmd, route_name=name, permission=auth.Roles.REST)
+
+    # Add /shares/* interface
+    config.add_route("shares.mp3", "/shares/{id}.mp3",
+                     factory="unsonic.views.shares.RouteContext")
+    config.add_view(shares.SharesMP3, route_name="shares.mp3")
+    config.add_route("shares", "/shares/{id}",
+                     factory="unsonic.views.shares.RouteContext")
+    config.add_view(shares.Shares, route_name="shares")
 
     # Log requests
     app = config.make_wsgi_app()

@@ -1,24 +1,44 @@
 #!/usr/bin/env python3
 
-import sys, os, tempfile
+import os
+import tempfile
+import argparse
 
 
-root = "http://0.0.0.0:6543/rest"
+host = "http://0.0.0.0:6543/"
 auth = "u=test&t=c06db68e819be6ec3d26c6038d8e8d1f&s=12345"
 
-if len(sys.argv) > 1:
-    action = sys.argv[1]
+
+parser = argparse.ArgumentParser(description='Make API calls to Unsonic.')
+parser.add_argument('endpoint', type=str, nargs='?', default="ping",
+                    help='API endpoint to talk to')
+parser.add_argument('params', type=str, nargs='*',
+                    help='Parameters for the endpoint')
+parser.add_argument('-s', '--shares', action='store_true', default=False,
+                    help='Use the /shares/ endpoints.')
+
+args = parser.parse_args()
+
+if args.shares:
+    args.root = "shares"
 else:
-    action = "ping"
+    args.root = "rest"
+    args.endpoint = args.endpoint + ".view"
+
 outfile = tempfile.NamedTemporaryFile()
 
-cmd = "wget --quiet -O %s '%s/%s.view?%s" % (outfile.name, root, action, auth)
+cmd = "wget --quiet -O %s '%s%s/%s?%s" % (outfile.name, host, args.root,
+                                          args.endpoint, auth)
 
-for arg in sys.argv[2:]:
-    cmd += "&" + arg
+for param in args.params:
+    cmd += "&" + param
 cmd += "'"
 
 print(cmd)
 os.system(cmd)
-os.system("xmllint --format --schema test/xsd/unsonic-subsonic-api.xsd %s" %
-          outfile.name)
+
+if args.shares:
+    os.system(f"cat {outfile.name}")
+else:
+    os.system("xmllint --format --schema test/xsd/unsonic-subsonic-api.xsd %s" %
+              outfile.name)

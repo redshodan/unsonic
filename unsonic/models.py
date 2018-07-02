@@ -320,16 +320,17 @@ class Share(Base, OrmObject):
     description = Column(String, nullable=True)
     visit_count = Column(Integer, nullable=False, default=0)
     created = Column(DateTime, default=datetime.datetime.now, nullable=False)
-    last_visited = Column(DateTime, default=datetime.datetime.now, nullable=False)
+    last_visited = Column(DateTime, default=datetime.datetime.now,
+                          nullable=False)
     expires = Column(DateTime, nullable=True)
     user = relation("User")
     entries = relation("ShareEntry", cascade="all, delete-orphan",
-                      passive_deletes=True)
+                       passive_deletes=True)
 
     @declared_attr
     def __table_args__(cls):
         return (Index("shares_user_index", "user_id"),
-                Index("shares_user_index", "uuid"))
+                Index("shares_uuid_index", "uuid"))
 
 
 class ShareEntry(Base, OrmObject):
@@ -337,7 +338,7 @@ class ShareEntry(Base, OrmObject):
 
     id = Column(Integer, Sequence("un_share_entries_id_seq"), primary_key=True)
     share_id = Column(Integer, ForeignKey("un_shares.id", ondelete='CASCADE'),
-                     nullable=False)
+                      nullable=False)
     album_id = Column(Integer, ForeignKey("albums.id", ondelete='CASCADE'),
                       nullable=True)
     track_id = Column(Integer, ForeignKey("tracks.id", ondelete='CASCADE'),
@@ -345,6 +346,7 @@ class ShareEntry(Base, OrmObject):
     playlist_id = Column(Integer,
                          ForeignKey("un_playlists.id", ondelete='CASCADE'),
                          nullable=True)
+    uuid = Column(String(22), nullable=True)
     share = relation("Share")
     album = relation("Album")
     track = relation("Track")
@@ -352,7 +354,8 @@ class ShareEntry(Base, OrmObject):
 
     @declared_attr
     def __table_args__(cls):
-        return (Index("share_entries_share_index", "share_id"), )
+        return (Index("share_entries_share_index", "share_id"),
+                Index("share_entries_uuid_index", "uuid"),)
 
 
 def _dbUrl(config):

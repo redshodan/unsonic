@@ -33,12 +33,15 @@ def upgrade():
     sa.PrimaryKeyConstraint('id', name=op.f('pk_un_shares'))
     )
     op.create_index('shares_user_index', 'un_shares', ['user_id'], unique=False)
+    op.create_index('shares_uuid_index', 'un_shares', ['uuid'], unique=False)
+
     op.create_table('un_share_entries',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('share_id', sa.Integer(), nullable=False),
     sa.Column('album_id', sa.Integer(), nullable=True),
     sa.Column('track_id', sa.Integer(), nullable=True),
     sa.Column('playlist_id', sa.Integer(), nullable=True),
+    sa.Column('uuid', sa.String(length=22), nullable=True),
     sa.ForeignKeyConstraint(['album_id'], ['albums.id'],
                             name=op.f('fk_un_share_entries_album_id_albums'),
                             ondelete='CASCADE'),
@@ -56,6 +59,8 @@ def upgrade():
     )
     op.create_index('share_entries_share_index', 'un_share_entries',
                     ['share_id'], unique=False)
+    op.create_index('share_entries_uuid_index', 'un_share_entries',
+                    ['uuid'], unique=False)
     # ### end Alembic commands ###
 
 

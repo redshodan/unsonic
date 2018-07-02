@@ -1,4 +1,5 @@
 import time
+import traceback
 
 from paste.translogger import TransLogger
 
@@ -17,6 +18,15 @@ class ColorTransLogger(TransLogger):
 
 
     def write_log(self, environ, method, req_uri, start, status, bytes):
+        try:
+            return self._write_log(environ, method, req_uri, start, status,
+                                   bytes)
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
+
+
+    def _write_log(self, environ, method, req_uri, start, status, bytes):
         if bytes is None:
             bytes = '-'
         if time.daylight:
@@ -33,8 +43,12 @@ class ColorTransLogger(TransLogger):
         elif environ.get('REMOTE_ADDR'):
             remote_addr = environ['REMOTE_ADDR']
         stat = status.split(None, 1)[0]
-        user = environ.get("webob._parsed_query_vars")[0].get("u")
-        user = environ.get('REMOTE_USER') or user or None
+        if (environ.get("webob._parsed_query_vars") and
+            environ.get("webob._parsed_query_vars")[0].get("u")):
+            user = environ.get("webob._parsed_query_vars")[0].get("u")
+            user = environ.get('REMOTE_USER') or user or None
+        else:
+            user = None
         if user:
             remote_addr = "%s@%s" % (user, remote_addr)
         d = {
