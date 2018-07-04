@@ -1,4 +1,5 @@
 import os
+import traceback
 import json
 import xmltodict
 import logging
@@ -87,6 +88,10 @@ class Command(object):
             return self.makeResp(status=(Command.E_PERM, str(e)))
         except pylast.WSError as e:
             return self.makeResp(status=(Command.E_LASTFM, str(e)))
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
+            raise
 
     def handleReq(self, session=None):
         raise Exception("Command must implement handleReq()")
