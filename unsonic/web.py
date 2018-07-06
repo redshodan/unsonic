@@ -82,12 +82,10 @@ def main(global_config, **settings):
             config.add_view(cmd, route_name=name, permission=auth.Roles.REST)
 
     # Add /shares/* interface
-    config.add_route("shares.mp3", "/shares/{id}.mp3",
-                     factory="unsonic.views.shares.RouteContext")
-    config.add_view(shares.SharesMP3, route_name="shares.mp3")
-    config.add_route("shares", "/shares/{id}",
-                     factory="unsonic.views.shares.RouteContext")
-    config.add_view(shares.Shares, route_name="shares")
+    for handler in shares.handlers:
+        config.add_route(handler.name, handler.path,
+                         factory="unsonic.views.shares.RouteContext")
+        config.add_view(handler, route_name=handler.name)
 
     # Log requests
     app = config.make_wsgi_app()

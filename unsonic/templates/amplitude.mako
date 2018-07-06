@@ -23,7 +23,9 @@
             <div class="large-10 medium-12 small-11 large-centered medium-centered small-centered cell" id="amplitude-player">
                 <div class="grid-x">
                     <div class="large-6 medium-6 small-12 cell" id="amplitude-left">
-                        <img amplitude-song-info="cover_art_url" amplitude-main-song-info="true"/>
+                        <div align="center">
+                            <img amplitude-song-info="cover_art_url" amplitude-main-song-info="true"/>
+                        </div>
                         <div id="player-left-bottom">
                             <div id="time-container">
                                 <span class="current-time">
@@ -101,7 +103,7 @@
                             </div>
                         </%def>
 
-                        % for track, url in tracks:
+                        % for track, url, coverart_url in tracks:
                             ${makeAmpTrack(track, url, loop.index)}
                         % endfor
                     </div>
@@ -110,7 +112,7 @@
         </div>
     </body>
     <script type="text/javascript">
-        <%def name="makeTrack(track, url, first)">
+        <%def name="makeTrack(track, url, coverart_url, first)">
         % if not first:
         ,
         % endif
@@ -119,13 +121,13 @@
         "artist": "${track.artist.name}",
         "album": "${track.album.title}",
         "url": "${url}",
-        "cover_art_url": "coverart_url"
+        "cover_art_url": "${coverart_url}"
         }
         </%def>
         Amplitude.init({
         "songs": [
-            % for track, url in tracks:
-                ${makeTrack(track, url, loop.first)}
+            % for track, url, coverart_url in tracks:
+                ${makeTrack(track, url, coverart_url, loop.first)}
             % endfor
         ]
         });

@@ -15,7 +15,7 @@ from nicfit.console.ansi import Fg
 
 from ...log import log
 from ...version import PROTOCOL_VERSION, UNSONIC_PROTOCOL_VERSION
-from ...models import (Session, ArtistRating, AlbumRating, TrackRating, Track,
+from ...models import (Session, ArtistRating, AlbumRating, TrackRating,
                        Artist, Album, Track, PlayList, Share)
 from ...auth import Roles
 
@@ -32,19 +32,13 @@ class RouteContext(object):
         pass
 
 
-class NoPerm(Exception):
-    pass
+# Exceptions
+from .. import NotFound
+from .. import NoPerm
+from .. import InternalError
 
 
 class MissingParam(Exception):
-    pass
-
-
-class NotFound(Exception):
-    pass
-
-
-class InternalError(Exception):
     pass
 
 

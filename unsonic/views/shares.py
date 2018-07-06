@@ -1,9 +1,9 @@
-from pyramid.response import FileResponse
+from pyramid.response import FileResponse, Response
 from pyramid.renderers import render
 from pyramid.security import Allow, Everyone, NO_PERMISSION_REQUIRED
 
-from .rest import Command, NotFound
-from ..models import Share, ShareEntry
+from . import HTMLHandler, NotFound
+from ..models import Share, ShareEntry, Image
 
 
 class RouteContext(object):
@@ -14,10 +14,9 @@ class RouteContext(object):
 
 
 # The /shares/{id} endpoint to retrieve a share
-class Shares(Command):
+class Shares(HTMLHandler):
     name = "shares"
     path = "/shares/{id}"
-    param_defs = {}
     dbsess = True
 
 
@@ -27,22 +26,28 @@ class Shares(Command):
         if not row:
             raise NotFound(f"Invalid share id: {share_uuid}")
 
-        url_base = self.req.path_url.rstrip(self.req.path) + "/shares/%s.mp3"
+        url_base = self.req.path_url.rstrip(self.req.path) + "/shares/"
         tracks = []
         for entry in row.entries:
             if entry.album_id:
                 idx = 0
                 for track in entry.album.tracks:
                     tracks.append([track,
-                                   url_base % ("%s-%s" % (entry.uuid, idx))])
+                                   url_base + ("%s-%s.track" %
+                                               (entry.uuid, idx)),
+                                   url_base + ("%s.coverart" % entry.uuid)])
                     idx += 1
             elif entry.track_id:
-                tracks.append([entry.track, url_base % entry.uuid])
+                tracks.append([entry.track,
+                               "%s%s.track" % (url_base, entry.uuid),
+                               "%s%s.coverart" % (url_base, entry.uuid)])
             elif entry.playlist_id:
                 idx = 0
                 for track in entry.playlist.tracks:
                     tracks.append([track,
-                                   url_base % ("%s-%s" % (entry.uuid, idx))])
+                                   url_base + ("%s-%s.track" %
+                                               (entry.uuid, idx)),
+                                   url_base + ("%s.coverart" % entry.uuid)])
                     idx += 1
 
         result = render("../templates/amplitude.mako",
@@ -55,18 +60,13 @@ class Shares(Command):
                          'tracks': tracks},
                         request=self.req)
 
-        resp = self.req.response
-        resp.text = result
-        resp.content_type = "text/html"
-        resp.charset = "UTF-8"
-        return resp
+        return self.makeResp(result)
 
 
-# The /shares/{id}.mp3 endpoint to retrieve a shared media file
-class SharesMP3(Command):
-    name = "shares.mp3"
-    path = "/shares/{id}.mp3"
-    param_defs = {}
+# The /shares/{id}.track endpoint to retrieve a shared track
+class SharesTrack(HTMLHandler):
+    name = "shares.track"
+    path = "/shares/{id}.track"
     dbsess = True
 
 
@@ -88,7 +88,6 @@ class SharesMP3(Command):
         if not row:
             raise NotFound(f"Invalid share id: {full_share_uuid}")
 
-        path = None
         if row.album_id:
             if share_index < len(row.album.tracks):
                 path = row.album.tracks[share_index].path
@@ -97,10 +96,43 @@ class SharesMP3(Command):
         elif row.playlist_id:
             if share_index < len(row.playlist.tracks):
                 path = row.playlist.tracks[share_index].path
-
-        if not path:
+        else:
             raise NotFound(f"Invalid share id: {full_share_uuid}")
 
         resp = FileResponse(path)
         resp.content_type = "audio/mp3"
         return resp
+
+
+# The /shares/{id}.coverart endpoint to retrieve a shared coverart picture
+class SharesCoverart(HTMLHandler):
+    name = "shares.coverart"
+    path = "/shares/{id}.coverart"
+    dbsess = True
+
+
+    def handleReq(self, session):
+        share_uuid = self.req.matchdict["id"]
+
+        row = session.query(ShareEntry).\
+              filter(ShareEntry.uuid == share_uuid).one_or_none()
+        if not row:
+            print("failed select")
+            raise NotFound(f"Invalid share id: {share_uuid}")
+
+        image_id = None
+        if row.album_id and row.album.images:
+            image_id = row.album.images[0]
+        elif row.track_id and row.track.album and row.track.album.images:
+            image_id = row.track.album.images[0]
+        elif row.playlist_id and row.playlist.images:
+            image_id = row.playlist.images[0]
+        else:
+            return FileResponse("unsonic/static/headphones.png")
+
+        # image = session.query(Image).filter_by(id=image_id).one_or_none()
+        return Response(content_type=image_id.mime_type, body=image_id.data)
+
+
+# Order matters for the route matching
+handlers = [SharesTrack, SharesCoverart, Shares]
