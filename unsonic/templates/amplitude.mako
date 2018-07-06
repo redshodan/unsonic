@@ -118,8 +118,16 @@
         % endif
         {
         "name": "${track.title}",
-        "artist": "${track.artist.name}",
-        "album": "${track.album.title}",
+        % if track.artist:
+           "artist": "${track.artist.name}",
+        % else:
+           "artist": "Unknonw",
+        % endif
+        % if track.album:
+           "album": "${track.album.title}",
+        % else:
+           "album": "Unknown",
+        % endif
         "url": "${url}",
         "cover_art_url": "${coverart_url}"
         }
