@@ -1,7 +1,7 @@
 pyramid_debugtoolbar==4.4
 flake8==3.5.0
 WebTest==2.0.30
-pytest==3.6.2
+pytest==3.6.3
 pytest-cov==2.5.1
 pytest-runner==4.2
 pytest-postgres==0.5.0

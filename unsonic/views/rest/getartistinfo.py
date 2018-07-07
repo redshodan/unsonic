@@ -60,17 +60,18 @@ class GetArtistInfo(Command):
         for sim in lf_artist.get_similar(limit=self.params["count"]):
             name = sim.item.get_name()
             row = session.query(Artist).filter(
-                Artist.name == name).one_or_none()
+                Artist.name == name).all()
             if not row:
                 name2 = name.replace(" ", "").lower()
                 row = session.query(Artist).filter(
-                    Artist.name == name2).one_or_none()
+                    Artist.name == name2).all()
             if not row:
                 if not self.params["includeNotPresent"]:
                     continue
                 else:
                     row_id = "-1"
             else:
+                row = row[0]
                 row_id = row.id
             sa = ET.Element("similarArtist")
             sa.set("name", name)
