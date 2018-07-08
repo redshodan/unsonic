@@ -1,9 +1,7 @@
 pyramid==1.9.2
 SQLAlchemy==1.2.9
 alembic==0.9.10
-transaction==2.2.1
-pyramid_tm==2.2
-pyramid_debugtoolbar==4.4
+pyramid_mako
 zope.sqlalchemy==1.0
 waitress==1.1.0
 pastedeploy==1.5.2
@@ -15,3 +13,4 @@ mishmash[postgres]==0.3b6
 sphinx==1.7.5
 recommonmark==0.4.0
 pylast==2.3.0
+shortuuid==0.5.0

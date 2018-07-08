@@ -310,6 +310,54 @@ class Scrobble(Base, OrmObject):
         return (Index("scrobble_user_index", "user_id"), )
 
 
+class Share(Base, OrmObject):
+    __tablename__ = "un_shares"
+
+    id = Column(Integer, Sequence("un_shares_id_seq"), primary_key=True)
+    user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
+                     nullable=False)
+    uuid = Column(String(22), nullable=True)
+    description = Column(String, nullable=True)
+    visit_count = Column(Integer, nullable=False, default=0)
+    created = Column(DateTime, default=datetime.datetime.now, nullable=False)
+    last_visited = Column(DateTime, default=datetime.datetime.now,
+                          nullable=False)
+    expires = Column(DateTime, nullable=True)
+    user = relation("User")
+    entries = relation("ShareEntry", cascade="all, delete-orphan",
+                       passive_deletes=True)
+
+    @declared_attr
+    def __table_args__(cls):
+        return (Index("shares_user_index", "user_id"),
+                Index("shares_uuid_index", "uuid"))
+
+
+class ShareEntry(Base, OrmObject):
+    __tablename__ = "un_share_entries"
+
+    id = Column(Integer, Sequence("un_share_entries_id_seq"), primary_key=True)
+    share_id = Column(Integer, ForeignKey("un_shares.id", ondelete='CASCADE'),
+                      nullable=False)
+    album_id = Column(Integer, ForeignKey("albums.id", ondelete='CASCADE'),
+                      nullable=True)
+    track_id = Column(Integer, ForeignKey("tracks.id", ondelete='CASCADE'),
+                      nullable=True)
+    playlist_id = Column(Integer,
+                         ForeignKey("un_playlists.id", ondelete='CASCADE'),
+                         nullable=True)
+    uuid = Column(String(22), nullable=True)
+    share = relation("Share")
+    album = relation("Album")
+    track = relation("Track")
+    playlist = relation("PlayList")
+
+    @declared_attr
+    def __table_args__(cls):
+        return (Index("share_entries_share_index", "share_id"),
+                Index("share_entries_uuid_index", "uuid"),)
+
+
 def _dbUrl(config):
     url = (os.environ.get("MISHMASH_DBURL") or
            config.get("mishmash", "sqlalchemy.url"))
@@ -346,9 +394,6 @@ def init(settings, webapp=False, db_info=None):
 
 
 def initAlembic(url):
-    # # Save just for creating new schema revisions
-    # Base.metadata.create_all(db_engine)
-
     # Upgrade to head (i.e. this) revision, or no-op if they match
     alembic_d = Path(__file__).parent / "alembic"
     alembic_cfg = AlemConfig(str(alembic_d / "alembic.ini"))
@@ -411,7 +456,7 @@ def listUsers(session):
 
 
 def setUserPassword(session, uname, password):
-    user = getUserByName(session, uname, False)
+    user = session.query(User).filter(User.name == uname).one_or_none()
     if not user:
         return False
     session.add(user)
@@ -420,28 +465,29 @@ def setUserPassword(session, uname, password):
     return True
 
 
-def getUserByName(session, username, wrap=True):
+def getUserByName(session, username):
     try:
-        ret = []
-        if username is None:
-            query = session.query(User).filter()
+        urow = session.query(User).filter(User.name == username).one_or_none()
+        if urow:
+            ucrow = session.query(UserConfig).\
+                    filter(UserConfig.user_id == urow.id).all()
+            return auth.User(urow, ucrow)
         else:
-            query = session.query(User).filter(User.name == username)
-        for urow in query:
-            if wrap:
-                ucrow = session.query(UserConfig).filter(
-                    UserConfig.user_id == urow.id).all()
-                ret.append(auth.User(urow, ucrow))
-            else:
-                ret.append(urow)
-        if len(ret) == 0:
             return None
-        elif len(ret) == 1:
-            return ret[0]
-        else:
-            return ret
     except NoResultFound:
         return None
+
+
+def getUsers(session):
+    try:
+        ret = []
+        for urow in session.query(User).filter():
+            ucrow = session.query(UserConfig).filter(
+                UserConfig.user_id == urow.id).all()
+            ret.append(auth.User(urow, ucrow))
+        return ret
+    except NoResultFound:
+        return []
 
 
 def getUserByID(session, id):
@@ -681,4 +727,4 @@ from . import auth, web   # noqa: E402
 
 UN_TYPES = [DBInfo, Config, UserConfig, User, Role, PlayQueue, PlayList,
             PlayListUser, PlayListTrack, ArtistRating, AlbumRating, TrackRating,
-            PlayCount, Scrobble]
+            PlayCount, Scrobble, Share, ShareEntry]
