@@ -608,8 +608,19 @@ def fillShare(session, req, row):
     share.set("username", row.user.name)
     share.set("created", strDate(row.created))
     share.set("lastVisited", strDate(row.last_visited))
-    share.set("expires", strDate(row.expires))
+    if row.expires:
+        share.set("expires", strDate(row.expires))
+    else:
+        # Arbitrarily far date stand in for no expiration
+        share.set("expires", "3000-01-01T00:00:00")
     share.set("visitCount", str(row.visit_count))
-    # for entry in row.entries:
-    #     if 
+    for entry in row.entries:
+        if entry.album_id:
+            share.append(fillAlbum(session, entry.album, "entry"))
+        elif entry.track_id:
+            share.append(fillTrack(session, entry.track, "entry"))
+        elif entry.playlist_id:
+            for track in entry.playlist.tracks:
+                share.append(fillTrack(session, track, "entry"))
+
     return share
