@@ -34,10 +34,19 @@ SETTER = "setter"
 VALUES = "values"
 
 CFG_KEYS = {
+    "art.prefer_lastfm": {DESC: "Prefer artwork from LastFM over local images.",
+                          DEFAULT: False},
+    "art.never_lastfm": {DESC: ("Never get artwork from LastFM when there are "
+                                "no local images."), DEFAULT: False},
 }
 CFG_DESCS = {k: v[DESC] for k, v in CFG_KEYS.items()}
 
 USER_CFG_KEYS = {
+    "art.prefer_lastfm": {DESC: "Prefer artwork from LastFM over local images.",
+                          DEFAULT: False},
+    "art.never_lastfm": {DESC: ("Never get artwork from LastFM when there are "
+                                "no local images."), DEFAULT: False},
+
     "lastfm.user": {DESC: "Username for your LastFM account"},
     "lastfm.password": {DESC: "Hashed password for your LastFM account",
                         SETTER: lambda v: lastfm.hashPassword(v)},

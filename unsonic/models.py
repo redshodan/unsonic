@@ -456,7 +456,7 @@ def listUsers(session):
 
 
 def setUserPassword(session, uname, password):
-    user = getUserByName(session, uname, False)
+    user = session.query(User).filter(User.name == uname).one_or_none()
     if not user:
         return False
     session.add(user)
@@ -465,28 +465,29 @@ def setUserPassword(session, uname, password):
     return True
 
 
-def getUserByName(session, username, wrap=True):
+def getUserByName(session, username):
     try:
-        ret = []
-        if username is None:
-            query = session.query(User).filter()
+        urow = session.query(User).filter(User.name == username).one_or_none()
+        if urow:
+            ucrow = session.query(UserConfig).\
+                    filter(UserConfig.user_id == urow.id).all()
+            return auth.User(urow, ucrow)
         else:
-            query = session.query(User).filter(User.name == username)
-        for urow in query:
-            if wrap:
-                ucrow = session.query(UserConfig).filter(
-                    UserConfig.user_id == urow.id).all()
-                ret.append(auth.User(urow, ucrow))
-            else:
-                ret.append(urow)
-        if len(ret) == 0:
             return None
-        elif len(ret) == 1:
-            return ret[0]
-        else:
-            return ret
     except NoResultFound:
         return None
+
+
+def getUsers(session):
+    try:
+        ret = []
+        for urow in session.query(User).filter():
+            ucrow = session.query(UserConfig).filter(
+                UserConfig.user_id == urow.id).all()
+            ret.append(auth.User(urow, ucrow))
+        return ret
+    except NoResultFound:
+        return []
 
 
 def getUserByID(session, id):

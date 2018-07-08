@@ -4,6 +4,7 @@ from pyramid.security import Allow, Everyone, NO_PERMISSION_REQUIRED
 
 from . import HTMLHandler, NotFound
 from ..models import Share, ShareEntry, Image
+from .rest import getArtworkByID
 
 
 class RouteContext(object):
@@ -117,21 +118,33 @@ class SharesCoverart(HTMLHandler):
         row = session.query(ShareEntry).\
               filter(ShareEntry.uuid == share_uuid).one_or_none()
         if not row:
-            print("failed select")
             raise NotFound(f"Invalid share id: {share_uuid}")
 
-        image_id = None
-        if row.album_id and row.album.images:
-            image_id = row.album.images[0]
-        elif row.track_id and row.track.album and row.track.album.images:
-            image_id = row.track.album.images[0]
+        image = None
+        if row.album_id:
+            if row.album.images:
+                image = row.album.images[0]
+                mime_type = image.mime_type
+                image = image.data
+            else:
+                image, mime_type = getArtworkByID(session,
+                                                  "al-%d" % row.album_id)
+        elif row.track_id:
+            if row.track.album and row.track.album.images:
+                image = row.track.album.images[0]
+                mime_type = image.mime_type
+                image = image.data
+            else:
+                image, mime_type = getArtworkByID(session,
+                                                  "tr-%d" % row.track_id)
         elif row.playlist_id and row.playlist.images:
-            image_id = row.playlist.images[0]
+            image = row.playlist.images[0]
+            mime_type = image.mime_type
+            image = image.data
         else:
             return FileResponse("unsonic/static/headphones.png")
 
-        # image = session.query(Image).filter_by(id=image_id).one_or_none()
-        return Response(content_type=image_id.mime_type, body=image_id.data)
+        return Response(content_type=mime_type, body=image)
 
 
 # Order matters for the route matching

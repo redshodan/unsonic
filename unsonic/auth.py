@@ -1,6 +1,7 @@
 import logging
 import hashlib
 import codecs
+from functools import lru_cache
 
 from pyramid.authentication import BasicAuthAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
@@ -13,6 +14,12 @@ from unsonic import models, lastfm
 from unsonic.models import Session
 
 log = logging.getLogger(__name__)
+
+
+@lru_cache(maxsize=32)
+def getUser(username):
+    with Session() as session:
+        return models.getUserByName(session, username)
 
 
 class User():
@@ -47,9 +54,6 @@ class User():
         if not self._lastfm:
             self._lastfm = lastfm.makeClient(self.lastfm_user,
                                              self.lastfm_password)
-            # FIXME: more proper cache file name? ~/.cache?
-            # self._lastfm.enable_caching("/tmp/unsonic-lastfm.cache")
-            self._lastfm.enable_caching()
         return self._lastfm
 
     def isAdmin(self):
@@ -139,34 +143,33 @@ class SubsonicAuth(BasicAuthAuthenticationPolicy):
 
     # Shared between both auth schemes
     def authCheck(self, username, password, req):
-        with Session() as session:
-            user = models.getUserByName(session, username)
-            if not user or user and not user.password:
-                log.warning(f"User {username} not found, or lacks a password")
-                return
-            if ("t" in list(req.params.keys()) and
-                    "s" in list(req.params.keys())):
-                sum = hashlib.md5()
-                sum.update(user.password.encode("utf-8"))
-                sum.update(req.params["s"].encode("utf-8"))
-                if sum.hexdigest() == req.params["t"]:
-                    # Stash the user for easy access
-                    req.authed_user = user
-                    return req.authed_user.roles
-                else:
-                    return
-            elif password.startswith("enc:"):
-                try:
-                    decode_hex = codecs.getdecoder("hex_codec")
-                    password = decode_hex(password[4:])[0]
-                    password = password.decode("utf-8")
-                except Exception as ex:
-                    log.warning(f"enc password decode error: {ex}")
-                    return
-            if user and password == user.password:
+        user = getUser(username)
+        if not user or user and not user.password:
+            log.warning(f"User {username} not found, or lacks a password")
+            return
+        if ("t" in list(req.params.keys()) and
+                "s" in list(req.params.keys())):
+            sum = hashlib.md5()
+            sum.update(user.password.encode("utf-8"))
+            sum.update(req.params["s"].encode("utf-8"))
+            if sum.hexdigest() == req.params["t"]:
                 # Stash the user for easy access
                 req.authed_user = user
                 return req.authed_user.roles
+            else:
+                return
+        elif password.startswith("enc:"):
+            try:
+                decode_hex = codecs.getdecoder("hex_codec")
+                password = decode_hex(password[4:])[0]
+                password = password.decode("utf-8")
+            except Exception as ex:
+                log.warning(f"enc password decode error: {ex}")
+                return
+        if user and password == user.password:
+            # Stash the user for easy access
+            req.authed_user = user
+            return req.authed_user.roles
 
 
 def init(global_config, config):

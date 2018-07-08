@@ -3,6 +3,7 @@ import traceback
 import json
 import xmltodict
 import logging
+import requests
 from collections import OrderedDict
 from datetime import datetime
 import xml.etree.ElementTree as ET
@@ -16,8 +17,9 @@ from nicfit.console.ansi import Fg
 from ...log import log
 from ...version import PROTOCOL_VERSION, UNSONIC_PROTOCOL_VERSION
 from ...models import (Session, ArtistRating, AlbumRating, TrackRating,
-                       Artist, Album, Track, PlayList, Share)
+                       Artist, Album, Track, PlayList, Share, Image)
 from ...auth import Roles
+from ... import lastfm
 
 
 XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>'
@@ -217,6 +219,61 @@ def registerCmd(cmd):
     return cmd
 
 
+def getArtworkByID(session, id, lf_client=None):
+    from ...config import CONFIG
+
+    num = int(id[3:])
+    image = None
+    lf_artist = None
+    lf_album = None
+
+    if id.startswith("tr-"):
+        track = session.query(Track).filter_by(id=num).one_or_none()
+        lf_artist = track.artist.name
+        if track.album:
+            lf_album = track.album.title
+            if track.album.images:
+                image = track.album.images[0]
+    elif id.startswith("al-"):
+        album = session.query(Album).filter_by(id=num).one_or_none()
+        lf_artist = album.artist.name
+        lf_album = album.title
+        if album.images:
+            image = album.images[0]
+    elif id.startswith("ar-"):
+        artist = session.query(Artist).filter_by(id=num).one_or_none()
+        lf_artist = album.artist.name
+        if artist.images:
+            image = artist.images[0]
+
+    # DB only
+    if CONFIG.getDbValue(session, key="art.never_lastfm").value:
+        if image:
+            return image.data, image.mime_type
+        else:
+            return None, None
+
+    # Prefer local over LastFM
+    if not CONFIG.getDbValue(session, key="art.prefer_lastfm").value:
+        if image:
+            return image.data, image.mime_type
+
+    # LastFM image lookup
+    if not lf_client:
+        lf_client = lastfm.getSystemClient()
+    if lf_album:
+        ret = lf_client.get_album(lf_artist, lf_album)
+    else:
+        ret = lf_client.get_artist(lf_artist)
+    image_url = ret.get_cover_image(pylast.SIZE_EXTRA_LARGE)
+
+    # Get it
+    if image_url:
+        return lastfm.getImage(lf_client, image_url)
+
+    return None, None
+
+
 # Param type check functions
 def str_t(value):
     if not value or not len(value):
@@ -349,6 +406,7 @@ def fillID(row):
         return f"sh-{row.id}"
     else:
         raise MissingParam(f"Unknown ID type: {type(row)}")
+
 
 def fillCoverArt(session, row, elem, name):
     if row.images is not None and len(row.images) > 0:
