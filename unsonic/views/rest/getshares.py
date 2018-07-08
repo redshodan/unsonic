@@ -5,7 +5,7 @@ from ...models import Share
 
 
 @registerCmd
-class CreateShare(Command):
+class GetShares(Command):
     name = "getShares.view"
     param_defs = {}
     dbsess = True
