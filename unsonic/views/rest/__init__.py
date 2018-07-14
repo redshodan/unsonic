@@ -3,7 +3,6 @@ import traceback
 import json
 import xmltodict
 import logging
-import requests
 from collections import OrderedDict
 from datetime import datetime
 import xml.etree.ElementTree as ET
@@ -17,7 +16,7 @@ from nicfit.console.ansi import Fg
 from ...log import log
 from ...version import PROTOCOL_VERSION, UNSONIC_PROTOCOL_VERSION
 from ...models import (Session, ArtistRating, AlbumRating, TrackRating,
-                       Artist, Album, Track, PlayList, Share, Image)
+                       Artist, Album, Track, PlayList, Share, Bookmark)
 from ...auth import Roles
 from ... import lastfm
 
@@ -344,6 +343,12 @@ def share_t(value):
     return int(value[3:])
 
 
+def bookmark_t(value):
+    if not value.startswith("bm-"):
+        raise MissingParam("Invalid id")
+    return int(value[3:])
+
+
 def folder_t(value):
     if not value.startswith("fl-"):
         raise MissingParam("Invalid id")
@@ -404,6 +409,8 @@ def fillID(row):
         return f"pl-{row.id}"
     elif isinstance(row, Share):
         return f"sh-{row.id}"
+    elif isinstance(row, Bookmark):
+        return f"bm-{row.id}"
     else:
         raise MissingParam(f"Unknown ID type: {type(row)}")
 
@@ -624,3 +631,15 @@ def fillShare(session, req, row):
                 share.append(fillTrack(session, track, "entry"))
 
     return share
+
+
+def fillBookmark(session, row):
+    bm = ET.Element("bookmark")
+    bm.set("id", fillID(row))
+    bm.set("position", str(row.position))
+    bm.set("username", row.user.name)
+    bm.set("comment", row.comment if row.comment else "")
+    bm.set("created", strDate(row.created))
+    bm.set("changed", strDate(row.changed))
+    bm.append(fillTrack(session, row.track, "entry"))
+    return bm
