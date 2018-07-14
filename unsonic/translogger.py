@@ -44,7 +44,7 @@ class ColorTransLogger(TransLogger):
             remote_addr = environ['REMOTE_ADDR']
         stat = status.split(None, 1)[0]
         if (environ.get("webob._parsed_query_vars") and
-            environ.get("webob._parsed_query_vars")[0].get("u")):
+              environ.get("webob._parsed_query_vars")[0].get("u")):
             user = environ.get("webob._parsed_query_vars")[0].get("u")
             user = environ.get('REMOTE_USER') or user or None
         else:

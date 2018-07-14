@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 import shortuuid
 from . import (Command, registerCmd, playable_id_t, datetime_t, str_t, fillShare,
-               MissingParam)
+               MissingParam, NotFound)
 from ...models import Album, Track, PlayList, Share, ShareEntry
 
 

@@ -1,9 +1,7 @@
 import xml.etree.ElementTree as ET
-import pylast
 
 from . import Command, NotFound, registerCmd, int_t, track_t, fillTrackUser
-from ... import lastfm
-from ...models import Track, getPlayable
+from ...models import Track
 
 
 @registerCmd

@@ -1,5 +1,3 @@
-import pytest
-
 from unsonic.views.rest.getlyrics import GetLyrics
 from . import buildCmd, checkResp
 

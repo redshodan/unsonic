@@ -13,9 +13,9 @@ def album_list(request):
 
 def validate(cmd, resp, al_class):
     if al_class == GetAlbumList:
-        al_name =  "albumList"
+        al_name = "albumList"
     else:
-        al_name =  "albumList2"
+        al_name = "albumList2"
     sub_resp = checkResp(cmd.req, resp)
     alist = sub_resp.find("{http://subsonic.org/restapi}" + al_name)
     count = 0

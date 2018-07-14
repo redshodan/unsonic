@@ -1,8 +1,6 @@
-import unittest
-
 from unsonic.views.rest.getcoverart import GetCoverArt
 from unsonic.views.rest import Command
-from unsonic.models import Image, Artist, Album
+from unsonic.models import Artist, Album
 from . import buildCmd, checkResp
 from unsonic.config import CONFIG
 

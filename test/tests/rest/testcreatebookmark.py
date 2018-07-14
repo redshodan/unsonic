@@ -9,7 +9,8 @@ def testCreateBookmark(session):
     comment = "comment1"
 
     cmd = buildCmd(session, CreateBookmark,
-                   {"id": "tr-%d" % id, "position": position, "comment": comment})
+                   {"id": "tr-%d" % id, "position": position,
+                    "comment": comment})
     checkResp(cmd.req, cmd())
     row = session.query(Bookmark).\
         filter(Bookmark.user_id == dbinfo.users["test"].id,

@@ -1,5 +1,3 @@
-import xml.etree.ElementTree as ET
-
 from . import Command, registerCmd, share_t, str_t, datetime_t, MissingParam
 from ...models import Share
 

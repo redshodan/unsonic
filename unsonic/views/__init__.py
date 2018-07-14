@@ -5,8 +5,6 @@ from pyramid.response import FileResponse
 from pyramid.renderers import render
 from pyramid.security import Allow, Authenticated, DENY_ALL
 
-from nicfit.console.ansi import Fg
-
 from ..auth import Roles
 from ..models import Session
 from ..log import log

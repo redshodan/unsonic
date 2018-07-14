@@ -7,4 +7,4 @@ def testGetScanStatus(session):
     resp = checkResp(cmd.req, cmd())
     scanstatus = resp.find("{http://subsonic.org/restapi}scanStatus")
     assert scanstatus.get("scanning") == "false"
-    assert scanstatus.get("count") != None
+    assert scanstatus.get("count") is not None

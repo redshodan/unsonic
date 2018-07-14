@@ -30,14 +30,19 @@ class GetTopSongs(Command):
                 if artist:
                     track = None
                     if top.item.get_album() and top.item.get_album().get_title():
-                        album = session.query(Album).filter(
-                            Album.artist_id == artist.id,
-                            Album.title == top.item.get_album().get_title()).one_or_none()
+                        album = session.query(Album).\
+                                filter(
+                                    Album.artist_id == artist.id,
+                                    Album.title ==
+                                    top.item.get_album().get_title()).\
+                                one_or_none()
                         if album:
-                            track = session.query(Track).filter(
-                                Track.artist_id == artist.id,
-                                Track.album_id == album.id,
-                                Track.title == top.item.get_title()).one_or_none()
+                            track = session.query(Track).\
+                                    filter(
+                                        Track.artist_id == artist.id,
+                                        Track.album_id == album.id,
+                                        Track.title == top.item.get_title()).\
+                                    one_or_none()
                     if not track:
                         track = session.query(Track).filter(
                             Track.artist_id == artist.id,

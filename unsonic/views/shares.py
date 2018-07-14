@@ -3,7 +3,7 @@ from pyramid.renderers import render
 from pyramid.security import Allow, Everyone, NO_PERMISSION_REQUIRED
 
 from . import HTMLHandler, NotFound
-from ..models import Share, ShareEntry, Image
+from ..models import Share, ShareEntry
 from .rest import getArtworkByID
 
 
@@ -78,7 +78,7 @@ class SharesTrack(HTMLHandler):
             try:
                 share_uuid, share_index = full_share_uuid.split("-")
                 share_index = int(share_index)
-            except:
+            except Exception:
                 raise NotFound(f"Invalid share id: {full_share_uuid}")
         else:
             share_uuid = full_share_uuid

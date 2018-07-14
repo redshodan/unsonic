@@ -1,6 +1,3 @@
-import xml.etree.ElementTree as ET
-
-from unsonic.models import PlayList
 from unsonic.views.rest.getplaylist import GetPlayList
 from unsonic.views.rest.createplaylist import CreatePlayList
 from unsonic.views.rest import Command
@@ -41,4 +38,4 @@ def testGetPlayList(session):
 
 def testGetPlayListEmpty(session):
     cmd = buildCmd(session, GetPlayList, {"id": "pl-1"})
-    resp = checkResp(cmd.req, cmd(), ok=Command.E_NOT_FOUND)
+    checkResp(cmd.req, cmd(), ok=Command.E_NOT_FOUND)

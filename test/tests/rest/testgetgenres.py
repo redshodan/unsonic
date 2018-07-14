@@ -1,5 +1,3 @@
-import xml.etree.ElementTree as ET
-
 from unsonic.views.rest.getgenres import GetGenres
 from . import buildCmd, checkResp
 

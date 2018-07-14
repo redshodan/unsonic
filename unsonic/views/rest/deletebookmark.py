@@ -1,5 +1,3 @@
-import xml.etree.ElementTree as ET
-
 from . import Command, registerCmd, track_t
 from ...models import Bookmark
 

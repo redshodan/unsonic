@@ -1,5 +1,4 @@
 from unsonic.views.rest.getsongsbygenre import GetSongsByGenre
-from unsonic.views.rest import Command
 from . import buildCmd, checkResp
 
 

@@ -10,9 +10,14 @@ from unsonic import models
 def buildCmd(session, klass, params={}, username="test"):
     request = testing.DummyRequest()
     request.context = testing.DummyResource()
-    md = MultiDict()
-    for key, val in params.items():
-        md.add(key, val)
+    if isinstance(params, dict):
+        md = MultiDict()
+        for key, val in params.items():
+            md.add(key, val)
+    elif isinstance(params, MultiDict):
+        md = params
+    else:
+        raise Exception("Invalid params class type")
     request.params = NestedMultiDict(md)
     request.authed_user = models.getUserByName(session, username)
     request.user_agent = "Test/1.0 (X11; Linux x86_64) Test/1.0 Test/1.0"
