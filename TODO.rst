@@ -52,6 +52,11 @@ Exceptions
 * savePlayQueue: id is not required, means delete the playqueue and don't create
   one in its place
 * getLyrics: added optional id param which is a track id that can be looked up
+* Stubbed out, wont implement:
+  - hls
+  - getVideo
+  - getVideoInfo
+  - getCaptions:
 
 
 General
@@ -63,10 +68,8 @@ General
 
 Missing
 -------
-- getVideo
-- getVideoInfo
-- hls:
-- getCaptions:
+- jukeboxControl:
+
 - getPodcasts:
 - getNewestPodcasts:
 - refreshPodcasts:
@@ -74,7 +77,7 @@ Missing
 - deletePodcastChannel:
 - deletePodcastEpisode:
 - downloadPodcastEpisode:
-- jukeboxControl:
+
 - getInternetRadioStations: 1.16 version added RadioStations
 - createInternetRadioStation:
 - updateInternetRadioStation:

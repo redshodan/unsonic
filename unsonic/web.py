@@ -76,7 +76,7 @@ def main(global_config, **settings):
                      # Clementine calls some API's with the wrong caps.. sigh
                      cmd.name[0].upper() + cmd.name[1:],
                      # And others, pSub, don't call with trailing .view .. sigh^2
-                     cmd.name.rstrip(".view")]:
+                     cmd.name.rstrip(".view").rstrip("m3u8")]:
             config.add_route(name, "/rest/" + name,
                              factory="unsonic.views.rest.RouteContext")
             config.add_view(cmd, route_name=name, permission=auth.Roles.REST)
