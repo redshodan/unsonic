@@ -635,7 +635,6 @@ def fillShare(session, req, row):
 
 def fillBookmark(session, row):
     bm = ET.Element("bookmark")
-    bm.set("id", fillID(row))
     bm.set("position", str(row.position))
     bm.set("username", row.user.name)
     bm.set("comment", row.comment if row.comment else "")

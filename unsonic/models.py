@@ -148,6 +148,7 @@ class User(Base, OrmObject):
         dbinfo.users = {}
         for user in session.query(User).all():
             u = Namespace()
+            u.id = user.id
             u.name = user.name
             u.listening = None
             dbinfo.users[u.name] = u

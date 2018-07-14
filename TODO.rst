@@ -80,9 +80,6 @@ Missing
 - createInternetRadioStation:
 - updateInternetRadioStation:
 - deleteInternetRadioStation:
-- getBookmarks:
-- createBookmark:
-- deleteBookmark:
 
 
 Partial
