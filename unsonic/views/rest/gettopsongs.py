@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 
 from . import Command, NotFound, registerCmd, int_t, str_t, fillTrackUser
-from ...models import Artist, Track
+from ...models import Artist, Album, Track
 
 
 @registerCmd
@@ -21,16 +21,31 @@ class GetTopSongs(Command):
         if not lf_artist:
             raise NotFound("Artist not found")
         lf_tops = lf_artist.get_top_tracks(limit=self.params["count"])
-        print(lf_tops)
+
         if lf_tops:
             for top in lf_tops:
                 artist = session.query(Artist).filter(
                     Artist.name ==
                     top.item.get_artist().get_name()).one_or_none()
                 if artist:
-                    track = session.query(Track).filter(
-                        Track.artist_id == artist.id,
-                        Track.title == top.item.get_title()).one_or_none()
+                    track = None
+                    if top.item.get_album() and top.item.get_album().get_title():
+                        album = session.query(Album).filter(
+                            Album.artist_id == artist.id,
+                            Album.title == top.item.get_album().get_title()).one_or_none()
+                        if album:
+                            track = session.query(Track).filter(
+                                Track.artist_id == artist.id,
+                                Track.album_id == album.id,
+                                Track.title == top.item.get_title()).one_or_none()
+                    if not track:
+                        track = session.query(Track).filter(
+                            Track.artist_id == artist.id,
+                            Track.title == top.item.get_title()).all()
+                        if track and len(track) > 0:
+                            track = track[0]
+                        else:
+                            track = None
                     if track:
                         songs.append(fillTrackUser(session, track, None,
                                                    self.req.authed_user))

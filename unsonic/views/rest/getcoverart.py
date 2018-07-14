@@ -1,7 +1,6 @@
 from pyramid.response import Response
-from pyramid.exceptions import NotFound
 
-from . import Command, registerCmd, getArtworkByID
+from . import Command, registerCmd, getArtworkByID, NotFound
 
 
 @registerCmd
