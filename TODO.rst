@@ -51,6 +51,7 @@ Exceptions
   * username param is not required, will default to your own username if not supplied.
 * savePlayQueue: id is not required, means delete the playqueue and don't create
   one in its place
+* getLyrics: added optional id param which is a track id that can be looked up
 
 
 General
@@ -67,7 +68,6 @@ Missing
 - getNowPlaying:
 - hls:
 - getCaptions:
-- getLyrics:
 - getPodcasts:
 - getNewestPodcasts:
 - refreshPodcasts:
