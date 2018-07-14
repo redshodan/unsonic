@@ -151,6 +151,7 @@ class User(Base, OrmObject):
             u.id = user.id
             u.name = user.name
             u.listening = None
+            u.listening_since = None
             dbinfo.users[u.name] = u
 
 

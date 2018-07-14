@@ -1,4 +1,5 @@
 import logging
+import datetime
 
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -32,6 +33,8 @@ class Scrobble(Command):
             # User is listening, not scrobbling yet
             dbinfo.users[self.req.authed_user.name]\
                   .listening = self.params["id"]
+            dbinfo.users[self.req.authed_user.name]\
+                  .listening_since = datetime.datetime.now()
 
             if lastfm.is_user:
                 log.info(f"last.fm now playing: {track.artist} - {track.title}")

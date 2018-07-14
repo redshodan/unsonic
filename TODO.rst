@@ -65,7 +65,6 @@ Missing
 -------
 - getVideo
 - getVideoInfo
-- getNowPlaying:
 - hls:
 - getCaptions:
 - getPodcasts:
