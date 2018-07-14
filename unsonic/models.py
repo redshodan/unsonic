@@ -148,6 +148,7 @@ class User(Base, OrmObject):
         dbinfo.users = {}
         for user in session.query(User).all():
             u = Namespace()
+            u.id = user.id
             u.name = user.name
             u.listening = None
             dbinfo.users[u.name] = u
@@ -356,6 +357,26 @@ class ShareEntry(Base, OrmObject):
     def __table_args__(cls):
         return (Index("share_entries_share_index", "share_id"),
                 Index("share_entries_uuid_index", "uuid"),)
+
+
+class Bookmark(Base, OrmObject):
+    __tablename__ = "un_bookmarks"
+
+    id = Column(Integer, Sequence("un_bookmarks_id_seq"), primary_key=True)
+    user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
+                     nullable=False)
+    position = Column(Integer, nullable=False)
+    comment = Column(String, nullable=True)
+    created = Column(DateTime, default=datetime.datetime.now, nullable=False)
+    changed = Column(DateTime, default=datetime.datetime.now, nullable=False)
+    track_id = Column(Integer, ForeignKey("tracks.id", ondelete='CASCADE'),
+                      nullable=True)
+    user = relation("User")
+    track = relation("Track")
+
+    @declared_attr
+    def __table_args__(cls):
+        return (Index("bookmarks_user_index", "user_id"),)
 
 
 def _dbUrl(config):
@@ -727,4 +748,4 @@ from . import auth, web   # noqa: E402
 
 UN_TYPES = [DBInfo, Config, UserConfig, User, Role, PlayQueue, PlayList,
             PlayListUser, PlayListTrack, ArtistRating, AlbumRating, TrackRating,
-            PlayCount, Scrobble, Share, ShareEntry]
+            PlayCount, Scrobble, Share, ShareEntry, Bookmark]
