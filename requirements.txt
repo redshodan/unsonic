@@ -1,5 +1,5 @@
 pyramid==1.9.2
-SQLAlchemy==1.2.9
+SQLAlchemy==1.2.10
 alembic==0.9.10
 pyramid_mako==1.0.2
 zope.sqlalchemy==1.0
