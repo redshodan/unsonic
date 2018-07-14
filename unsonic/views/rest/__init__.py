@@ -18,7 +18,8 @@ from nicfit.console.ansi import Fg
 from ...log import log
 from ...version import PROTOCOL_VERSION, UNSONIC_PROTOCOL_VERSION
 from ...models import (Session, ArtistRating, AlbumRating, TrackRating,
-                       Artist, Album, Track, PlayList, Share, Bookmark)
+                       Artist, Album, Track, PlayList, Share, Bookmark,
+                       InternetRadio)
 from ...auth import Roles
 from ... import lastfm
 
@@ -351,6 +352,12 @@ def bookmark_t(value):
     return int(value[3:])
 
 
+def iradio_t(value):
+    if not value.startswith("ir-"):
+        raise MissingParam("Invalid id")
+    return int(value[3:])
+
+
 def folder_t(value):
     if not value.startswith("fl-"):
         raise MissingParam("Invalid id")
@@ -413,6 +420,8 @@ def fillID(row):
         return f"sh-{row.id}"
     elif isinstance(row, Bookmark):
         return f"bm-{row.id}"
+    elif isinstance(row, InternetRadio):
+        return f"ir-{row.id}"
     else:
         raise MissingParam(f"Unknown ID type: {type(row)}")
 
@@ -644,3 +653,12 @@ def fillBookmark(session, row):
     bm.set("changed", strDate(row.changed))
     bm.append(fillTrack(session, row.track, "entry"))
     return bm
+
+
+def fillInternetRadio(session, row):
+    ir = ET.Element("internetRadioStation")
+    ir.set("id", fillID(row))
+    ir.set("name", row.name)
+    ir.set("streamUrl", row.stream_url)
+    ir.set("homepageUrl", row.homepage_url if row.homepage_url else "")
+    return ir
