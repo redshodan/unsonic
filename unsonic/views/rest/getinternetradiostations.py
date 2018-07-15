@@ -5,7 +5,7 @@ from ...models import InternetRadio
 
 
 @registerCmd
-class GetRadioInternetStations(Command):
+class GetInternetRadioStations(Command):
     name = "getInternetRadioStations.view"
     param_defs = {}
     dbsess = True

@@ -3,7 +3,7 @@ from ...models import InternetRadio
 
 
 @registerCmd
-class DeleteRadioInternetStation(Command):
+class DeleteInternetRadioStation(Command):
     name = "deleteInternetRadioStation.view"
     param_defs = {"id": {"type": iradio_t, "required": True}}
     dbsess = True

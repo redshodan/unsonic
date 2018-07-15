@@ -1,9 +1,11 @@
-from . import Command, registerCmd
+import xml.etree.ElementTree as ET
+
+from . import Command, registerCmd, fillInternetRadio
 from ...models import InternetRadio
 
 
 @registerCmd
-class CreateRadioInternetStation(Command):
+class CreateInternetRadioStation(Command):
     name = "createInternetRadioStation.view"
     param_defs = {
         "name": {"type": str, "required": True},
@@ -19,5 +21,9 @@ class CreateRadioInternetStation(Command):
                            stream_url=self.params["streamUrl"],
                            homepage_url=self.params["homepageUrl"])
         session.add(ir)
+        session.flush()
 
-        return self.makeResp()
+        irs = ET.Element("internetRadioStations")
+        irs.append(fillInternetRadio(session, ir))
+
+        return self.makeResp(child=irs)

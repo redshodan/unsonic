@@ -3,7 +3,7 @@ from ...models import InternetRadio
 
 
 @registerCmd
-class UpdateRadioInternetStation(Command):
+class UpdateInternetRadioStation(Command):
     name = "updateInternetRadioStation.view"
     param_defs = {
         "id": {"type": iradio_t, "required": True},
