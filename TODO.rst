@@ -78,11 +78,6 @@ Missing
 - deletePodcastEpisode:
 - downloadPodcastEpisode:
 
-- getInternetRadioStations: 1.16 version added RadioStations
-- createInternetRadioStation:
-- updateInternetRadioStation:
-- deleteInternetRadioStation:
-
 
 Partial
 -------
