@@ -380,6 +380,22 @@ class Bookmark(Base, OrmObject):
         return (Index("bookmarks_user_index", "user_id"),)
 
 
+class InternetRadio(Base, OrmObject):
+    __tablename__ = "un_iradios"
+
+    id = Column(Integer, Sequence("un_iradios_id_seq"), primary_key=True)
+    user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
+                     nullable=False)
+    name = Column(String, nullable=False)
+    stream_url = Column(String, nullable=False)
+    homepage_url = Column(String, nullable=True)
+    user = relation("User")
+
+    @declared_attr
+    def __table_args__(cls):
+        return (Index("iradios_user_index", "user_id"),)
+
+
 def _dbUrl(config):
     url = (os.environ.get("MISHMASH_DBURL") or
            config.get("mishmash", "sqlalchemy.url"))
@@ -749,4 +765,4 @@ from . import auth, web   # noqa: E402
 
 UN_TYPES = [DBInfo, Config, UserConfig, User, Role, PlayQueue, PlayList,
             PlayListUser, PlayListTrack, ArtistRating, AlbumRating, TrackRating,
-            PlayCount, Scrobble, Share, ShareEntry, Bookmark]
+            PlayCount, Scrobble, Share, ShareEntry, Bookmark, InternetRadio]
