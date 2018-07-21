@@ -10,7 +10,7 @@ psycopg2-binary==2.7.5
 xmltodict==0.11.0
 nicfit.py==0.8.1
 mishmash[postgres]==0.3b6
-sphinx==1.7.5
+sphinx==1.7.6
 recommonmark==0.4.0
 pylast==2.3.0
 shortuuid==0.5.0
