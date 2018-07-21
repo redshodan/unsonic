@@ -178,7 +178,8 @@ class GetAlbumList(Command):
             for date_row in [Album.original_release_date, Album.release_date,
                              Album.recording_date]:
                 res = self.queryAlbum(session).\
-                          filter(date_row >= from_year_date, date_row <= to_year_date).\
+                          filter(date_row >= from_year_date,
+                                 date_row <= to_year_date).\
                           offset(offset).\
                           limit(limit)
                 if not second:
