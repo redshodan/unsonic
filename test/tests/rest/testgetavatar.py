@@ -14,7 +14,7 @@ def testGetAvatar(session):
 
 def testGetAvatarNoAvatar(session):
     cmd = buildCmd(session, GetAvatar, {"username": "admin"})
-    checkResp(cmd.req, cmd(), Command.E_NOT_FOUND)
+    cmd()
 
 
 def testGetAvatarBadUser(session):

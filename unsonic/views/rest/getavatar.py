@@ -1,3 +1,7 @@
+import os
+
+from pyramid.response import FileResponse
+
 from . import Command, registerCmd, NotFound
 from ...models import Image, getUserByName
 
@@ -21,5 +25,8 @@ class GetAvatar(Command):
         row = session.query(Image).\
                   filter(Image.id == db_user.avatar).one_or_none()
         if not row:
-            raise NotFound("User has no avatar")
-        return self.makeBinaryResp(row.data, row.mime_type, row.md5)
+            here = os.path.dirname(__file__)
+            icon = os.path.join(here, "..", "..", "static", "favicon.ico")
+            return FileResponse(icon, request=self.req)
+        else:
+            return self.makeBinaryResp(row.data, row.mime_type, row.md5)

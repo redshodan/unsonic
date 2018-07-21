@@ -171,7 +171,7 @@ class Command(object):
             resp.text = body
             resp.content_type = "text/xml"
         resp.charset = "UTF-8"
-        log.debug("Response(%s): %s" % (self.name, Fg.blue(pretty)))
+        log.info("Response(%s): %s" % (self.name, Fg.blue(pretty)))
         return resp
 
     def makeBinaryResp(self, binary, mimetype, md5=None):

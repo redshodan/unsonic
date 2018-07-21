@@ -15,26 +15,32 @@ class GetArtists(Command):
     def handleReq(self, session):
         artists = ET.Element("artists")
         artists.set("ignoredArticles", " ".join(DEFAULT_IGNORED_ARTICLES))
-        index_group = None
+
         q = session.query(Artist)
         if self.params["musicFolderId"]:
             q = q.filter(Artist.lib_id == self.params["musicFolderId"])
-        for row in q.order_by(Artist.sort_name).all():
+        indexes = {}
+        for row in q.all():
             first = row.sort_name[0].upper()
-            index = None
-            if index_group != first:
-                index_group = first
-                index = ET.Element("index")
-                artists.append(index)
-                index.set("name", index_group)
+            if first in indexes:
+                index = indexes[first]
+            else:
+                index = []
+                indexes[first] = index
+            count = 0
+            for album in session.query(Album).filter(
+                    Album.artist_id == row.id).all():
+                count = count + 1
             artist = fillArtist(session, row)
-            if index is not None:
+            artist.set("albumCount", str(count))
+            index.append(artist)
+
+        for key in sorted(indexes.keys()):
+            val = indexes[key]
+            index = ET.Element("index")
+            index.set("name", key)
+            for artist in val:
                 index.append(artist)
-        for index in artists:
-            for artist in index:
-                count = 0
-                for album in session.query(Album).filter(
-                        Album.artist_id == int(artist.get("id")[3:])).all():
-                    count = count + 1
-                artist.set("albumCount", str(count))
+            artists.append(index)
+
         return self.makeResp(child=artists)

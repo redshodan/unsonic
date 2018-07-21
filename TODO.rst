@@ -114,3 +114,6 @@ Partial
 
 - createUser:
   resp: Needs folders
+
+- getGenres:
+  resp: Needs album counts

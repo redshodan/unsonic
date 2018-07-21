@@ -167,18 +167,18 @@ class GetAlbumList(Command):
                                    "for search byYear")
             if from_year > to_year:
                 desc = True
-                to_year = Eyed3Date(year=from_year, month=12, day=31)
-                from_year = Eyed3Date(year=to_year, month=1, day=1)
+                to_year_date = Eyed3Date(year=from_year, month=12, day=31)
+                from_year_date = Eyed3Date(year=to_year, month=1, day=1)
             else:
                 desc = False
-                from_year = Eyed3Date(year=from_year, month=1, day=1)
-                to_year = Eyed3Date(year=to_year, month=12, day=31)
+                from_year_date = Eyed3Date(year=from_year, month=1, day=1)
+                to_year_date = Eyed3Date(year=to_year, month=12, day=31)
             results = set()
             second = False
             for date_row in [Album.original_release_date, Album.release_date,
                              Album.recording_date]:
                 res = self.queryAlbum(session).\
-                          filter(date_row >= from_year, date_row <= to_year).\
+                          filter(date_row >= from_year_date, date_row <= to_year_date).\
                           offset(offset).\
                           limit(limit)
                 if not second:
@@ -192,8 +192,8 @@ class GetAlbumList(Command):
                             results.add(row)
                         # Add only if the orig date is in the range and ignore
                         # rel date
-                        elif ((row.original_release_date >= from_year) and
-                              (row.original_release_date <= to_year)):
+                        elif ((row.original_release_date >= from_year_date) and
+                              (row.original_release_date <= to_year_date)):
                             results.add(row)
             results = list(results)
             results.sort(key=lambda x: x.getBestDate(), reverse=desc)

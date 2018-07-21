@@ -12,11 +12,11 @@ class GetArtist(Command):
 
     def handleReq(self, session):
         artist = None
-        for row in session.query(Artist).filter(
-                Artist.id == self.params["id"]).all():
-            artist = fillArtistUser(session, row, None, self.req.authed_user)
-        if artist is None:
+        row = session.query(Artist).\
+              filter(Artist.id == self.params["id"]).one_or_none()
+        if row is None:
             raise NotFound(self.req.params["id"])
+        artist = fillArtistUser(session, row, None, self.req.authed_user)
         album_count = 0
         for row in session.query(Album).filter(
                 Album.artist_id == self.params["id"]).all():
