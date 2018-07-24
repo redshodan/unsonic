@@ -277,12 +277,23 @@ def getArtworkByID(session, id, lf_client=None):
 
 
 # Param type check functions
+def paramSafe(func):
+    def wrapper(value):
+        try:
+            return func(value)
+        except ValueError as e:
+            raise MissingParam("Invalid id: " + str(e))
+    return wrapper
+
+
+@paramSafe
 def str_t(value):
     if not value or not len(value):
         raise MissingParam("Missing string parameter")
     return value
 
 
+@paramSafe
 def int_t(value):
     try:
         return int(value)
@@ -290,6 +301,7 @@ def int_t(value):
         raise MissingParam("Invalid number parameter")
 
 
+@paramSafe
 def bool_t(value):
     if value in ["True", "true"]:
         return True
@@ -299,6 +311,7 @@ def bool_t(value):
         raise MissingParam("Invalid type")
 
 
+@paramSafe
 def positive_t(value):
     val = int(value)
     if val < 0:
@@ -307,6 +320,7 @@ def positive_t(value):
         return val
 
 
+@paramSafe
 def playable_id_t(value):
     for prefix in ["ar-", "al-", "tr-"]:
         if value.startswith(prefix):
@@ -316,54 +330,63 @@ def playable_id_t(value):
     return value
 
 
+@paramSafe
 def artist_t(value):
     if not value.startswith("ar-"):
         raise MissingParam("Invalid id")
     return int(value[3:])
 
 
+@paramSafe
 def album_t(value):
     if not value.startswith("al-"):
         raise MissingParam("Invalid id")
     return int(value[3:])
 
 
+@paramSafe
 def track_t(value):
     if not value.startswith("tr-"):
         raise MissingParam("Invalid id")
     return int(value[3:])
 
 
+@paramSafe
 def playlist_t(value):
     if not value.startswith("pl-"):
         raise MissingParam("Invalid id")
     return int(value[3:])
 
 
+@paramSafe
 def share_t(value):
     if not value.startswith("sh-"):
         raise MissingParam("Invalid id")
     return int(value[3:])
 
 
+@paramSafe
 def bookmark_t(value):
     if not value.startswith("bm-"):
         raise MissingParam("Invalid id")
     return int(value[3:])
 
 
+@paramSafe
 def iradio_t(value):
     if not value.startswith("ir-"):
         raise MissingParam("Invalid id")
     return int(value[3:])
 
 
+@paramSafe
 def folder_t(value):
     if not value.startswith("fl-"):
         raise MissingParam("Invalid id")
     return int(value[3:])
 
 
+@paramSafe
 def datetime_t(tstamp):
     try:
         return datetime.utcfromtimestamp(int(tstamp) / 1000)
@@ -372,6 +395,7 @@ def datetime_t(tstamp):
             "Invalid type for param. '%s' is not a timestamp" % tstamp)
 
 
+@paramSafe
 def year_t(year):
     try:
         return Eyed3Date(int(year), 1, 1)
@@ -379,6 +403,7 @@ def year_t(year):
         raise MissingParam("Invalid type for param. '%s' is not a year" % year)
 
 
+@paramSafe
 def bitrate_t(value):
     try:
         i = int(value)
@@ -392,6 +417,7 @@ def bitrate_t(value):
                            value)
 
 
+@paramSafe
 def strDate(d):
     if d is None:
         return ""
