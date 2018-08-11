@@ -12,4 +12,4 @@ def similar(request):
 
 def testGetSimilarSongs(session, similar):
     cmd = buildCmd(session, similar, {"id": "tr-1"})
-    checkResp(cmd.req, cmd())
+    checkResp(cmd.req, cmd(), ok504=True)

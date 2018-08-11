@@ -205,10 +205,12 @@ class GetAlbumList(Command):
                 raise MissingParam("Missing genre param when searching byGenre")
 
             tag = session.query(Tag).\
-                filter(dbfunc.lower(Tag.name) == genre.lower()).one_or_none()
+                filter(dbfunc.lower(Tag.name) == genre.lower()).all()
             if not tag:
                 return self.makeResp(child=alist)
+            tag = tag[0]
 
+            # FIXME: tag can be from different libs. handle that in the query
             result = session.query(Album).\
                 join(Track).\
                 join(track_tags).\

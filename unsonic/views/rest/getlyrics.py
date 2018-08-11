@@ -3,6 +3,7 @@ import lyricwikia
 
 from . import Command, NotFound, registerCmd, track_t
 from ...models import Track
+from ...log import log
 
 
 @registerCmd
@@ -33,6 +34,9 @@ class GetLyrics(Command):
             resp = lyricwikia.get_lyrics(artist, title)
         except lyricwikia.LyricsNotFound:
             raise NotFound("Item not found")
+        except Exception as e:
+            log.error("Error talking to LyricWikia: " + str(e))
+            return self.makeResp(status=504)
 
         lyrics = ET.Element("lyrics")
         lyrics.set("artist", artist)

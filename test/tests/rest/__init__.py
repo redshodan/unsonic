@@ -26,7 +26,7 @@ def buildCmd(session, klass, params={}, username="test"):
     return cmd
 
 
-def checkResp(req, resp, ok=True):
+def checkResp(req, resp, ok=True, ok504=False):
     sub_resp = ET.fromstring(resp.body)
 
     # Validate the response against the XSD
@@ -38,9 +38,14 @@ def checkResp(req, resp, ok=True):
     if p.returncode:
         assert 0, out.decode("utf-8")
 
+    # If 504 is ok (lastfm failure) don't validate the resp at all
+    if ok504 and resp.status.startswith("504 "):
+        return False
+
     # Validate the return type
     if ok is True:
         assert sub_resp.get("status") == "ok", resp.body
+        assert resp.status == "200 OK"
     else:
         assert sub_resp.get("status") == "failed", resp.body
         error = sub_resp.find("{http://subsonic.org/restapi}error")

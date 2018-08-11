@@ -33,9 +33,10 @@ class GetSongsByGenre(Command):
         # TODO: When mishmash does album tags/genres, do that too
         # TODO: Cache tags?
         tag = session.query(Tag).\
-            filter(dbfunc.lower(Tag.name) == genre.lower()).one_or_none()
+            filter(dbfunc.lower(Tag.name) == genre.lower()).all()
         if not tag:
             return self.makeResp(child=songs)
+        tag = tag[0]
         q = session.query(Track).\
             join(track_tags).\
             filter(and_(Track.id == track_tags.c.track_id,

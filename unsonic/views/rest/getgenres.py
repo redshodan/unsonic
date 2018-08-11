@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from sqlalchemy import func
+# from sqlalchemy import func
 
 from . import Command, registerCmd
 from ...models import Tag

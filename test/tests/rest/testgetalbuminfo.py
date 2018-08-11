@@ -12,4 +12,4 @@ def album_info(request):
 
 def testGetAlbumInfo(session, album_info):
     cmd = buildCmd(session, album_info, {"id": "tr-1"})
-    checkResp(cmd.req, cmd())
+    checkResp(cmd.req, cmd(), ok504=True)

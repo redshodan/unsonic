@@ -12,4 +12,4 @@ def artist_info(request):
 
 def testGetArtistInfo(session, artist_info):
     cmd = buildCmd(session, artist_info, {"id": "ar-1"})
-    checkResp(cmd.req, cmd())
+    checkResp(cmd.req, cmd(), ok504=True)

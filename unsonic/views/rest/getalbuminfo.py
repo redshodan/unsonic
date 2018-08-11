@@ -4,6 +4,7 @@ import pylast
 from . import Command, NotFound, MissingParam, registerCmd, playable_id_t
 from ... import lastfm
 from ...models import Artist, Album, getPlayable
+from ...log import log
 
 
 @registerCmd
@@ -26,28 +27,32 @@ class GetAlbumInfo(Command):
         if not album:
             raise NotFound("Item not found")
 
-        lang = lastfm.getDomain(self.req.authed_user.lastfm_lang)
-        lf_client = self.req.authed_user.lastfm
-        lf_album = lf_client.get_album(album.artist.name, album.title)
+        try:
+            lang = lastfm.getDomain(self.req.authed_user.lastfm_lang)
+            lf_client = self.req.authed_user.lastfm
+            lf_album = lf_client.get_album(album.artist.name, album.title)
 
-        ainfo = ET.Element("albumInfo")
-        notes = ET.Element("notes")
-        notes.text = lf_album.get_wiki_summary()
-        ainfo.append(notes)
-        mbid = ET.Element("musicBrainzId")
-        mbid.text = lf_album.get_mbid()
-        ainfo.append(mbid)
-        url = ET.Element("lastFmUrl")
-        url.text = lf_album.get_url(lang)
-        ainfo.append(url)
-        url = ET.Element("smallImageUrl")
-        url.text = lf_album.get_cover_image(pylast.SIZE_SMALL)
-        ainfo.append(url)
-        url = ET.Element("mediumImageUrl")
-        url.text = lf_album.get_cover_image(pylast.SIZE_MEDIUM)
-        ainfo.append(url)
-        url = ET.Element("largeImageUrl")
-        url.text = lf_album.get_cover_image(pylast.SIZE_EXTRA_LARGE)
-        ainfo.append(url)
+            ainfo = ET.Element("albumInfo")
+            notes = ET.Element("notes")
+            notes.text = lf_album.get_wiki_summary()
+            ainfo.append(notes)
+            mbid = ET.Element("musicBrainzId")
+            mbid.text = lf_album.get_mbid()
+            ainfo.append(mbid)
+            url = ET.Element("lastFmUrl")
+            url.text = lf_album.get_url(lang)
+            ainfo.append(url)
+            url = ET.Element("smallImageUrl")
+            url.text = lf_album.get_cover_image(pylast.SIZE_SMALL)
+            ainfo.append(url)
+            url = ET.Element("mediumImageUrl")
+            url.text = lf_album.get_cover_image(pylast.SIZE_MEDIUM)
+            ainfo.append(url)
+            url = ET.Element("largeImageUrl")
+            url.text = lf_album.get_cover_image(pylast.SIZE_EXTRA_LARGE)
+            ainfo.append(url)
+        except Exception as e:
+            log.error("Error talking to LastFM: " + str(e))
+            return self.makeResp(status=504)
 
         return self.makeResp(child=ainfo)

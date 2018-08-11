@@ -139,13 +139,25 @@ class Command(object):
         walker(root)
         return root
 
+    ## Make a response
+    # @param attrs <subsonic-response> attributes
+    # @param child xml child to attach to the response
+    # @param status The status of the response
+    #                 - True: Good Subsonic response
+    #                 - Command.E_*: use this error to build the response
+    #                 - int: HTTP error code to respond with, with E_GENERIC resp
+    # @param body Override the body generated with this
+    # @return Pyramid response object
     def makeResp(self, attrs=None, child=None, status=True, body=None):
         attrs = attrs or {}
+        resp = self.req.response
+        if isinstance(status, int) and not isinstance(status, bool):
+            resp.status = status
+            status = Command.E_GENERIC
         if body is None:
             body = self.makeBody(attrs, child, status)
         elif isinstance(body, ET.Element):
             body = "%s%s" % (XML_HEADER, ET.tostring(body).decode("utf-8"))
-        resp = self.req.response
         pretty = None
         if "f" in self.req.params:
             if self.req.params["f"] == "jsonp" and "callback" in self.req.params:
@@ -188,12 +200,18 @@ class Command(object):
             if name in mparams:
                 val = mparams[name]
                 if "type" in values:
-                    if "multi" in values:
+                    # artist_t is an implicit multi-value, because of the
+                    # silly subsonic API.
+                    if "multi" in values or values["type"] == "artist_t":
                         if not isinstance(val, list):
                             val = [val]
                         lval = []
                         for v in val:
-                            lval.append(values["type"](v))
+                            ret = values["type"](v)
+                            if isinstance(ret, list):
+                                lval.extend(ret)
+                            else:
+                                lval.append(ret)
                         val = lval
                     else:
                         # Be permissive about other protocol, but don't
@@ -261,17 +279,20 @@ def getArtworkByID(session, id, lf_client=None):
             return image.data, image.mime_type
 
     # LastFM image lookup
-    if not lf_client:
-        lf_client = lastfm.getSystemClient()
-    if lf_album:
-        ret = lf_client.get_album(lf_artist, lf_album)
-    else:
-        ret = lf_client.get_artist(lf_artist)
-    image_url = ret.get_cover_image(pylast.SIZE_EXTRA_LARGE)
+    try:
+        if not lf_client:
+            lf_client = lastfm.getSystemClient()
+        if lf_album:
+            ret = lf_client.get_album(lf_artist, lf_album)
+        else:
+            ret = lf_client.get_artist(lf_artist)
+        image_url = ret.get_cover_image(pylast.SIZE_EXTRA_LARGE)
 
-    # Get it
-    if image_url:
-        return lastfm.getImage(lf_client, image_url)
+        # Get it
+        if image_url:
+            return lastfm.getImage(lf_client, image_url)
+    except Exception as e:
+        log.error("Error talking to LastFM: " + str(e))
 
     return None, None
 
@@ -334,7 +355,8 @@ def playable_id_t(value):
 def artist_t(value):
     if not value.startswith("ar-"):
         raise MissingParam("Invalid id")
-    return int(value[3:])
+    vals = value.split(";")
+    return [int(x[3:]) for x in vals]
 
 
 @paramSafe

@@ -17,13 +17,19 @@ def validate(cmd, resp):
     return count, titles
 
 
-def testBasic(session):
+def testGetRandomSongs(session):
     cmd = buildCmd(session, GetRandomSongs)
     count, titles = validate(cmd, cmd())
     assert count == 10
 
 
-def testSized(session):
+def testGetRandomSongsSized(session):
     cmd = buildCmd(session, GetRandomSongs, {"size": "2"})
     count, titles = validate(cmd, cmd())
     assert count == 2
+
+
+def testGetRandomSongs2Libs(session):
+    cmd = buildCmd(session, GetRandomSongs, {"genre": "techno"})
+    count, titles = validate(cmd, cmd())
+    assert count == 5

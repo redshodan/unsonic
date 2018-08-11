@@ -35,9 +35,10 @@ class GetRandomSongs(Command):
         ty = self.params["toYear"]
         if genre:
             tag = session.query(Tag).\
-                filter(dbfunc.lower(Tag.name) == genre.lower()).one_or_none()
+                filter(dbfunc.lower(Tag.name) == genre.lower()).all()
             if not tag:
                 return self.makeResp(child=random_songs)
+            tag = tag[0]
             rows = (self.query(session).join(track_tags).
                     filter(and_(Track.id == track_tags.c.track_id,
                                 track_tags.c.tag_id == tag.id)).

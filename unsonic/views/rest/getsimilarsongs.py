@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 
 from . import Command, NotFound, registerCmd, int_t, track_t, fillTrackUser
 from ...models import Track
+from ...log import log
 
 
 @registerCmd
@@ -25,19 +26,23 @@ class GetSimilarSongs(Command):
         if row is None:
             raise NotFound("Item not found")
 
-        lf_client = self.req.authed_user.lastfm
-        lf_track = lf_client.get_track(row.artist.name, row.title)
-        if not lf_track:
-            raise NotFound("Item not found in LastFM")
-        lf_ssongs = lf_track.get_similar(limit=self.params["count"])
+        try:
+            lf_client = self.req.authed_user.lastfm
+            lf_track = lf_client.get_track(row.artist.name, row.title)
+            if not lf_track:
+                raise NotFound("Item not found in LastFM")
+            lf_ssongs = lf_track.get_similar(limit=self.params["count"])
 
-        ssong = ET.Element(self.tag_name)
+            ssong = ET.Element(self.tag_name)
 
-        for lf_song in lf_ssongs:
-            lf_track = session.query(Track).filter(
-                Track.title == lf_song.item.get_title()).one_or_none()
-            if lf_track:
-                ssong.append(fillTrackUser(session, lf_track, None,
-                                           self.req.authed_user, "song"))
+            for lf_song in lf_ssongs:
+                lf_track = session.query(Track).filter(
+                    Track.title == lf_song.item.get_title()).one_or_none()
+                if lf_track:
+                    ssong.append(fillTrackUser(session, lf_track, None,
+                                               self.req.authed_user, "song"))
+        except Exception as e:
+            log.error("Error talking to LastFM: " + str(e))
+            return self.makeResp(status=504)
 
         return self.makeResp(child=ssong)

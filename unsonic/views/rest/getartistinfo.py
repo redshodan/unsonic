@@ -4,6 +4,7 @@ import pylast
 from . import Command, NotFound, registerCmd, int_t, playable_id_t, bool_t
 from ... import lastfm
 from ...models import Artist, getPlayable
+from ...log import log
 
 
 @registerCmd
@@ -33,49 +34,53 @@ class GetArtistInfo(Command):
         if not artist:
             raise NotFound("Item not found")
 
-        lang = lastfm.getDomain(self.req.authed_user.lastfm_lang)
-        lf_client = self.req.authed_user.lastfm
-        lf_artist = lf_client.get_artist(artist.name)
+        try:
+            lang = lastfm.getDomain(self.req.authed_user.lastfm_lang)
+            lf_client = self.req.authed_user.lastfm
+            lf_artist = lf_client.get_artist(artist.name)
 
-        ainfo = ET.Element(self.tag_name)
-        bio = ET.Element("biography")
-        bio.text = lf_artist.get_bio_summary(language=lang)
-        ainfo.append(bio)
-        mbid = ET.Element("musicBrainzId")
-        mbid.text = lf_artist.get_mbid()
-        ainfo.append(mbid)
-        url = ET.Element("lastFmUrl")
-        url.text = lf_artist.get_url(lang)
-        ainfo.append(url)
-        url = ET.Element("smallImageUrl")
-        url.text = lf_artist.get_cover_image(pylast.SIZE_SMALL)
-        ainfo.append(url)
-        url = ET.Element("mediumImageUrl")
-        url.text = lf_artist.get_cover_image(pylast.SIZE_MEDIUM)
-        ainfo.append(url)
-        url = ET.Element("largeImageUrl")
-        url.text = lf_artist.get_cover_image(pylast.SIZE_EXTRA_LARGE)
-        ainfo.append(url)
+            ainfo = ET.Element(self.tag_name)
+            bio = ET.Element("biography")
+            bio.text = lf_artist.get_bio_summary(language=lang)
+            ainfo.append(bio)
+            mbid = ET.Element("musicBrainzId")
+            mbid.text = lf_artist.get_mbid()
+            ainfo.append(mbid)
+            url = ET.Element("lastFmUrl")
+            url.text = lf_artist.get_url(lang)
+            ainfo.append(url)
+            url = ET.Element("smallImageUrl")
+            url.text = lf_artist.get_cover_image(pylast.SIZE_SMALL)
+            ainfo.append(url)
+            url = ET.Element("mediumImageUrl")
+            url.text = lf_artist.get_cover_image(pylast.SIZE_MEDIUM)
+            ainfo.append(url)
+            url = ET.Element("largeImageUrl")
+            url.text = lf_artist.get_cover_image(pylast.SIZE_EXTRA_LARGE)
+            ainfo.append(url)
 
-        for sim in lf_artist.get_similar(limit=self.params["count"]):
-            name = sim.item.get_name()
-            row = session.query(Artist).filter(
-                Artist.name == name).all()
-            if not row:
-                name2 = name.replace(" ", "").lower()
+            for sim in lf_artist.get_similar(limit=self.params["count"]):
+                name = sim.item.get_name()
                 row = session.query(Artist).filter(
-                    Artist.name == name2).all()
-            if not row:
-                if not self.params["includeNotPresent"]:
-                    continue
+                    Artist.name == name).all()
+                if not row:
+                    name2 = name.replace(" ", "").lower()
+                    row = session.query(Artist).filter(
+                        Artist.name == name2).all()
+                if not row:
+                    if not self.params["includeNotPresent"]:
+                        continue
+                    else:
+                        row_id = "-1"
                 else:
-                    row_id = "-1"
-            else:
-                row = row[0]
-                row_id = row.id
-            sa = ET.Element("similarArtist")
-            sa.set("name", name)
-            sa.set("id", f"ar-{row_id}" if row_id else "")
-            ainfo.append(sa)
+                    row = row[0]
+                    row_id = row.id
+                sa = ET.Element("similarArtist")
+                sa.set("name", name)
+                sa.set("id", f"ar-{row_id}" if row_id else "")
+                ainfo.append(sa)
+        except Exception as e:
+            log.error("Error talking to LastFM: " + str(e))
+            return self.makeResp(status=504)
 
         return self.makeResp(child=ainfo)
