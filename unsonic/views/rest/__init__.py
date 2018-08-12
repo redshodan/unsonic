@@ -474,29 +474,36 @@ def fillID(row):
         raise MissingParam(f"Unknown ID type: {type(row)}")
 
 
-def fillCoverArt(session, row, elem, name):
-    if row.images is not None and len(row.images) > 0:
-        elem.set("coverArt", "%s-%d" % (name, row.images[0].id))
-        for art in row.images:
-            sub = ET.Element("cover-art")
-            sub.text = "%s-%d" % (name, art.id)
-            elem.append(sub)
+def fillCoverArt(session, rows, elem, name):
+    if not isinstance(rows, list):
+        rows = [rows,]
+    for row in rows:
+        if row.images is not None and len(row.images) > 0:
+            elem.set("coverArt", "%s-%d" % (name, row.images[0].id))
+            for art in row.images:
+                sub = ET.Element("cover-art")
+                sub.text = "%s-%d" % (name, art.id)
+                elem.append(sub)
 
 
-def fillArtist(session, row, name="artist"):
-    assert isinstance(row, Artist)
+def fillArtist(session, rows, name="artist"):
+    if not isinstance(rows, list):
+        rows = [rows,]
+    assert isinstance(rows[0], Artist)
     artist = ET.Element(name)
-    artist.set("id", fillID(row))
-    artist.set("name", row.name)
-    fillCoverArt(session, row, artist, "ar")
+    artist.set("id", fillID(rows[0]))
+    artist.set("name", rows[0].name)
+    fillCoverArt(session, rows, artist, "ar")
     return artist
 
 
-def fillArtistUser(session, artist_row, rating_row, user, name="artist"):
-    artist = fillArtist(session, artist_row, name=name)
+def fillArtistUser(session, artist_rows, rating_row, user, name="artist"):
+    if not isinstance(artist_rows, list):
+        artist_rows = [artist_rows,]
+    artist = fillArtist(session, artist_rows, name=name)
     if not rating_row:
         rating_row = session.query(ArtistRating).\
-            filter(ArtistRating.artist_id == artist_row.id,
+            filter(ArtistRating.artist_id == artist_rows[0].id,
                    ArtistRating.user_id == user.id).\
             one_or_none()
     if rating_row and rating_row.starred:

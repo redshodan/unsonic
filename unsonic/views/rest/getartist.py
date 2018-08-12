@@ -11,29 +11,40 @@ class GetArtist(Command):
 
 
     def handleReq(self, session):
-        # FIXME: merge the multiple artists together
+        # Get the multiple artists
+        artists = []
         for pid in self.params["id"]:
-            artist = None
             row = session.query(Artist).filter(Artist.id == pid).one_or_none()
             if row is None:
                 raise NotFound(self.req.params["id"])
-            artist = fillArtistUser(session, row, None, self.req.authed_user)
-            album_count = 0
+            artists.append(row)
+
+        # Assert that they have the same name
+        first = artists[0]
+        for row in artists:
+            if first.name != row.name:
+                raise NotFound(self.req.params["id"])
+
+        # Now fill and merge the artists
+        artist = fillArtistUser(session, artists, None, self.req.authed_user)
+        album_count = 0
+        for ar_row in artists:
             for row in session.query(Album).filter(
-                    Album.artist_id == pid).all():
+                    Album.artist_id == ar_row.id).all():
                 album_count += 1
                 album = fillAlbumID3(session, row, self.req.authed_user, False)
                 artist.append(album)
-            for album in artist:
-                if album.tag != "album":
-                    continue
-                song_count = 0
-                duration = 0
-                for row in session.query(Track).filter(
-                        Track.album_id == int(album.get("id")[3:])).all():
-                    song_count = song_count + 1
-                    duration = duration + row.time_secs
-                album.set("songCount", str(song_count))
-                album.set("duration", str(duration))
-            artist.set("albumCount", str(album_count))
-            return self.makeResp(child=artist)
+
+        for album in artist:
+            if album.tag != "album":
+                continue
+            song_count = 0
+            duration = 0
+            for row in session.query(Track).filter(
+                    Track.album_id == int(album.get("id")[3:])).all():
+                song_count = song_count + 1
+                duration = duration + row.time_secs
+            album.set("songCount", str(song_count))
+            album.set("duration", str(duration))
+        artist.set("albumCount", str(album_count))
+        return self.makeResp(child=artist)
