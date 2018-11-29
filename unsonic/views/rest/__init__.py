@@ -262,7 +262,7 @@ def getArtworkByID(session, id, lf_client=None):
             image = album.images[0]
     elif id.startswith("ar-"):
         artist = session.query(Artist).filter_by(id=num).one_or_none()
-        lf_artist = album.artist.name
+        lf_artist = artist.name
         if artist.images:
             image = artist.images[0]
 
