@@ -177,9 +177,6 @@ class HereConfig(MishConfig):
         return USER_CFG_DEFS
 
 
-mishmash.config.Config = HereConfig
-
-
 def collapseRelativePaths(path):
     output = []
     skip = 0

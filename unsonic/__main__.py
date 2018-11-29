@@ -19,7 +19,7 @@ APP = None
 class Unsonic(MishMash):
 
     def __init__(self):
-        super().__init__(progname="unsonic")
+        super().__init__(progname="unsonic", ConfigClass=config.HereConfig)
         self.cfg_found = False
         self._orig_main_func = self._main_func
         self._main_func = self.mainWrapper
