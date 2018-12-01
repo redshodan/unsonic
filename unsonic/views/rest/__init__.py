@@ -19,7 +19,7 @@ from ...log import log
 from ...version import PROTOCOL_VERSION, UNSONIC_PROTOCOL_VERSION
 from ...models import (Session, ArtistRating, AlbumRating, TrackRating,
                        Artist, Album, Track, PlayList, Share, Bookmark,
-                       InternetRadio)
+                       InternetRadio, Image)
 from ...auth import Roles
 from ... import lastfm
 
@@ -255,11 +255,11 @@ def getArtworkByID(session, id, lf_client=None):
             if track.album.images:
                 image = track.album.images[0]
     elif id.startswith("al-"):
-        album = session.query(Album).filter_by(id=num).one_or_none()
-        lf_artist = album.artist.name
-        lf_album = album.title
-        if album.images:
-            image = album.images[0]
+        # Despite the prefix this ID is the image ID, not the album ID.
+        image = session.query(Image).filter_by(id=num).one_or_none()
+        if not image:
+            # al-N is a image ID, and does not exist. There is no more info to fall back on
+            return None, None
     elif id.startswith("ar-"):
         artist = session.query(Artist).filter_by(id=num).one_or_none()
         lf_artist = album.artist.name
@@ -478,6 +478,7 @@ def fillCoverArt(session, rows, elem, name):
     if not isinstance(rows, list):
         rows = [rows,]
     for row in rows:
+        assert type(row) in (Artist, Album)
         if row.images is not None and len(row.images) > 0:
             elem.set("coverArt", "%s-%d" % (name, row.images[0].id))
             for art in row.images:
