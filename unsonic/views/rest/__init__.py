@@ -564,7 +564,7 @@ def fillAlbumID3(session, row, user, append_tracks):
             .filter(Track.album_id == row.id) \
             .order_by(Track.media_num, Track.track_num).all():
         track_count += 1
-        duration = duration + row.time_secs
+        duration = duration + round(row.time_secs)
         if append_tracks:
             track = fillTrackUser(session, row, None, user)
             album.append(track)
@@ -614,7 +614,7 @@ def fillTrack(session, row, name="song"):
         suffix = "mp3"
     song.set("suffix", suffix)
     song.set("transcodedSuffix", suffix)
-    song.set("duration", str(row.time_secs))
+    song.set("duration", str(round(row.time_secs)))
     song.set("bitRate", str(row.bit_rate))
     song.set("path", os.path.join(artist_name, album_name, row.title))
     song.set("isVideo", "false")
@@ -649,7 +649,7 @@ def fillPlayList(session, row):
     duration = 0
     for trow in row.tracks:
         count += 1
-        duration += trow.track.time_secs
+        duration += round(trow.track.time_secs)
         playlist.set("songCount", str(count))
         playlist.set("duration", str(duration))
 

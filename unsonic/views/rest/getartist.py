@@ -43,7 +43,7 @@ class GetArtist(Command):
             for row in session.query(Track).filter(
                     Track.album_id == int(album.get("id")[3:])).all():
                 song_count = song_count + 1
-                duration = duration + row.time_secs
+                duration = duration + round(row.time_secs)
             album.set("songCount", str(song_count))
             album.set("duration", str(duration))
         artist.set("albumCount", str(album_count))

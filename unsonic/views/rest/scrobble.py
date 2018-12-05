@@ -43,7 +43,7 @@ class Scrobble(Command):
                         track.artist, track.title,
                         album=track.album.title,
                         album_artist=track.album.artist.name,
-                        duration=track.time_secs,
+                        duration=round(track.time_secs),
                         track_number=track.track_num)
                 else:
                     log.info(f"No LastFM user, skipping LastFM")
@@ -75,7 +75,7 @@ class Scrobble(Command):
                                     album=track.album.title,
                                     album_artist=track.album.artist.name,
                                     track_number=track.track_num,
-                                    duration=track.time_secs)
+                                    duration=round(track.time_secs))
                 else:
                     log.info(f"No LastFM user, skipping LastFM")
         except Exception as e:
