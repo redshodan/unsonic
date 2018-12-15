@@ -70,7 +70,8 @@ class Scrobble(Command):
                 if lastfm.is_user:
                     log.info(
                         f"last.fm scrobbling: {track.artist} - {track.title}")
-                    lastfm.scrobble(track.artist.name, track.title, int(time.time()),
+                    lastfm.scrobble(track.artist.name, track.title,
+                                    int(time.time()),
                                     album=track.album.title,
                                     album_artist=track.album.artist.name,
                                     track_number=track.track_num,
