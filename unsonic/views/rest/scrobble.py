@@ -39,7 +39,6 @@ class Scrobble(Command):
                 if lastfm.is_user:
                     log.info(
                         f"last.fm now playing: {track.artist.name} - {track.title}")
-                    self.params["time"] = int(time.time())
                     lastfm.update_now_playing(
                         track.artist.name, track.title,
                         album=track.album.title,
@@ -71,8 +70,7 @@ class Scrobble(Command):
                 if lastfm.is_user:
                     log.info(
                         f"last.fm scrobbling: {track.artist} - {track.title}")
-                    lastfm.scrobble(track.artist.name, track.title,
-                                    self.params["time"],
+                    lastfm.scrobble(track.artist.name, track.title, int(time.time()),
                                     album=track.album.title,
                                     album_artist=track.album.artist.name,
                                     track_number=track.track_num,
