@@ -1,7 +1,8 @@
 from unsonic.views.rest import fillID
 from unsonic.views.rest.getlyrics import GetLyrics
 from . import buildCmd, checkResp
-from unsonic.models import Artist, Track
+from unsonic.models import Track
+
 
 def testGetLyrics(session):
     cmd = buildCmd(session, GetLyrics, {"artist": "Tool", "title": "Stinkfist"})
