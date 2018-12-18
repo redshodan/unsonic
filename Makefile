@@ -76,8 +76,9 @@ run: $(VENV)/production.sqlite
 devel-run: $(VENV)/development.sqlite
 	bin/unsonic -c unsonic/etc/development.ini serve -- --reload
 
+# Ignore future warning for flake8 itself
 check: $(FLAKE8)
-	$(FLAKE8)
+	PYTHONWARNINGS=ignore $(FLAKE8)
 
 TEST_POSTGRES_OPTS=--pg-image postgres:9.6-alpine
 tests: pytest tests-clean
