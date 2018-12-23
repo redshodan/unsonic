@@ -250,26 +250,30 @@ def getArtworkByID(session, id_type, num, lf_client=None):
 
     if id_type == "tr-":
         track = session.query(Track).filter_by(id=num).one_or_none()
-        lf_artist = track.artist.name
-        if track.album:
-            lf_album = track.album.title
-            if track.album.images:
-                image = track.album.images[0]
+        if track:
+            lf_artist = track.artist.name
+            if track.album:
+                lf_album = track.album.title
+                if track.album.images:
+                    image = track.album.images[0]
     elif id_type == "al-":
         album = session.query(Album).filter_by(id=num).one_or_none()
-        lf_artist = album.artist.name
-        lf_album = album.title
-        if album.images:
-            image = album.images[0]
+        if album:
+            lf_artist = album.artist.name
+            lf_album = album.title
+            if album.images:
+                image = album.images[0]
     elif id_type == "ar-":
         artist = session.query(Artist).filter_by(id=num).one_or_none()
-        lf_artist = artist.name
-        if artist.images:
-            image = artist.images[0]
+        if artist:
+            lf_artist = artist.name
+            if artist.images:
+                image = artist.images[0]
     elif id_type == "pl-":
         plist = session.query(PlayList).filter_by(id=num).one_or_none()
-        if plist.images:
-            image = plist.images[0]
+        if plist:
+            if plist.images:
+                image = plist.images[0]
     elif id_type == "im-":
         image = session.query(Image).filter_by(id=num).one_or_none()
 

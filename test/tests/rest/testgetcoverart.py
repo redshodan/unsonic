@@ -48,6 +48,13 @@ def testGetByTrack(session):
     assert resp.body == image.data
 
 
+def testGetBadID(session):
+    # Don't hit lastfm for a picture for this test
+    CONFIG.setDbValue(session, "art.never_lastfm", True)
+    cmd = buildCmd(session, GetCoverArt, {"id": "ca-ar-60000"})
+    checkResp(cmd.req, cmd(), Command.E_NOT_FOUND)
+
+
 def testNoID(session):
     cmd = buildCmd(session, GetCoverArt)
     checkResp(cmd.req, cmd(), Command.E_MISSING_PARAM)
