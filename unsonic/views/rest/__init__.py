@@ -1,6 +1,7 @@
 # flake8: noqa: E402
 
 import os
+import re
 import traceback
 import json
 import xmltodict
@@ -25,6 +26,7 @@ from ... import lastfm
 
 
 XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>'
+COVERART_T_RE = re.compile("^ca-[tr|al|ar|pl|im]+-[0-9]+$")
 
 commands = {}
 
@@ -239,32 +241,37 @@ def registerCmd(cmd):
     return cmd
 
 
-def getArtworkByID(session, id, lf_client=None):
+def getArtworkByID(session, id_type, num, lf_client=None):
     from ...config import CONFIG
 
-    num = int(id[3:])
     image = None
     lf_artist = None
     lf_album = None
 
-    if id.startswith("tr-"):
+    if id_type == "tr-":
         track = session.query(Track).filter_by(id=num).one_or_none()
         lf_artist = track.artist.name
         if track.album:
             lf_album = track.album.title
             if track.album.images:
                 image = track.album.images[0]
-    elif id.startswith("al-"):
-        # Despite the prefix this ID is the image ID, not the album ID.
-        image = session.query(Image).filter_by(id=num).one_or_none()
-        if not image:
-            # al-N is a image ID, and does not exist. There is no more info to fall back on
-            return None, None
-    elif id.startswith("ar-"):
+    elif id_type == "al-":
+        album = session.query(Album).filter_by(id=num).one_or_none()
+        lf_artist = album.artist.name
+        lf_album = album.title
+        if album.images:
+            image = album.images[0]
+    elif id_type == "ar-":
         artist = session.query(Artist).filter_by(id=num).one_or_none()
         lf_artist = artist.name
         if artist.images:
             image = artist.images[0]
+    elif id_type == "pl-":
+        plist = session.query(PlayList).filter_by(id=num).one_or_none()
+        if plist.images:
+            image = plist.images[0]
+    elif id_type == "im-":
+        image = session.query(Image).filter_by(id=num).one_or_none()
 
     # DB only
     if CONFIG.getDbValue(session, key="art.never_lastfm").value:
@@ -277,6 +284,13 @@ def getArtworkByID(session, id, lf_client=None):
     if not CONFIG.getDbValue(session, key="art.prefer_lastfm").value:
         if image:
             return image.data, image.mime_type
+
+    # If no artist/album info, nothing to do with LF
+    if not lf_artist:
+        if image:
+            return image.data, image.mime_type
+        else:
+            return None, None
 
     # LastFM image lookup
     try:
@@ -305,6 +319,13 @@ def paramSafe(func):
         except ValueError as e:
             raise MissingParam("Invalid id: " + str(e))
     return wrapper
+
+
+@paramSafe
+def coverart_t(value):
+    if not COVERART_T_RE.match(value):
+        raise MissingParam("Invalid id")
+    return (value[3:6], int(value[6:]))
 
 
 @paramSafe
@@ -470,19 +491,22 @@ def fillID(row):
         return f"bm-{row.id}"
     elif isinstance(row, InternetRadio):
         return f"ir-{row.id}"
+    elif isinstance(row, Image):
+        return f"im-{row.id}"
     else:
         raise MissingParam(f"Unknown ID type: {type(row)}")
 
 
-def fillCoverArt(session, rows, elem, name):
+def fillCoverArt(session, rows, elem):
     if not isinstance(rows, list):
         rows = [rows,]
     for row in rows:
         if row.images is not None and len(row.images) > 0:
-            elem.set("coverArt", "%s-%d" % (name, row.images[0].id))
+            if not elem.get("coverArt"):
+                elem.set("coverArt", f"ca-{fillID(row)}")
             for art in row.images:
                 sub = ET.Element("cover-art")
-                sub.text = "%s-%d" % (name, art.id)
+                sub.text = f"ca-{fillID(art)}"
                 elem.append(sub)
 
 
@@ -493,7 +517,7 @@ def fillArtist(session, rows, name="artist"):
     artist = ET.Element(name)
     artist.set("id", fillID(rows[0]))
     artist.set("name", rows[0].name)
-    fillCoverArt(session, rows, artist, "ar")
+    fillCoverArt(session, rows, artist)
     return artist
 
 
@@ -522,7 +546,7 @@ def fillAlbum(session, row, name="album"):
         album.set("parent", "ar-%s" % row.artist.id)
     else:
         album.set("parent", "UNKNOWN")
-    fillCoverArt(session, row, album, "al")
+    fillCoverArt(session, row, album)
     if row.date_added:
         album.set("created", strDate(row.date_added))
     if row.artist and row.artist.name:
@@ -547,7 +571,7 @@ def fillAlbumID3(session, row, user, append_tracks):
     album = ET.Element("album")
     album.set("id", fillID(row))
     album.set("name", row.title)
-    fillCoverArt(session, row, album, "al")
+    fillCoverArt(session, row, album)
     if row.date_added:
         album.set("created", strDate(row.date_added))
     if row.artist and row.artist.name:
@@ -599,7 +623,7 @@ def fillTrack(session, row, name="song"):
     if len(row.tags):
         song.set("genre", row.tags[0].name)
     if row.album is not None:
-        fillCoverArt(session, row.album, song, "al")
+        fillCoverArt(session, row.album, song)
     if row.media_num:
         song.set("discNumber", str(row.media_num))
     else:
@@ -643,7 +667,7 @@ def fillPlayList(session, row):
     playlist.set("created", row.created.isoformat())
     playlist.set("changed", row.changed.isoformat())
     # FIXME: Join/walk the artist/album/track for art
-    fillCoverArt(session, row, playlist, "pl")
+    fillCoverArt(session, row, playlist)
 
     count = 0
     duration = 0
