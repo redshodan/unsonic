@@ -1,3 +1,4 @@
+import time
 import datetime
 
 from sqlalchemy.orm.exc import NoResultFound
@@ -37,9 +38,9 @@ class Scrobble(Command):
 
                 if lastfm.is_user:
                     log.info(
-                        f"last.fm now playing: {track.artist} - {track.title}")
+                        f"last.fm now playing: {track.artist.name} - {track.title}")
                     lastfm.update_now_playing(
-                        track.artist, track.title,
+                        track.artist.name, track.title,
                         album=track.album.title,
                         album_artist=track.album.artist.name,
                         duration=round(track.time_secs),
@@ -69,8 +70,9 @@ class Scrobble(Command):
                 if lastfm.is_user:
                     log.info(
                         f"last.fm scrobbling: {track.artist} - {track.title}")
-                    lastfm.scrobble(track.artist.name, track.title,
-                                    self.params["time"] / 1000,
+                    tstamp = self.params["time"]
+                    tstamp = tstamp / 1000 if stamp else int(time.time())
+                    lastfm.scrobble(track.artist.name, track.title, tstamp,
                                     album=track.album.title,
                                     album_artist=track.album.artist.name,
                                     track_number=track.track_num,
@@ -78,7 +80,7 @@ class Scrobble(Command):
                 else:
                     log.info(f"No LastFM user, skipping LastFM")
         except Exception as e:
-            log.error("Error talking to LastFM: " + str(e))
+            log.error("Error talking to LastFM: " + str(e), exc_info=e)
             return self.makeResp(status=504)
 
         return self.makeResp()
