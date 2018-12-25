@@ -22,7 +22,6 @@ def testGetPlayList(session):
         assert entry.get("bitRate")
         assert entry.get("contentType")
         assert entry.get("discNumber")
-        assert entry.get("genre")
         assert entry.get("id")
         assert entry.get("isDir")
         assert entry.get("isVideo")

@@ -31,6 +31,5 @@ def testGetPlayQueue(session):
         assert entry.get("contentType")
         assert entry.get("discNumber")
         assert entry.get("duration")
-        assert entry.get("genre")
         assert entry.get("isDir")
         assert entry.get("isVideo")

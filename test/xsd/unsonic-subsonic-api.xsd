@@ -281,7 +281,7 @@
 
     <xs:simpleType name="CoverArtID">
         <xs:restriction base="xs:string">
-            <xs:pattern value="(ar|al|pl)-(\d+|[a-zA-z0-9]+)"/>
+            <xs:pattern value="(ar|al|pl|ca-tr|ca-al|ca-ar|ca-pl|ca-im)-(\d+|[a-zA-z0-9]+)"/>
         </xs:restriction>
     </xs:simpleType>
 
