@@ -1,4 +1,4 @@
-"""Added bookmarks
+"""Added internet radio
 
 Revision ID: 33bb0c204f1e
 Revises: 1a3712302478
