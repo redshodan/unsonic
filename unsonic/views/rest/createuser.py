@@ -1,5 +1,6 @@
 from . import Command, registerCmd, InternalError, NoPerm, bool_t, bitrate_t
-from ...models import User, Role
+from . import folder_t
+from ...models import User, Role, UserFolder
 from ...auth import Roles
 
 
@@ -24,7 +25,7 @@ class CreateUser(Command):
         "podcastRole": {"type": bool_t},
         "shareRole": {"type": bool_t},
         "videoConversionRole": {"type": bool_t},
-        # "musicFolderId": {}, # TODO
+        "musicFolderId": {"type": folder_t, "multi": True},
         }
     dbsess = True
     role_names = {"adminRole": Roles.ADMIN, "settingsRole": Roles.SETTINGS,
@@ -77,5 +78,8 @@ class CreateUser(Command):
         if not self.update:
             session.add(Role(user_id=user.id, name=Roles.USERS))
             session.add(Role(user_id=user.id, name=Roles.REST))
+
+        for folder in self.params["musicFolderId"]:
+            session.add(UserFolder(user_id=user.id, lib_id=folder))
 
         return self.makeResp()

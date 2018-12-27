@@ -1,4 +1,4 @@
-from . import Command, registerCmd, NoPerm, fillUser
+from . import Command, registerCmd, NoPerm, fillUser, str_t
 from ...models import getUserByName
 
 
@@ -6,16 +6,19 @@ from ...models import getUserByName
 class GetUser(Command):
     name = "getUser.view"
     param_defs = {
-        "username": {"required": True},
+        "username": {"type": str_t},
         }
     dbsess = True
 
 
     def handleReq(self, session):
-        if self.req.authed_user.name == self.params["username"]:
+        uname = self.params["username"]
+        if not uname:
+            user = self.req.authed_user
+        elif self.req.authed_user.name == uname:
             user = self.req.authed_user
         elif self.req.authed_user.isAdmin():
-            user = getUserByName(session, self.params["username"])
+            user = getUserByName(session, uname)
         else:
             raise NoPerm("Can not view a user other than yourself unless you "
                          "are an admin")

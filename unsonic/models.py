@@ -142,6 +142,8 @@ class User(Base, OrmObject):
                           passive_deletes=True)
     scrobbles = relation("Scrobble", cascade="all, delete-orphan",
                          passive_deletes=True)
+    folders = relation("UserFolder", cascade="all, delete-orphan",
+                       passive_deletes=True)
 
     @staticmethod
     def loadTable(session):
@@ -310,6 +312,22 @@ class Scrobble(Base, OrmObject):
     @declared_attr
     def __table_args__(cls):
         return (Index("scrobble_user_index", "user_id"), )
+
+
+class UserFolder(Base, OrmObject):
+    __tablename__ = "un_userfolders"
+
+    id = Column(Integer, Sequence("un_userfolders_id_seq"), primary_key=True)
+    user_id = Column(Integer, ForeignKey("un_users.id", ondelete='CASCADE'),
+                     nullable=False)
+    lib_id = Column(Integer, ForeignKey("libraries.id", ondelete='CASCADE'),
+                     nullable=False)
+    user = relation("User")
+    lib = relation("Library")
+
+    @declared_attr
+    def __table_args__(cls):
+        return (Index("userfolders_user_index", "user_id"), )
 
 
 class Share(Base, OrmObject):
@@ -763,6 +781,7 @@ def updatePseudoRatings(session, user_id=None, album_id=ALL, artist_id=ALL):
 from . import auth, web   # noqa: E402
 
 
-UN_TYPES = [DBInfo, Config, UserConfig, User, Role, PlayQueue, PlayList,
-            PlayListUser, PlayListTrack, ArtistRating, AlbumRating, TrackRating,
-            PlayCount, Scrobble, Share, ShareEntry, Bookmark, InternetRadio]
+UN_TYPES = [DBInfo, Config, UserConfig, User, UserFolder, Role, PlayQueue,
+            PlayList, PlayListUser, PlayListTrack, ArtistRating, AlbumRating,
+            TrackRating, PlayCount, Scrobble, Share, ShareEntry, Bookmark,
+            InternetRadio]

@@ -6,7 +6,8 @@ import argparse
 
 
 host = "http://0.0.0.0:6543/"
-auth = "u=test&t=c06db68e819be6ec3d26c6038d8e8d1f&s=12345"
+auth_test = "u=test&t=c06db68e819be6ec3d26c6038d8e8d1f&s=12345"
+auth_admin = "u=admin&t=7488e331b8b64e5794da3fa4eb10ad5d&s=12345"
 
 
 parser = argparse.ArgumentParser(description='Make API calls to Unsonic.')
@@ -16,6 +17,8 @@ parser.add_argument('params', type=str, nargs='*',
                     help='Parameters for the endpoint')
 parser.add_argument('-s', '--shares', action='store_true', default=False,
                     help='Use the /shares/ endpoints.')
+parser.add_argument('-a', '--admin', action='store_true', default=False,
+                    help='Use admin user')
 
 args = parser.parse_args()
 
@@ -28,7 +31,8 @@ else:
 outfile = tempfile.NamedTemporaryFile()
 
 cmd = "wget --quiet -O %s '%s%s/%s?%s" % (outfile.name, host, args.root,
-                                          args.endpoint, auth)
+                                          args.endpoint,
+                                          auth_admin if args.admin else auth_test)
 
 for param in args.params:
     cmd += "&" + param

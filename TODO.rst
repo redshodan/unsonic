@@ -87,10 +87,6 @@ Partial
     <shortcut id="11" name="Audio books"/>
     <shortcut id="10" name="Podcasts"/>
 
-- getArtists:
-  resp:
-  - missing covertArt
-
 - getArtist:
   resp:
   - handle playCount for album
@@ -105,15 +101,6 @@ Partial
 
 - getCoverArt:
   params: missing size to convert image to
-
-- getUser:
-  resp: Needs folders
-
-- getUsers:
-  resp: Needs folders
-
-- createUser:
-  resp: Needs folders
 
 - getGenres:
   resp: Needs album counts

@@ -38,6 +38,7 @@ class User():
         self.db_user_config = {u.key: u.value for u in db_user_config}
         self._lastfm = None
         self.listening = None
+        self.folders = [f for f in db_user.folders]
 
     def __getattr__(self, name):
         from .config import CONFIG

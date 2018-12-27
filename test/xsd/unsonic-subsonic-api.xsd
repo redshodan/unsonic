@@ -641,7 +641,7 @@
 
     <xs:complexType name="User">
         <xs:sequence>
-            <xs:element name="folder" type="xs:int" minOccurs="0" maxOccurs="unbounded"/> <!-- Added in 1.12.0 -->
+            <xs:element name="folder" type="sub:FolderID" minOccurs="0" maxOccurs="unbounded"/> <!-- Added in 1.12.0 -->
         </xs:sequence>
         <xs:attribute name="username" type="xs:string" use="required"/>
         <xs:attribute name="email" type="xs:string" use="optional"/> <!-- Added in 1.6.0 -->

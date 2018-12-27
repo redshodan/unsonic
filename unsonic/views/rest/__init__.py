@@ -20,7 +20,7 @@ from ...log import log
 from ...version import PROTOCOL_VERSION, UNSONIC_PROTOCOL_VERSION
 from ...models import (Session, ArtistRating, AlbumRating, TrackRating,
                        Artist, Album, Track, PlayList, Share, Bookmark,
-                       InternetRadio, Image)
+                       InternetRadio, Image, Library)
 from ...auth import Roles
 from ... import lastfm
 
@@ -497,6 +497,8 @@ def fillID(row):
         return f"ir-{row.id}"
     elif isinstance(row, Image):
         return f"im-{row.id}"
+    elif isinstance(row, Library):
+        return f"fl-{row.id}"
     else:
         raise MissingParam(f"Unknown ID type: {type(row)}")
 
@@ -698,6 +700,10 @@ def fillUser(session, row):
     for role in Roles.subsonic_roles:
         user.set("%sRole" % role,
                  "true" if role in row.roles else "false")
+    for folder in row.folders:
+        f = ET.Element("folder")
+        f.text = fillID(folder.lib)
+        user.append(f)
     return user
 
 
