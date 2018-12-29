@@ -30,9 +30,9 @@ else:
 
 outfile = tempfile.NamedTemporaryFile()
 
-cmd = "wget --quiet -O %s '%s%s/%s?%s" % (outfile.name, host, args.root,
-                                          args.endpoint,
-                                          auth_admin if args.admin else auth_test)
+cmd = "wget --tries=1 --quiet -O %s '%s%s/%s?%s" % (
+    outfile.name, host, args.root, args.endpoint,
+    auth_admin if args.admin else auth_test)
 
 for param in args.params:
     cmd += "&" + param
