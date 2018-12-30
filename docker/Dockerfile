@@ -28,7 +28,7 @@ RUN set -ex; \
 # Install ffmpeg
 ARG FFMPEG_CHANNEL=release
 ARG FFMPEG_URL=https://johnvansickle.com/ffmpeg/releases/ffmpeg-$FFMPEG_CHANNEL-64bit-static.tar.xz
-ARG FFMPEG_MD5=f3cb1a6f10604a853f1c56ec6ce2f31f
+ARG FFMPEG_MD5=93e5c1a01bd4df99ecedaea6537765d2
 RUN set -ex; \
        cd /usr/src \
     && curl -fSL -o ffmpeg.tar.xz "$FFMPEG_URL" \
