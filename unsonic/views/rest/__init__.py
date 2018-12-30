@@ -20,7 +20,7 @@ from ...log import log
 from ...version import PROTOCOL_VERSION, UNSONIC_PROTOCOL_VERSION
 from ...models import (Session, ArtistRating, AlbumRating, TrackRating,
                        Artist, Album, Track, PlayList, Share, Bookmark,
-                       InternetRadio, Image, Library)
+                       InternetRadio, Image, Library, PlayCount)
 from ...auth import Roles
 from ... import lastfm
 
@@ -659,6 +659,10 @@ def fillTrackUser(session, song_row, rating_row, user, name="song"):
                    TrackRating.user_id == user.id).one_or_none()
     if rating_row and rating_row.starred:
         song.set("starred", rating_row.starred.isoformat())
+    pcount = session.query(PlayCount). \
+        filter(PlayCount.track_id == song_row.id,
+               PlayCount.user_id == user.id).one_or_none()
+    song.set("playCount", str(pcount.count) if pcount else "0")
     return song
 
 

@@ -87,10 +87,6 @@ Partial
     <shortcut id="11" name="Audio books"/>
     <shortcut id="10" name="Podcasts"/>
 
-- getArtist:
-  resp:
-  - handle playCount for album
-    
 - getAlbumList:
   resp:
   - missing averageRating for album
@@ -101,6 +97,3 @@ Partial
 
 - getCoverArt:
   params: missing size to convert image to
-
-- getGenres:
-  resp: Needs album counts
