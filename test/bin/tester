@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
 import os
+from hashlib import md5
 import tempfile
 import argparse
 
 
 host = "http://0.0.0.0:6543/"
-auth_test = "u=test&t=c06db68e819be6ec3d26c6038d8e8d1f&s=12345"
-auth_admin = "u=admin&t=7488e331b8b64e5794da3fa4eb10ad5d&s=12345"
-
 
 parser = argparse.ArgumentParser(description='Make API calls to Unsonic.')
 parser.add_argument('endpoint', type=str, nargs='?', default="ping",
@@ -17,10 +15,24 @@ parser.add_argument('params', type=str, nargs='*',
                     help='Parameters for the endpoint')
 parser.add_argument('-s', '--shares', action='store_true', default=False,
                     help='Use the /shares/ endpoints.')
+parser.add_argument('-H', '--host', default="0.0.0.0",
+                    help='Use the given host. Defaults to "0.0.0.0"')
+parser.add_argument('-P', '--port', default="6543",
+                    help='Use the given port. Defaults to "6543"')
 parser.add_argument('-a', '--admin', action='store_true', default=False,
                     help='Use admin user')
+parser.add_argument('-u', '--user', default="test",
+                    help='Use the given user. Defaults to "test"')
+parser.add_argument('-p', '--password', default="test",
+                    help='Use the given password. Defaults to "test"')
+parser.add_argument('-S', '--salt', default="12345",
+                    help='Use the given salt. Defaults to "12345"')
 
 args = parser.parse_args()
+
+if ((args.user and not args.password) or
+      (not args.user and args.password)):
+    parser.error("Must supply both --user and --password")
 
 if args.shares:
     args.root = "shares"
@@ -28,15 +40,24 @@ else:
     args.root = "rest"
     args.endpoint = args.endpoint + ".view"
 
+user = args.user
+password = args.password
+salt = args.salt
+
+if args.admin:
+    user = "admin"
+    password = "admin"
+
+h = md5()
+h.update(password.encode("utf-8"))
+h.update(salt.encode("utf-8"))
+
+auth = f"u={user}&t={h.hexdigest()}&s={salt}"
+url = (f"'http://{args.host}:{args.port}/{args.root}/{args.endpoint}?{auth}" +
+       f"&{'&'.join(args.params)}'")
+
 outfile = tempfile.NamedTemporaryFile()
-
-cmd = "wget --tries=1 --quiet -O %s '%s%s/%s?%s" % (
-    outfile.name, host, args.root, args.endpoint,
-    auth_admin if args.admin else auth_test)
-
-for param in args.params:
-    cmd += "&" + param
-cmd += "'"
+cmd = f"wget --tries=1 --quiet -O {outfile.name} {url}"
 
 print(cmd)
 os.system(cmd)
