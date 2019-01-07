@@ -38,6 +38,9 @@ CFG_KEYS = {
                           DEFAULT: False},
     "art.never_lastfm": {DESC: ("Never get artwork from LastFM when there are "
                                 "no local images."), DEFAULT: False},
+    "jukebox.server": {
+        DESC: "Enable local (to the server) play via the jukebox interface",
+        DEFAULT: True},
 }
 CFG_DESCS = {k: v[DESC] for k, v in CFG_KEYS.items()}
 
@@ -53,6 +56,10 @@ USER_CFG_KEYS = {
     "lastfm.lang": {DESC: "Language for LastFM queries",
                     DEFAULT: "english",
                     VALUES: lastfm.LANGUAGES},
+    "jukebox.client": {DESC: ("Enable personal jukebox client. If false, " +
+                              "jukeboxControl will work on local playback on " +
+                              "the server"),
+                       DEFAULT: False},
 }
 USER_CFG_DESCS = {k: v[DESC] for k, v in USER_CFG_KEYS.items()}
 USER_CFG_DEFS = {

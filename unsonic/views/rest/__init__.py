@@ -348,6 +348,14 @@ def int_t(value):
 
 
 @paramSafe
+def float_t(value):
+    try:
+        return float(value)
+    except ValueError:
+        raise MissingParam("Invalid number parameter")
+
+
+@paramSafe
 def bool_t(value):
     if value in ["True", "true"]:
         return True
