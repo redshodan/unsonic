@@ -4,7 +4,10 @@ import os
 from hashlib import md5
 import tempfile
 import argparse
-
+from urllib import request
+from urllib.error import URLError
+from lxml import etree
+from lxml.etree import XMLSyntaxError
 
 host = "http://0.0.0.0:6543/"
 
@@ -53,17 +56,25 @@ h.update(password.encode("utf-8"))
 h.update(salt.encode("utf-8"))
 
 auth = f"u={user}&t={h.hexdigest()}&s={salt}"
-url = (f"'http://{args.host}:{args.port}/{args.root}/{args.endpoint}?{auth}" +
-       f"&{'&'.join(args.params)}'")
+url = (f"http://{args.host}:{args.port}/{args.root}/{args.endpoint}?{auth}" +
+       f"&{'&'.join(args.params)}")
 
-outfile = tempfile.NamedTemporaryFile()
-cmd = f"wget --tries=1 --quiet -O {outfile.name} {url}"
+print(f"--> {url}")
 
-print(cmd)
-os.system(cmd)
+xsd = open("test/xsd/unsonic-subsonic-api.xsd").read().encode("utf-8")
+schema_root = etree.XML(xsd)
+schema = etree.XMLSchema(schema_root)
+parser = etree.XMLParser(schema = schema)
 
-if args.shares:
-    os.system(f"cat {outfile.name}")
-else:
-    os.system("xmllint --format --schema test/xsd/unsonic-subsonic-api.xsd %s" %
-              outfile.name)
+
+try:
+    resp = request.urlopen(url)
+    data = resp.read()
+    root = etree.fromstring(data, parser)
+    print(f"<-- {etree.tostring(root, pretty_print=True).decode('utf-8')}")
+except URLError as e:
+    print(str(e))
+except XMLSyntaxError as e:
+    root = etree.fromstring(data, etree.XMLParser())
+    print(f"<-- {etree.tostring(root, pretty_print=True).decode('utf-8')}")
+    print(str(e))
