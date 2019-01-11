@@ -52,6 +52,7 @@ class Serve(Command):
         if len(pargs) and pargs[0] == "--":
             pargs = pargs[1:]
         argv.extend(pargs)
+        argv.append("--paste")
         argv.append(str(config.filename))
         print(" ".join(argv))
         os.execv(path, argv)
