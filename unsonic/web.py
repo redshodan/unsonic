@@ -102,8 +102,8 @@ def webServe():
     wait = 3
     while True:
         try:
-            sys.exit(load_entry_point('pyramid>=1.4.3', 'console_scripts',
-                                      'pserve')())
+            sys.exit(load_entry_point('gunicorn', 'console_scripts',
+                                      'gunicorn_paster')())
             break
         except IndentationError as e:
             if reload:
