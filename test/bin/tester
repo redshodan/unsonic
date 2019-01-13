@@ -6,10 +6,10 @@ import tempfile
 import argparse
 from urllib import request
 from urllib.error import URLError
+from urllib.parse import urlencode, quote_plus
 from lxml import etree
 from lxml.etree import XMLSyntaxError
 
-host = "http://0.0.0.0:6543/"
 
 parser = argparse.ArgumentParser(description='Make API calls to Unsonic.')
 parser.add_argument('endpoint', type=str, nargs='?', default="ping",
@@ -55,9 +55,14 @@ h = md5()
 h.update(password.encode("utf-8"))
 h.update(salt.encode("utf-8"))
 
+params = {p.split("=")[0]: p.split("=")[1] for p in args.params}
+print(params)
+
 auth = f"u={user}&t={h.hexdigest()}&s={salt}"
 url = (f"http://{args.host}:{args.port}/{args.root}/{args.endpoint}?{auth}" +
-       f"&{'&'.join(args.params)}")
+       f"&{urlencode(params, quote_via=quote_plus)}")
+#       f"&{'&'.join(args.params)}")
+
 
 print(f"--> {url}")
 
