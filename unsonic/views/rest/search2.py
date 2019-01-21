@@ -1,9 +1,8 @@
-import re
 import xml.etree.ElementTree as ET
 from luqum.parser import parser as LQParser
-from luqum.tree import (BaseOperation, OrOperation, AndOperation, SearchField,
-                        Word, Phrase)
-from sqlalchemy import func
+from luqum.tree import (Group, BaseOperation, OrOperation, AndOperation,
+                        UnknownOperation, SearchField, Term)
+from sqlalchemy import func, and_
 
 from . import (Command, registerCmd, MissingParam, NotFound, positive_t,
                fillArtist, fillAlbum, fillTrack, folder_t)
@@ -11,9 +10,24 @@ from ...models import Artist, Album, Track
 from ...log import log
 
 
-QUERY_LABELS = ["artist:", "album:", "title:"]
-QUERY_REGEX = \
-r'(ARTIST:|artist:|ALBUM:|album:|TITLE:|title:)("[^"]+"|[^ ]+)[ ]*(AND|and|OR|or)*'
+# This is reverse engineered from what dsub will send for queries.
+# Rules:
+# - All ops have a QueryContext
+# - Group and AndOperation shares QueryContext
+# - OrOperation have new QueryContext for each operand
+#
+
+
+class QueryContext():
+    def __init__(self):
+        self.artist = None
+        self.album = None
+        self.track = None
+        self.any = None
+
+
+    def __str__(self):
+        return f"artist={self.artist} album={self.album} track={self.track} any={self.any}"
 
 
 @registerCmd
@@ -49,136 +63,202 @@ class Search2(Command):
             return session.query(klass)
 
 
-    def globQuery(self, query):
+    def extend(self, l, item):
+        if isinstance(item, list):
+            l.extend(item)
+        else:
+            l.append(item)
+        return l
+
+
+    def globQuery(self, obj, query):
+        ilike = False
         if query.startswith("*"):
+            ilike = True
             query = f"%%{query[1:]}"
         if query.endswith("*"):
+            ilike = True
             query = f"{query[:-1]}%%"
-        return query
+        if ilike:
+            return obj.ilike(query)
+        else:
+            return obj == query.lower()
 
-    # This is reverse engineered from what dsub will send for queries.
-    def parseComplexQuery(self, session, query):
-        tree = LQParser.parse(query)
-        print(query)
-        print(repr(tree))
-        # For handling queries like: Tool
-        have_op = False
 
-        def extend(iterable, item):
-            if isinstance(item, list):
-                iterable.extend(item)
-            else:
-                iterable.append(item)
-            return iterable
-
-        def walker(t):
-            print("Walker top")
-            # As far I can see, groups are superfluous for what is needed here
-            if isinstance(t, Group):
-                print("Group")
-                if len(t.children) != 1:
-                    raise Exception("Uh, too many group children???")
-                return walker(t.children[0])
-            elif isinstance(t, BaseOperation):
-                print("BaseOperation")
-                have_op = True
-                results = []
-                for c in t.children:
-                    extend(results, walker(c))
-                if isinstance(t, AndOperation):
-                    print("AndOperation")
-                    if None in results:
-                        return None
-                    else:
-                        return results
-                elif isinstance(t, OrOperation):
-                    print("OrOperation")
-                    for r in results:
-                        if r is not None:
-                            return [r for r in results if r]
-                    else:
-                        return None
-                else:
-                    raise MissingParam("Invalid operation: " + repr(t))
-            elif isinstance(t, SearchField):
-                print("SearchField")
-                
-
-            raise NotFound("No matching results found")
-
-    # # This is reverse engineered from what dsub will send for queries.
-    # def parseComplexQuery(self, session, query):
-    #     arr = re.findall(QUERY_REGEX, query)
-    #     if not arr:
-    #         return None
-    #     print("arr", arr)
-
-    #     results = []
-    #     for label, sub_query, op in arr:
-    #         if label == "artist:":
-    #             klass = Artist
-    #             klass_label = Artist.name
-    #             filler = fillArtist
-    #             count = self.params["artistCount"]
-    #             off = self.params["artistOffset"]
-    #         elif label == "album:":
-    #             klass = Album
-    #             klass_label = Album.title
-    #             filler = fillAlbum
-    #             count = self.params["albumCount"]
-    #             off = self.params["albumOffset"]
-    #         elif label == "title:":
-    #             klass = Track
-    #             klass_label = Track.title
-    #             filler = fillTrack
-    #             count = self.params["songCount"]
-    #             off = self.params["songOffset"]
-    #         else:
-    #             raise MissingParam(f"Invalid query label: {tokens[0]}")
-
-    #         sub_query = sub_query.strip('"')
-    #         sub_query = self.globQuery(sub_query)
-    #         op = op.upper()
-
-    #         sub_res = [[], op]
-    #         results.append(sub_res)
-    #         for row in self.query(session, klass). \
-    #                        filter(klass_label.ilike(sub_query)). \
-    #                        limit(count). \
-    #                        offset(off):
-    #             tag = filler(session, row)
-    #             sub_res[0].append(tag)
-    #         else:
-    #             print("NONE FOUND")
-
-    #     print("results", results)
-    #     last_res = []
-    #     for idx, pair in enumerate(results):
-    #         res, op = pair
-    #         print("last_res", last_res, "res", res)
-    #         if op == "AND" and not (len(res) and len(last_res)):
-    #             raise NotFound()
-    #         elif op == "OR" and not (len(res) or len(last_res)):
-    #             raise NotFound()
-    #         # else ignore the trailing empty operator
-    #         last_res = res
-
-    #     # Got this far, we have a match!
-    #     return [r for res, op in results for r in res]
-
-    def handleReq(self, session):
-        query = self.params["query"]
+    def searchQueryContext(self, session, qctx):
+        print(f"Searching on qctx: {qctx}")
         ar_count = self.params["artistCount"]
         ar_off = self.params["artistOffset"]
         al_count = self.params["albumCount"]
         al_off = self.params["albumOffset"]
         tr_count = self.params["songCount"]
         tr_off = self.params["songOffset"]
+
+        artists = []
+        albums = []
+        tracks = []
+        if qctx.artist:
+            artists = self.query(session, Artist). \
+                            filter(self.globQuery(func.lower(Artist.name),
+                                                  qctx.artist)). \
+                            limit(ar_count). \
+                            offset(ar_off).all()
+            print(f"Artists: {artists}")
+            if not len(artists):
+                raise NotFound("No artist found")
+        if qctx.album:
+            q = self.query(session, Album). \
+                            filter(self.globQuery(func.lower(Album.title),
+                                                  qctx.album))
+            if len(artists):
+                q = q.filter(Album.artist_id == artists[0].id)
+            albums = q.limit(al_count).offset(al_off).all()
+            print(f"Albums: {albums}")
+            if not len(albums):
+                raise NotFound("No albums found")
+        if qctx.track:
+            q = self.query(session, Track). \
+                            filter(self.globQuery(func.lower(Track.title),
+                                                  qctx.track))
+            if len(artists):
+                q = q.filter(Track.artist_id == artists[0].id)
+            if len(albums):
+                q = q.filter(Track.album_id == albums[0].id)
+            tracks = q.limit(tr_count).offset(tr_off).all()
+            print(f"Tracks: {tracks}")
+            if not len(tracks):
+                raise NotFound("No tracks found")
+
+        if len(tracks):
+            return [fillTrack(session, t) for t in tracks]
+        elif len(albums):
+            return [fillAlbum(session, a) for a in albums]
+        if len(artists):
+            return [fillArtist(session, a) for a in artists]
+        else:
+            return []
+
+    def searchAll(self, session, query):
+        ar_count = self.params["artistCount"]
+        ar_off = self.params["artistOffset"]
+        al_count = self.params["albumCount"]
+        al_off = self.params["albumOffset"]
+        tr_count = self.params["songCount"]
+        tr_off = self.params["songOffset"]
+
+        # blast sub-string match queries
+        results = []
+        if ar_count:
+            for row in self.query(session, Artist). \
+                           filter(Artist.name.ilike("%%%s%%" % query)). \
+                           limit(ar_count). \
+                           offset(ar_off):
+                artist = fillArtist(session, row)
+                results.append(artist)
+        if al_count:
+            for row in self.query(session, Album). \
+                           filter(Album.title.ilike("%%%s%%" % query)). \
+                           limit(al_count). \
+                           offset(al_off):
+                album = fillAlbum(session, row)
+                results.append(album)
+        if tr_count:
+            for row in self.query(session, Track). \
+                           filter(Track.title.ilike("%%%s%%" % query)). \
+                           limit(tr_count). \
+                           offset(tr_off):
+                track = fillTrack(session, row)
+                results.append(track)
+        return results
+
+
+    def parsePass1(self, t, qctx, parent):
+        print("pass1 top", t)
+        t.parent = parent
+        t.qctx = qctx
+        if isinstance(t, Group):
+            # Share the qctx
+            print("pass1 Group")
+            for c in t.children:
+                print("pass1 recursing")
+                self.parsePass1(c, qctx, t)
+        elif isinstance(t, BaseOperation):
+            print("pass1 BaseOperation")
+            newctx = isinstance(t, OrOperation)
+            for c in t.children:
+                print("pass1 recursing")
+                self.parsePass1(c, QueryContext() if newctx else qctx, t)
+        elif isinstance(t, SearchField):
+            print("pass1 SearchField")
+            if t.name == "artist":
+                qctx.artist = t.expr.value.strip('"')
+            elif t.name == "album":
+                qctx.album = t.expr.value.strip('"')
+            elif t.name == "title":
+                qctx.track = t.expr.value.strip('"')
+            else:
+                raise MissingParam("Invalid search field: " + t.name)
+        elif isinstance(t, Term):
+            print("pass1 Term")
+            qctx.any = t.value.strip('"')
+
+
+    def parsePass2(self, t, session):
+        print("pass2 top")
+        results = []
+        if isinstance(t, Group):
+            print("pass2 Group")
+            for c in t.children:
+                print("pass2 recursing")
+                self.extend(results, self.parsePass2(c, session))
+            return results
+        elif isinstance(t, BaseOperation):
+            print("pass2 BaseOperation")
+            for c in t.children:
+                if isinstance(c, (Group, BaseOperation)):
+                    print("pass2 recursing under op")
+                    self.extend(results, self.parsePass2(c, session))
+            if isinstance(t, (AndOperation, UnknownOperation)):
+                print("pass2 AndOperation")
+                self.extend(results, self.searchQueryContext(session, t.qctx))
+                if None in results:
+                    return None
+                else:
+                    print(f"AndOperation returning {results}")
+                    return results
+            elif isinstance(t, OrOperation):
+                print("pass2 OrOperation")
+                for r in results:
+                    if r is not None:
+                        return [r for r in results if r]
+                else:
+                    return None
+            else:
+                raise MissingParam("Invalid operation: " + repr(t))
+        elif isinstance(t, SearchField):
+            print("pass2 SearchField")
+            return self.searchQueryContext(session, t.qctx)
+        elif isinstance(t, Term):
+            print("pass2 Term")
+            return self.searchAll(session, t.value.strip('"'))
+        else:
+            print("pass2 invalid type", type(t), t)
+            raise MissingParam(f"pass2 invalid type: {type(t)}")
+
+
+    def handleReq(self, session):
+        query = self.params["query"]
+        parsed_result = None
         result = ET.Element(self.search_param)
 
-        # Try the complex query first
         try:
-            parsed_result = self.parseComplexQuery(session, query)
+            tree = LQParser.parse(query)
+            print("*" * 40)
+            print(query)
+            print(repr(tree))
+
+            self.parsePass1(tree, QueryContext(), None)
+            parsed_result = self.parsePass2(tree, session)
             print("parsed_result", parsed_result)
         except (MissingParam, NotFound) as e:
             raise e
@@ -191,27 +271,5 @@ class Search2(Command):
             for tag in parsed_result:
                 result.append(tag)
             return self.makeResp(child=result)
-
-        # Now just blast sub-string match queries
-        if ar_count:
-            for row in self.query(session, Artist). \
-                           filter(Artist.name.ilike("%%%s%%" % query)). \
-                           limit(ar_count). \
-                           offset(ar_off):
-                artist = fillArtist(session, row)
-                result.append(artist)
-        if al_count:
-            for row in self.query(session, Album). \
-                           filter(Album.title.ilike("%%%s%%" % query)). \
-                           limit(al_count). \
-                           offset(al_off):
-                album = fillAlbum(session, row)
-                result.append(album)
-        if tr_count:
-            for row in self.query(session, Track). \
-                           filter(Track.title.ilike("%%%s%%" % query)). \
-                           limit(tr_count). \
-                           offset(tr_off):
-                track = fillTrack(session, row)
-                result.append(track)
-        return self.makeResp(child=result)
+        else:
+            raise NotFound("No results found")
