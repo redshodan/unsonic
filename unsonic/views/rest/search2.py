@@ -71,8 +71,7 @@ class Search2(Command):
         return l
 
 
-    def globQuery(self, obj, query):
-        ilike = False
+    def globQuery(self, obj, query, ilike=False):
         if query.startswith("*"):
             ilike = True
             query = f"%%{query[1:]}"
@@ -82,7 +81,7 @@ class Search2(Command):
         if ilike:
             return obj.ilike(query)
         else:
-            return obj == query.lower()
+            return obj == query
 
 
     def searchQueryContext(self, session, qctx):
@@ -100,7 +99,7 @@ class Search2(Command):
         if qctx.artist:
             artists = self.query(session, Artist). \
                             filter(self.globQuery(func.lower(Artist.name),
-                                                  qctx.artist)). \
+                                                  qctx.artist.lower())). \
                             limit(ar_count). \
                             offset(ar_off).all()
             print(f"Artists: {artists}")
@@ -109,7 +108,7 @@ class Search2(Command):
         if qctx.album:
             q = self.query(session, Album). \
                             filter(self.globQuery(func.lower(Album.title),
-                                                  qctx.album))
+                                                  qctx.album.lower()))
             if len(artists):
                 q = q.filter(Album.artist_id == artists[0].id)
             albums = q.limit(al_count).offset(al_off).all()
@@ -119,7 +118,7 @@ class Search2(Command):
         if qctx.track:
             q = self.query(session, Track). \
                             filter(self.globQuery(func.lower(Track.title),
-                                                  qctx.track))
+                                                  qctx.track.lower()))
             if len(artists):
                 q = q.filter(Track.artist_id == artists[0].id)
             if len(albums):
@@ -150,21 +149,24 @@ class Search2(Command):
         results = []
         if ar_count:
             for row in self.query(session, Artist). \
-                           filter(Artist.name.ilike("%%%s%%" % query)). \
+                           filter(self.globQuery(func.lower(Artist.name),
+                                                 query.lower(), True)). \
                            limit(ar_count). \
                            offset(ar_off):
                 artist = fillArtist(session, row)
                 results.append(artist)
         if al_count:
             for row in self.query(session, Album). \
-                           filter(Album.title.ilike("%%%s%%" % query)). \
+                           filter(self.globQuery(func.lower(Album.title),
+                                                 query.lower(), True)). \
                            limit(al_count). \
                            offset(al_off):
                 album = fillAlbum(session, row)
                 results.append(album)
         if tr_count:
             for row in self.query(session, Track). \
-                           filter(Track.title.ilike("%%%s%%" % query)). \
+                           filter(self.globQuery(func.lower(Track.title),
+                                                 query.lower(), True)). \
                            limit(tr_count). \
                            offset(tr_off):
                 track = fillTrack(session, row)
