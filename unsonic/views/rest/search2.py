@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 from luqum.parser import parser as LQParser
 from luqum.tree import (Group, BaseOperation, OrOperation, AndOperation,
                         UnknownOperation, SearchField, Term)
-from sqlalchemy import func, and_
+from sqlalchemy import func
 
 from . import (Command, registerCmd, MissingParam, NotFound, positive_t,
                fillArtist, fillAlbum, fillTrack, folder_t)
@@ -84,6 +84,15 @@ class Search2(Command):
             return obj == query
 
 
+    # DSub will sometimes send a limit of 0. Can't pass that to the DB.
+    def limitCount(self, obj, count, offset):
+        if count > 0:
+            obj = obj.limit(count)
+        if offset > 0:
+            obj = obj.offset(offset)
+        return obj
+
+
     def searchQueryContext(self, session, qctx):
         print(f"Searching on qctx: {qctx}")
         ar_count = self.params["artistCount"]
@@ -97,11 +106,10 @@ class Search2(Command):
         albums = []
         tracks = []
         if qctx.artist:
-            artists = self.query(session, Artist). \
-                            filter(self.globQuery(func.lower(Artist.name),
-                                                  qctx.artist.lower())). \
-                            limit(ar_count). \
-                            offset(ar_off).all()
+            q = self.query(session, Artist). \
+                    filter(self.globQuery(func.lower(Artist.name),
+                                          qctx.artist.lower()))
+            artists = self.limitCount(q, ar_count, ar_off).all()
             print(f"Artists: {artists}")
             if not len(artists):
                 raise NotFound("No artist found")
@@ -111,7 +119,7 @@ class Search2(Command):
                                                   qctx.album.lower()))
             if len(artists):
                 q = q.filter(Album.artist_id == artists[0].id)
-            albums = q.limit(al_count).offset(al_off).all()
+            albums = self.limitCount(q, al_count, al_off).all()
             print(f"Albums: {albums}")
             if not len(albums):
                 raise NotFound("No albums found")
@@ -123,7 +131,7 @@ class Search2(Command):
                 q = q.filter(Track.artist_id == artists[0].id)
             if len(albums):
                 q = q.filter(Track.album_id == albums[0].id)
-            tracks = q.limit(tr_count).offset(tr_off).all()
+            tracks = self.limitCount(q, tr_count, tr_off).all()
             print(f"Tracks: {tracks}")
             if not len(tracks):
                 raise NotFound("No tracks found")
