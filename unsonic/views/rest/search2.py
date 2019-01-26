@@ -96,7 +96,6 @@ class Search2(Command):
 
 
     def searchQueryContext(self, session, qctx):
-        print(f"Searching on qctx: {qctx}")
         ar_count = self.params["artistCount"]
         ar_off = self.params["artistOffset"]
         al_count = self.params["albumCount"]
@@ -113,7 +112,6 @@ class Search2(Command):
                     filter(self.globQuery(func.lower(Artist.name),
                                           qctx.artist.lower()))
             artists = self.limitCount(q, ar_count, ar_off).all()
-            print(f"Artists: {artists}")
             if not len(artists):
                 return []
         if qctx.album:
@@ -123,7 +121,6 @@ class Search2(Command):
             if len(artists):
                 q = q.filter(Album.artist_id == artists[0].id)
             albums = self.limitCount(q, al_count, al_off).all()
-            print(f"Albums: {albums}")
             if not len(albums):
                 return []
         if qctx.track:
@@ -135,7 +132,6 @@ class Search2(Command):
             if len(albums):
                 q = q.filter(Track.album_id == albums[0].id)
             tracks = self.limitCount(q, tr_count, tr_off).all()
-            print(f"Tracks: {tracks}")
             if not len(tracks):
                 return []
 
@@ -149,7 +145,6 @@ class Search2(Command):
             return []
 
     def searchAll(self, session, query):
-        print(f"searchAll() on: {query}")
         ar_count = self.params["artistCount"]
         ar_off = self.params["artistOffset"]
         al_count = self.params["albumCount"]
@@ -187,23 +182,17 @@ class Search2(Command):
 
 
     def parsePass1(self, t, qctx, parent):
-        print("pass1 top", t)
         t.parent = parent
         t.qctx = qctx
         if isinstance(t, Group):
             # Share the qctx
-            print("pass1 Group")
             for c in t.children:
-                print("pass1 recursing")
                 self.parsePass1(c, qctx, t)
         elif isinstance(t, BaseOperation):
-            print("pass1 BaseOperation")
             newctx = isinstance(t, OrOperation)
             for c in t.children:
-                print("pass1 recursing")
                 self.parsePass1(c, QueryContext() if newctx else qctx, t)
         elif isinstance(t, SearchField):
-            print("pass1 SearchField")
             if t.name == "artist":
                 qctx.artist = t.expr.value.strip('"')
             elif t.name == "album":
@@ -213,35 +202,25 @@ class Search2(Command):
             else:
                 raise MissingParam("Invalid search field: " + t.name)
         elif isinstance(t, Term):
-            print("pass1 Term")
             qctx.any = t.value.strip('"')
 
 
     def parsePass2(self, t, session):
-        print("pass2 top", repr(t))
         results = []
         if isinstance(t, Group):
-            print("pass2 Group")
             for c in t.children:
-                print("pass2 recursing")
                 self.extend(results, self.parsePass2(c, session))
             return results
         elif isinstance(t, BaseOperation):
-            print("pass2 BaseOperation", type(t))
             for c in t.children:
-                print("pass2 recursing under op")
                 self.extend(results, self.parsePass2(c, session))
-                print("pass2 done recursing under op")
             if isinstance(t, (AndOperation, UnknownOperation)):
-                print("pass2 AndOperation")
                 self.extend(results, self.searchQueryContext(session, t.qctx))
                 if None in results:
                     return None
                 else:
-                    print(f"AndOperation returning {results}")
                     return results
             elif isinstance(t, OrOperation):
-                print("pass2 OrOperation")
                 for r in results:
                     if r is not None:
                         # Positive result. Return non-None items
@@ -251,13 +230,10 @@ class Search2(Command):
             else:
                 raise MissingParam("Invalid operation: " + repr(t))
         elif isinstance(t, SearchField):
-            print("pass2 SearchField")
             return self.searchQueryContext(session, t.qctx)
         elif isinstance(t, Term):
-            print("pass2 Term")
             return self.searchAll(session, t.value.strip('"'))
         else:
-            print("pass2 invalid type", type(t), t)
             raise MissingParam(f"pass2 invalid type: {type(t)}")
 
 
@@ -268,13 +244,8 @@ class Search2(Command):
 
         try:
             tree = LQParser.parse(query)
-            print("*" * 40)
-            print(query)
-            print(repr(tree))
-
             self.parsePass1(tree, QueryContext(), None)
             parsed_result = self.parsePass2(tree, session)
-            print("parsed_result", parsed_result)
         except (MissingParam, NotFound) as e:
             raise e
         except Exception as e:
