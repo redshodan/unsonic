@@ -121,6 +121,8 @@
         <xs:attribute name="starred" type="xs:dateTime" use="optional"/> <!-- Added in 1.10.1 -->
         <xs:attribute name="userRating" type="sub:UserRating" use="optional"/>  <!-- Added in 1.13.0 -->
         <xs:attribute name="averageRating" type="sub:AverageRating" use="optional"/>  <!-- Added in 1.13.0 -->
+        <xs:attribute name="albumCount" type="xs:int" use="required"/>  <!-- Added by unsonic for parity with ArtistID3 -->
+        <xs:attribute name="coverArt" type="xs:string" use="optional"/>  <!-- Added by unsonic for parity with ArtistID3 -->
     </xs:complexType>
 
     <xs:complexType name="Genres">

@@ -10,6 +10,7 @@ from collections import OrderedDict
 from datetime import datetime
 import xml.etree.ElementTree as ET
 import pylast
+from sqlalchemy import func
 
 from pyramid.security import Allow, Authenticated, DENY_ALL
 
@@ -523,6 +524,9 @@ def fillArtist(session, rows, name="artist"):
     artist = ET.Element(name)
     artist.set("id", fillID(rows[0]))
     artist.set("name", rows[0].name)
+    count = session.query(func.count(Album.artist_id)). \
+                filter(Album.artist_id == rows[0].id).one_or_none()
+    artist.set("albumCount", str(count[0]))
     fillCoverArt(session, rows, artist)
     return artist
 
@@ -545,7 +549,9 @@ def fillAlbum(session, row, name="album"):
     assert isinstance(row, Album)
     album = ET.Element(name)
     album.set("id", fillID(row))
-    album.set("album", row.title)
+    # FIXME: Dont know why I had this here, but it violates the XSD in
+    #        search results. Maybe a client needs it?
+    # album.set("album", row.title)
     album.set("title", row.title)
     album.set("isDir", "true")
     if row.artist:
