@@ -51,8 +51,10 @@ class Search2(Command):
         self.setParams()
 
 
-    def setParams(self, search_param="searchResult2"):
+    def setParams(self, search_param="searchResult2",
+                  fill_album=fillAlbum):
         self.search_param = search_param
+        self.fill_album = fill_album
 
 
     def query(self, session, klass):
@@ -139,7 +141,7 @@ class Search2(Command):
         if len(tracks):
             return [fillTrack(session, t) for t in tracks]
         elif len(albums):
-            return [fillAlbum(session, a) for a in albums]
+            return [self.fill_album(session, a) for a in albums]
         if len(artists):
             return [fillArtist(session, a) for a in artists]
         else:
@@ -169,7 +171,7 @@ class Search2(Command):
                                                  query.lower(), True)). \
                            limit(al_count). \
                            offset(al_off):
-                album = fillAlbum(session, row)
+                album = self.fill_album(session, row)
                 results.append(album)
         if tr_count:
             for row in self.query(session, Track). \
@@ -204,7 +206,7 @@ class Search2(Command):
                 qctx.artist = t.expr.value.strip('"')
             elif t.name == "album":
                 qctx.album = t.expr.value.strip('"')
-            elif t.name == "title":
+            elif t.name == "title" or t.name == "track":
                 qctx.track = t.expr.value.strip('"')
             else:
                 raise MissingParam("Invalid search field: " + t.name)

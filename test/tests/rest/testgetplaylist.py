@@ -32,7 +32,7 @@ def testGetPlayList(session):
         assert entry.get("title")
         assert entry.get("transcodedContentType")
         assert entry.get("transcodedSuffix")
-        assert entry.get("year")
+        # assert entry.get("year")
 
 
 def testGetPlayListEmpty(session):

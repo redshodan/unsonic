@@ -5,6 +5,7 @@ from webob.multidict import MultiDict, NestedMultiDict
 from pyramid import testing
 
 from unsonic import models
+from unsonic.models import Artist, Album, Track
 
 
 def buildCmd(session, klass, params={}, username="test"):
@@ -52,3 +53,30 @@ def checkResp(req, resp, ok=True, ok504=False):
         assert error.get("code") == ok[0], resp.body
 
     return sub_resp
+
+
+def getRows(session, artist=None, album=None, track=None):
+    ar_row = None
+    al_row = None
+    tr_row = None
+
+    # Least to most dependent
+    if artist:
+        ar_row = session.query(Artist).\
+            filter(Artist.name == artist).all()
+    if album:
+        q = session.query(Album).\
+            filter(Album.title == album)
+        if ar_row:
+            q = q.filter(Album.artist_id == ar_row[0].id)
+        al_row = q.all()
+    if track:
+        q = session.query(Track).\
+            filter(Track.title == track)
+        if ar_row:
+            q = q.filter(Track.artist_id == ar_row[0].id)
+        if al_row:
+            q = q.filter(Track.album_id == al_row[0].id)
+        tr_row = q.all()
+
+    return ar_row, al_row, tr_row
