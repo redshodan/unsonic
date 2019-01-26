@@ -12,18 +12,43 @@ def search(request):
 
 @pytest.fixture(
     scope="function",
-    params=[{"query": 'artist:"artist 1"', "tagname": "artist",
-             "artist": "artist 1"},
-            {"query": 'album:"album 1"', "tagname": "album", "album": "album 1"},
-            {"query": 'title:"song 1"', "tagname": "song", "track": "song 1"},
-            {"query": 'artist:"artist 2" AND album:"album 2"',
-             "tagname": "album", "artist": "artist 2", "album": "album 2"},
-            {"query": 'artist:"artist 2" AND album:"album 2" AND title:"song 3"',
-             "tagname": "song", "artist": "artist 2", "album": "album 2",
-             "track": "song 3"},
-            {"query": 'artist:"artist 1" AND album:"album 1" AND track:"song 3"',
-             "tagname": "song", "artist": "artist 1", "album": "album 1",
-             "track": "song 3"},
+    # Passed as kwargs to check()
+    params=[
+        {"query": 'artist:"artist 1"', "tagname": "artist",
+         "artist": "artist 1"},
+        {"query": 'album:"album 1"', "tagname": "album", "album": "album 1"},
+        {"query": 'title:"song 1"', "tagname": "song", "track": "song 1"},
+        {"query": 'artist:"artist 2" AND album:"album 2"',
+         "tagname": "album", "artist": "artist 2", "album": "album 2"},
+        {"query": 'artist:"artist 2" AND album:"album 2" AND title:"song 3"',
+         "tagname": "song", "artist": "artist 2", "album": "album 2",
+         "track": "song 3"},
+        {"query": 'artist:"artist 1" AND album:"album 1" AND track:"song 3"',
+         "tagname": "song", "artist": "artist 1", "album": "album 1",
+         "track": "song 3"},
+        {"query":
+         'artist:"artist 404" AND track:"song 3" OR ' +
+         'artist:"Artist 1" AND track:"song 3"',
+         "tagname": "song", "artist": "artist 1", "album": "album 1",
+         "track": "song 3"},
+        {"query":
+         '(artist:"artist 404" AND track:"song 3") OR ' +
+         '(artist:"Artist 1" AND track:"song 3")',
+         "tagname": "song", "artist": "artist 1", "album": "album 1",
+         "track": "song 3"},
+
+        # FIXME: Teach check() to handle/check multiple results
+        # {"query":
+        #  '(artist:"artist 404" AND track:"song 3") OR title:"song 3"',
+        #  "tagname": "song", "artist": "artist 1", "album": "album 1",
+        #  "track": "song 3"},
+        # {"query": '"song 3"',
+        #  "tagname": "song", "artist": "artist 1", "album": "album 1",
+        #  "track": "song 3"},
+        # {"query":
+        #  '(artist:"artist 404" AND track:"song 3") OR "song 3"',
+        #  "tagname": "song", "artist": "artist 1", "album": "album 1",
+        #  "track": "song 3"},
     ])
 def query(request):
     yield request.param

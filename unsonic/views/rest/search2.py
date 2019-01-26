@@ -104,6 +104,7 @@ class Search2(Command):
         tr_count = self.params["songCount"]
         tr_off = self.params["songOffset"]
 
+        # Each term adds to the query for the next term
         artists = []
         albums = []
         tracks = []
@@ -114,7 +115,7 @@ class Search2(Command):
             artists = self.limitCount(q, ar_count, ar_off).all()
             print(f"Artists: {artists}")
             if not len(artists):
-                raise NotFound("No artist found")
+                return []
         if qctx.album:
             q = self.query(session, Album). \
                             filter(self.globQuery(func.lower(Album.title),
@@ -124,7 +125,7 @@ class Search2(Command):
             albums = self.limitCount(q, al_count, al_off).all()
             print(f"Albums: {albums}")
             if not len(albums):
-                raise NotFound("No albums found")
+                return []
         if qctx.track:
             q = self.query(session, Track). \
                             filter(self.globQuery(func.lower(Track.title),
@@ -136,7 +137,7 @@ class Search2(Command):
             tracks = self.limitCount(q, tr_count, tr_off).all()
             print(f"Tracks: {tracks}")
             if not len(tracks):
-                raise NotFound("No tracks found")
+                return []
 
         if len(tracks):
             return [fillTrack(session, t) for t in tracks]
@@ -148,6 +149,7 @@ class Search2(Command):
             return []
 
     def searchAll(self, session, query):
+        print(f"searchAll() on: {query}")
         ar_count = self.params["artistCount"]
         ar_off = self.params["artistOffset"]
         al_count = self.params["albumCount"]
@@ -216,7 +218,7 @@ class Search2(Command):
 
 
     def parsePass2(self, t, session):
-        print("pass2 top")
+        print("pass2 top", repr(t))
         results = []
         if isinstance(t, Group):
             print("pass2 Group")
@@ -225,11 +227,11 @@ class Search2(Command):
                 self.extend(results, self.parsePass2(c, session))
             return results
         elif isinstance(t, BaseOperation):
-            print("pass2 BaseOperation")
+            print("pass2 BaseOperation", type(t))
             for c in t.children:
-                if isinstance(c, (Group, BaseOperation)):
-                    print("pass2 recursing under op")
-                    self.extend(results, self.parsePass2(c, session))
+                print("pass2 recursing under op")
+                self.extend(results, self.parsePass2(c, session))
+                print("pass2 done recursing under op")
             if isinstance(t, (AndOperation, UnknownOperation)):
                 print("pass2 AndOperation")
                 self.extend(results, self.searchQueryContext(session, t.qctx))
@@ -242,6 +244,7 @@ class Search2(Command):
                 print("pass2 OrOperation")
                 for r in results:
                     if r is not None:
+                        # Positive result. Return non-None items
                         return [r for r in results if r]
                 else:
                     return None
