@@ -123,6 +123,7 @@
         <xs:attribute name="averageRating" type="sub:AverageRating" use="optional"/>  <!-- Added in 1.13.0 -->
         <xs:attribute name="albumCount" type="xs:int" use="required"/>  <!-- Added by unsonic for parity with ArtistID3 -->
         <xs:attribute name="coverArt" type="xs:string" use="optional"/>  <!-- Added by unsonic for parity with ArtistID3 -->
+        <xs:attribute name="parent" type="xs:string" use="optional"/>  <!-- Missing. Added by unsonic -->
     </xs:complexType>
 
     <xs:complexType name="Genres">
@@ -159,6 +160,7 @@
         <xs:attribute name="coverArt" type="xs:string" use="optional"/>
         <xs:attribute name="albumCount" type="xs:int" use="required"/>
         <xs:attribute name="starred" type="xs:dateTime" use="optional"/>
+        <xs:attribute name="parent" type="xs:string" use="optional"/>  <!-- Missing. Added by unsonic -->
     </xs:complexType>
 
     <xs:complexType name="ArtistWithAlbumsID3">

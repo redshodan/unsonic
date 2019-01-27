@@ -524,6 +524,7 @@ def fillArtist(session, rows, name="artist"):
     artist = ET.Element(name)
     artist.set("id", fillID(rows[0]))
     artist.set("name", rows[0].name)
+    artist.set("parent", "fl-%d" % rows[0].lib_id)
     count = session.query(func.count(Album.artist_id)). \
                 filter(Album.artist_id == rows[0].id).one_or_none()
     artist.set("albumCount", str(count[0]))
