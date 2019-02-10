@@ -38,6 +38,9 @@ def search(request):
          "track": "song 3"},
 
         # FIXME: Teach check() to handle/check multiple results
+        # {"query": 'artist:"artist 1" AND song 3',
+        #  "tagname": "song", "artist": "artist 1", "album": "album 1",
+        #  "track": "song 3"},
         # {"query":
         #  '(artist:"artist 404" AND track:"song 3") OR title:"song 3"',
         #  "tagname": "song", "artist": "artist 1", "album": "album 1",

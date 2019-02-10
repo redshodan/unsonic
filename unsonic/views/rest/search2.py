@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 from luqum.parser import parser as LQParser
 from luqum.tree import (Group, BaseOperation, OrOperation, AndOperation,
-                        UnknownOperation, SearchField, Term)
+                        UnknownOperation, SearchField, Term, Phrase, Word)
 from sqlalchemy import func
 
 from . import (Command, registerCmd, MissingParam, NotFound, positive_t,
@@ -13,9 +13,9 @@ from ...log import log
 # This is reverse engineered from what dsub will send for queries.
 # Rules:
 # - All ops have a QueryContext
-# - Group and AndOperation shares QueryContext
+# - Group, UnknownOperation and AndOperation share QueryContext
 # - OrOperation have new QueryContext for each operand
-#
+# - UnknownOperation is the same as AndOperation
 
 
 class QueryContext():
@@ -184,11 +184,24 @@ class Search2(Command):
     def parsePass1(self, t, qctx, parent):
         t.parent = parent
         t.qctx = qctx
+        # Walk the tree
         if isinstance(t, Group):
             # Share the qctx
             for c in t.children:
                 self.parsePass1(c, qctx, t)
         elif isinstance(t, BaseOperation):
+            # collapse multiple sibling Word's into one Phrase,
+            # but only multiple Word's, not a mix
+            if isinstance(t, UnknownOperation):
+                words = []
+                for c in t.children:
+                    if isinstance(c, Word):
+                        words.append(c)
+                    else:
+                        break
+                else:
+                    w = " ".join([w.value for w in words])
+                    t.operands = [Phrase(f'"{w}"')]
             newctx = isinstance(t, OrOperation)
             for c in t.children:
                 self.parsePass1(c, QueryContext() if newctx else qctx, t)
@@ -254,8 +267,20 @@ class Search2(Command):
             raise MissingParam("Invalid search query")
 
         if parsed_result is not None:
+            # Sort into artist/album/song order and dedup
+            artists = {}
+            albums = {}
+            songs = {}
             for tag in parsed_result:
-                result.append(tag)
+                if tag.tag == "artist":
+                    artists[tag.get("id")] = tag
+                elif tag.tag == "album":
+                    albums[tag.get("id")] = tag
+                else:
+                    songs[tag.get("id")] = tag
+            result.extend(artists.values())
+            result.extend(albums.values())
+            result.extend(songs.values())
             return self.makeResp(child=result)
         else:
             raise NotFound("No results found")
