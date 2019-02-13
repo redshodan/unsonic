@@ -81,6 +81,8 @@ class Search2(Command):
             ilike = True
             query = f"{query[:-1]}%%"
         if ilike:
+            if (not query.startswith("%%") and not query.endswith("%%")):
+                query = f"%%{query}%%"
             return obj.ilike(query)
         else:
             return obj == query
