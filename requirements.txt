@@ -15,3 +15,4 @@ pylast==2.3.0
 shortuuid==0.5.0
 lyricwikia==0.1.9
 luqum==0.7.5
+gunicorn

@@ -71,10 +71,10 @@ $(VENV)/development.sqlite: bin/unsonic
 	bin/unsonic -c unsonic/etc/development.ini adduser test test
 
 run: $(VENV)/production.sqlite
-	bin/unsonic -c unsonic/etc/production.ini serve -- --reload
+	bin/unsonic -c unsonic/etc/production.ini serve
 
 devel-run: $(VENV)/development.sqlite
-	bin/unsonic -c unsonic/etc/development.ini serve -- --reload
+	bin/unsonic -c unsonic/etc/development.ini serve
 
 # Ignore future warning for flake8 itself
 check: $(FLAKE8)

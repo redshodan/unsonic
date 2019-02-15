@@ -32,3 +32,4 @@ from .password import Password
 from .serve import Serve
 from .man import Man
 from .install import Install
+from .client import Client
