@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
+import os
 from hashlib import md5
+import tempfile
 import argparse
 from urllib import request
 from urllib.error import URLError
-from urllib.parse import urlencode, quote_plus
-import ssl
 from lxml import etree
 from lxml.etree import XMLSyntaxError
 
@@ -62,30 +62,20 @@ def main():
     h.update(password.encode("utf-8"))
     h.update(salt.encode("utf-8"))
 
-    params = {a.split("=")[0]: a.split("=")[1] for a in args.params}
-    urlparms = urlencode(params, quote_via=quote_plus)
-    if len(urlparms):
-        urlparms = "&" + urlparms
-
     auth = f"u={user}&t={h.hexdigest()}&s={salt}"
     url = (f"{scheme}://{args.host}:{args.port}/" +
            f"{args.root}/{args.endpoint}?{auth}" +
-           f"&v=1.14.0&c=12345{urlparms}")
+           f"&{'&'.join(args.params)}")
 
     print(f"--> {url}")
 
     xsd = open("test/xsd/unsonic-subsonic-api.xsd").read().encode("utf-8")
     schema_root = etree.XML(xsd)
     schema = etree.XMLSchema(schema_root)
-    parser = etree.XMLParser(schema=schema)
+    parser = etree.XMLParser(schema = schema)
 
     try:
-        ctx = None
-        if args.tls:
-            ctx = ssl.create_default_context()
-            ctx.check_hostname = False
-            ctx.verify_mode = ssl.CERT_NONE
-        resp = request.urlopen(url, context=ctx)
+        resp = request.urlopen(url)
         data = resp.read()
         root = etree.fromstring(data, parser)
         print(f"<-- {etree.tostring(root, pretty_print=True).decode('utf-8')}")
