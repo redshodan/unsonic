@@ -28,11 +28,11 @@ search: True
 requirements:
   - requirements.txt:
       # update all dependencies and pin them
-      update: insecure
+      update: all
       pin: True
   - requirements-test.txt:
       # don't update dependencies, use global 'pin' default
-      update: insecure
+      update: all
       pin: True
 
 # add a label to pull requests, default is not set
