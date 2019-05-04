@@ -3,15 +3,13 @@ Unsonic, the un-Subsonic music server.
 Status
 ======
 
-## PyPi
-
+PyPi 
 [![Latest Version](https://img.shields.io/pypi/v/unsonic.svg)](https://pypi.python.org/pypi/unsonic/)
 [![Project Status](https://img.shields.io/pypi/status/unsonic.svg)](https://pypi.python.org/pypi/unsonic/)
 [![License](https://img.shields.io/pypi/l/unsonic.svg)](https://pypi.python.org/pypi/unsonic/)
 [![Supported Python Versions](https://img.shields.io/pypi/pyversions/unsonic.svg)](https://pypi.python.org/pypi/unsonic/)
 
-## Builds
-
+Builds
 [![Build Status](https://travis-ci.org/redshodan/unsonic.svg?branch=master)](https://travis-ci.org/redshodan/unsonic)
 [![Coverage Status](https://coveralls.io/repos/github/redshodan/unsonic/badge.svg?branch=master)](https://coveralls.io/github/redshodan/unsonic?branch=master)
 [![Updates](https://pyup.io/repos/github/redshodan/unsonic/shield.svg)](https://pyup.io/repos/github/redshodan/unsonic/)
@@ -19,9 +17,11 @@ Status
 
 About
 =====
-Unsonic is a free drop in replacement for the Subsonic music server. It follows
-the Subsonic API and is usable with existing Subsonic clients without requiring
-any adjustment to them.
+Unsonic is a free drop in replacement for the 
+[Subsonic](http://www.subsonic.org "Subsonic") music server. It follows the
+[Subsonic API](http://www.subsonic.org/pages/api.jsp "Subsonic API") and is usable with
+existing [Subsonic clients](http://www.subsonic.org/pages/apps.jsp "Subsonic Clients")
+without requiring any adjustment to them.
 
 Unsonic strives to be better at handling music files tags, playing of those
 songs and use less system resources.
