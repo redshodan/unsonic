@@ -27,7 +27,7 @@ install:
 
 # command to run tests
 script:
-  coverage run --source=unsonic setup.py test
+  make coverage
 
 after_success:
   coveralls
