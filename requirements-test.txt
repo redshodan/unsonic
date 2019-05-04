@@ -4,5 +4,8 @@ WebTest==2.0.30
 pytest==3.6.3
 pytest-cov==2.5.1
 pytest-runner==4.2
-pytest-postgres==0.5.0
+# Manually installed to avoid pyscopg2 dep
+#pytest-postgres==0.5.0
+# pytest-postgres dep
+docker==2.5.1
 lxml

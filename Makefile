@@ -83,17 +83,17 @@ check: $(FLAKE8)
 TEST_POSTGRES_OPTS=--pg-image postgres:9.6-alpine
 tests: pytest tests-clean
 ifdef FTF
-	PYTEST_ADDOPTS="${TEST_POSTGRES_OPTS}" $(PYTHON) setup.py test --addopts "-k $(FTF)"
+	PYTEST_PLUGINS=pytest_postgres.plugin PYTEST_ADDOPTS="${TEST_POSTGRES_OPTS}" $(PYTHON) setup.py test --addopts "-k $(FTF)"
 else
-	PYTEST_ADDOPTS="${TEST_POSTGRES_OPTS}" $(PYTHON) setup.py test
+	PYTEST_PLUGINS=pytest_postgres.plugin PYTEST_ADDOPTS="${TEST_POSTGRES_OPTS}" $(PYTHON) setup.py test
 endif
 	rm -rf unsonic.egg-info
 
 coverage: pytest tests-clean
 ifdef FTF
-	PYTEST_ADDOPTS="${TEST_POSTGRES_OPTS}" $(VBIN)/coverage run --source=unsonic setup.py test --addopts "-k $(FTF)"
+	PYTEST_PLUGINS=pytest_postgres.plugin PYTEST_ADDOPTS="${TEST_POSTGRES_OPTS}" $(VBIN)/coverage run --source=unsonic setup.py test --addopts "-k $(FTF)"
 else
-	PYTEST_ADDOPTS="${TEST_POSTGRES_OPTS}" $(VBIN)/coverage run --source=unsonic setup.py test
+	PYTEST_PLUGINS=pytest_postgres.plugin PYTEST_ADDOPTS="${TEST_POSTGRES_OPTS}" $(VBIN)/coverage run --source=unsonic setup.py test
 endif
 	rm -rf unsonic.egg-info
 
@@ -106,9 +106,11 @@ coverage-clean:
 pytest: $(PYTEST)
 $(PYTEST): requirements-test.txt
 	$(PIP) install -r requirements-test.txt
+	$(PIP) install --no-deps pytest-postgres==0.6.0
 
 $(FLAKE8): requirements-test.txt
 	$(PIP) install -r requirements-test.txt
+	$(PIP) install --no-deps pytest-postgres==0.6.0
 
 docs:
 	make -C docs man html
