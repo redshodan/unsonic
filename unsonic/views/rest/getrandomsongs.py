@@ -45,8 +45,8 @@ class GetRandomSongs(Command):
                     order_by(dbfunc.random()).limit(self.params["size"]))
         elif fy and ty:
             rows = (self.query(session).
-                    join(Album).filter(Album.release_date >= fy and
-                                       Album.release_date <= ty).
+                    join(Album).filter(and_(Album.release_date >= fy,
+                                            Album.release_date <= ty)).
                     order_by(dbfunc.random()).limit(self.params["size"]))
         elif fy:
             rows = (self.query(session).
