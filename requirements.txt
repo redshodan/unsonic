@@ -8,7 +8,7 @@ pastedeploy>=2.0
 paste>=2.0
 psycopg2-binary==2.7.5
 xmltodict==0.11.0
-mishmash[postgres]==0.3b12
+mishmash[postgres]==0.3b14
 sphinx==1.7.6
 recommonmark==0.4.0
 pylast==2.3.0
