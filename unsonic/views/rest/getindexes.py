@@ -15,7 +15,6 @@ class GetIndexes(Command):
         }
     dbsess = True
 
-
     def handleReq(self, session):
         indexes = ET.Element("indexes")
         index_group = None
@@ -23,13 +22,15 @@ class GetIndexes(Command):
 
         # Return empty response if sync is older
         if (self.params["ifModifiedSince"] and
-                (self.params["ifModifiedSince"] >=
+                (row.last_sync and
+                 self.params["ifModifiedSince"] >=
                  datetime.utcfromtimestamp(row.last_sync.timestamp()))):
             return self.makeResp()
 
         # TODO: Use libraries.last_sync once its done in mishmash
-        indexes.set("lastModified",
-                    str(int(row.last_sync.timestamp() * 1000)))
+        if row.last_sync:
+            indexes.set("lastModified",
+                        str(int(row.last_sync.timestamp() * 1000)))
         indexes.set("ignoredArticles", " ".join(DEFAULT_IGNORED_ARTICLES))
 
         q = session.query(Artist)
