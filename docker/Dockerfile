@@ -1,4 +1,4 @@
-FROM python:3.6-alpine3.7
+FROM python:3.8-alpine
 LABEL Author="Ben Schumacher <me@benschumacher.com>"
 
 ENV HOME=/home/unsonic \
@@ -26,15 +26,20 @@ RUN set -ex; \
           xz
 
 # Install ffmpeg
+ARG FFMPEG
 ARG FFMPEG_CHANNEL=release
-ARG FFMPEG_URL=https://johnvansickle.com/ffmpeg/releases/ffmpeg-$FFMPEG_CHANNEL-64bit-static.tar.xz
-ARG FFMPEG_MD5=93e5c1a01bd4df99ecedaea6537765d2
-RUN set -ex; \
+ARG FFMPEG_FILE=ffmpeg-$FFMPEG_CHANNEL-amd64-static.tar.xz
+ARG FFMPEG_URL=https://johnvansickle.com/ffmpeg/releases/$FFMPEG_FILE
+ARG FFMPEG_MD5_URL=https://johnvansickle.com/ffmpeg/releases/$FFMPEG_FILE.md5
+RUN if test -n "${FFMPEG}" ; then \
+       set -ex; \
        cd /usr/src \
-    && curl -fSL -o ffmpeg.tar.xz "$FFMPEG_URL" \
-    && echo "$FFMPEG_MD5  ffmpeg.tar.xz" | md5sum -c \
-    && tar -xf ffmpeg.tar.xz  -C /usr/local/bin --strip=1 --no-anchored ffmpeg \
-    && rm -f /usr/src/ffmpeg.tar.xz
+    && curl -fSL -o $FFMPEG_FILE "$FFMPEG_URL" \
+    && curl -fSL -o $FFMPEG_FILE.md5 "$FFMPEG_MD5_URL" \
+    && cat $FFMPEG_FILE.md5 | md5sum -c \
+    && tar -xf $FFMPEG_FILE -C /usr/local/bin --strip=1 --no-anchored ffmpeg \
+    && rm -f /usr/src/$FFMPEG_FILE; \
+    fi
 
 # Install Jamstash
 ARG JAMSTASH_URL=https://github.com/tsquillario/Jamstash/archive/master.tar.gz

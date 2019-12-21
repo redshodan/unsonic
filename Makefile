@@ -146,24 +146,25 @@ dist-clean: clean
 tests-clean:
 	rm -f $(VENV)/testing.sqlite $(VENV)/testing.sqlite.org
 
-DOCKER_COMPOSE := docker-compose -f docker/docker-compose.yml
+DOCKER_PROJECT := unsonic
+DOCKER_COMPOSE := docker-compose -p $(DOCKER_PROJECT) -f docker/docker-compose.yml
 image:
-	@$(DOCKER_COMPOSE) build
+	$(DOCKER_COMPOSE) build --build-arg FFMPEG=${FFMPEG}
 
 docker: image
-	@test -n "${MUSIC_DIR}" || (echo "MUSIC_DIR volume directy required" && false)
-	@$(DOCKER_COMPOSE) create --no-recreate
+	test -n "${MUSIC_DIR}" || (echo "MUSIC_DIR volume directory required. Please the MUSIC_DIR environment variable." && false)
+	$(DOCKER_COMPOSE) up --no-start --no-recreate
 
 docker-sqlite: docker
 	$(DOCKER_COMPOSE) up unsonic-sqlite
 
 docker-postgres: docker
-	@$(DOCKER_COMPOSE) up -d postgres
-	@sleep 3
-	@$(DOCKER_COMPOSE) up unsonic-postgres
+	$(DOCKER_COMPOSE) up -d postgres
+	sleep 3
+	$(DOCKER_COMPOSE) up unsonic-postgres
 
 docker-clean:
-	-for cont in PostgreSql Unsonic-sqlite Unsonic-postgres; do \
+	-for cont in PostgreSql-unsonic Unsonic-sqlite Unsonic-postgres; do \
         docker stop $$cont;\
         docker rm $$cont;\
     done

@@ -1,11 +1,11 @@
-version: "2"
+version: "3"
 
 services:
 
     unsonic:
         build:
-            context: .
-            dockerfile: Dockerfile
+            context: ..
+            dockerfile: docker/Dockerfile
         image: unsonic
 
     postgres:
@@ -28,7 +28,7 @@ services:
         environment:
             MISHMASH_DBURL: sqlite:////unsonic/var/music-dev.db
         ports:
-            - 16543:6543
+            - 6543:6543
 
     unsonic-postgres:
         <<: *unsonic-container
@@ -39,6 +39,6 @@ services:
         links:
             - postgres:postgres
         ports:
-            - 26543:6543
+            - 6543:6543
         depends_on:
             - postgres
